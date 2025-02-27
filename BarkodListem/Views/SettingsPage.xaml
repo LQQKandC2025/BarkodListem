@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BarkodListem.Views.SettingsPage"
+             Title="Ayarlar">
+
+	<VerticalStackLayout Padding="20">
+
+		<Label Text="Web Servis Adresi:"/>
+		<Entry x:Name="entryUrl" Placeholder="http://example.com"/>
+
+		<Label Text="Port:"/>
+		<Entry x:Name="entryPort" Placeholder="8080" Keyboard="Numeric"/>
+
+		<Label Text="Kullanıcı Adı:"/>
+		<Entry x:Name="entryUser" Placeholder="admin"/>
+
+		<Label Text="Şifre:"/>
+		<Entry x:Name="entryPassword" Placeholder="******" IsPassword="True"/>
+
+		<Button Text="Kaydet" Clicked="Kaydet_Clicked" BackgroundColor="Green" TextColor="White"/>
+		
+		<Label Text="Tema Seçimi:"/>
+		<Picker x:Name="themePicker" SelectedIndexChanged="ThemePicker_SelectedIndexChanged">
+			<Picker.Items>
+				<x:String>Açık</x:String>
+				<x:String>Karanlık</x:String>
+			</Picker.Items>
+		</Picker>
+	</VerticalStackLayout>
+
+</ContentPage>

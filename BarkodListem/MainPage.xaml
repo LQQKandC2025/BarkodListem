@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:BarkodListem.Models"
+             x:Class="BarkodListem.MainPage"
+            
+             Title="Barkod Listem">
+
+    <VerticalStackLayout Padding="20">
+
+        <!-- Başlık -->
+        <Label Text="{Binding AktifListeAdi}" 
+       FontSize="20" 
+       TextColor="Blue" 
+       HorizontalOptions="Center">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="ListeAdiniDegistir_Tapped"/>
+            </Label.GestureRecognizers>
+        </Label>
+
+        <!-- Elle barkod girme kutusu -->
+        <Entry x:Name="barkodEntry"
+               Placeholder="Barkodu elle gir..."
+               FontSize="18" 
+               ReturnType="Done"
+               Completed="BarkodEntry_Completed"/>
+        <!-- 2 sütun x 3 satırlık Grid ile 5 buton -->
+        <Grid ColumnDefinitions="*,*"
+              RowDefinitions="Auto,Auto,Auto,Auto"
+              Margin="0,10,0,10"
+              RowSpacing="1"
+              ColumnSpacing="1"
+              BackgroundColor="LightGray">
+
+            <!-- 1. satır, 2 sütun -->
+            <Button Text="BARKOD OKUT"
+                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    Clicked="QRKodTara_Clicked"
+                    BackgroundColor="DodgerBlue"
+                    TextColor="White"
+                    CornerRadius="0" />
+
+            <Button Text="BARKOD KAYDET"
+                    Grid.Row="1" Grid.Column="0"
+                    Clicked="BarkodEntry_Completed"
+                    BackgroundColor="Green"
+                    TextColor="White"
+                    CornerRadius="0" />
+
+            <Button Text="LİSTEYİ GÖNDER"
+                    Grid.Row="1" Grid.Column="1"
+                    Clicked="ListeyiGonder_Clicked"
+                    BackgroundColor="Orange"
+                    TextColor="White"
+                    CornerRadius="0" />
+
+            <Button Text="LİSTEYİ TEMİZLE"
+                    Grid.Row="2" Grid.Column="0"
+                    Clicked="ClearListButton_Clicked"
+                    BackgroundColor="Crimson"
+                    TextColor="White"
+                    CornerRadius="0" />
+
+
+            <Button Text="AYARLAR"
+                    Grid.Row="2" Grid.Column="1"
+                    Clicked="Ayarlar_Clicked"
+                    BackgroundColor="Gray"
+                    TextColor="White"
+                    CornerRadius="0" />
+
+            <Button Text="LİSTELER"
+                    Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                    Clicked="Listeler_Clicked"
+                    BackgroundColor="Blue"
+                    TextColor="White"
+                    CornerRadius="0" />
+
+
+
+            <!-- 3. satır, 2 sütunu birleştirip tek buton yapıyoruz -->
+
+        </Grid>
+        <ScrollView>
+            <!-- Okunan/eklenen barkodların listesi -->
+            <CollectionView x:Name="barkodListesi"
+                ItemsSource="{Binding Barkodlar}"
+                Margin="0,10,0,0"
+                HeightRequest="400">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="10"
+                    BackgroundColor="LightGray"
+                    Margin="5">
+                            <Grid ColumnDefinitions="*, Auto,Auto">
+                                <Label Text="{Binding Barkod}"
+                           FontSize="16"
+                           VerticalOptions="Center"
+                           Grid.Column="0" />
+
+                                <Button Text="Sil"
+                            FontSize="14"
+                            BackgroundColor="Red"
+                            TextColor="White"
+                            CornerRadius="0"
+                            Clicked="BarkodSilCommand"
+                            CommandParameter="{Binding}"
+                            Grid.Column="1" />
+                                <Button Text="Listeyi Değiştir"
+                            FontSize="18"
+                            Clicked="ListeyiDegistir_Clicked"
+                            BackgroundColor="Gray"
+                            TextColor="White"
+                            CornerRadius="0"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+
+    </VerticalStackLayout>
+
+</ContentPage>
