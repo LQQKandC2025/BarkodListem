@@ -21,14 +21,14 @@ namespace BarkodListem
         public static MainPage Instance { get; private set; } 
         public readonly BarkodListViewModel _viewModel;
         private readonly WebService _webService;
-
-        public MainPage(BarkodListViewModel viewModel,WebService webService)
+        private readonly DatabaseService _databaseService;
+        public MainPage(BarkodListViewModel viewModel,WebService webService, DatabaseService databaseService)
         {
             InitializeComponent();
             BindingContext = _viewModel = viewModel;
-           _webService=webService;
+            _webService=webService;
             Instance = this;
-           
+            _databaseService=databaseService;
         }
         protected override async void OnAppearing()
         {
@@ -175,7 +175,7 @@ namespace BarkodListem
         }
         private async void Ayarlar_Clicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new SettingsPage());
+            await Navigation.PushAsync(new SettingsPage(_databaseService));
         }
 
         private async void ClearListButton_Clicked(object sender, EventArgs e)

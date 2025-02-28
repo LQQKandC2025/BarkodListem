@@ -12,17 +12,24 @@ namespace BarkodListem.Data
         
         public DatabaseService(string dbPath)
         {
+             _database = new SQLiteAsyncConnection(dbPath);
             // 📌 Eski tabloyu tamamen kaldır ve yeni bir tane oluştur
-            //_database.DropTableAsync<BarkodModel>().Wait();  // ❌ Mevcut tabloyu sil
-            //_database.CreateTableAsync<BarkodModel>().Wait();  // ✅ Yeni tablo oluştur
+           // _database.DropTableAsync<BarkodModel>().Wait();  // ❌ Mevcut tabloyu sil
+                                                             //_database.CreateTableAsync<BarkodModel>().Wait();  // ✅ Yeni tablo oluştur
+            //_database.DropTableAsync<ListeModel>().Wait();
+           // _database.DropTableAsync<AyarlarModel>().Wait();
+
+         
+            _database.CreateTableAsync<BarkodModel>().Wait();
+       //     _database.CreateTableAsync<ListeModel>().Wait();
+            _database.CreateTableAsync<AyarlarModel>().Wait(); //
 
 
-            _database = new SQLiteAsyncConnection(dbPath);
-            _database.CreateTableAsync<BarkodModel>().Wait(); // ← Bu satırı aktif hale getirin!
-            //_database.CreateTableAsync<BarkodModel>().Wait();
 
-
-
+        }
+        public async Task AyarKaydet(AyarlarModel ayar)
+        {
+            await _database.InsertOrReplaceAsync(ayar);
         }
         public async Task<AyarlarModel> AyarlarGetir()
         {

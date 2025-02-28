@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BarkodListem.Data;
+using BarkodListem.Services;
 using Microsoft.Maui.Storage;
 
 namespace BarkodListem.Helpers
 {
-    
 
     public static class SettingsHelper
     {

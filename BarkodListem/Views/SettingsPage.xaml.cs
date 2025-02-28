@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BarkodListem.Views;
+﻿
 using BarkodListem.Helpers;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;
 
+using BarkodListem.Models;
+using BarkodListem.Data;
 
 namespace BarkodListem.Views
 {
     public partial class SettingsPage : ContentPage
     {
-        public SettingsPage()
+        private readonly DatabaseService _databaseService;
+        public SettingsPage(DatabaseService databaseService)
         {
             InitializeComponent();
 
@@ -25,15 +21,20 @@ namespace BarkodListem.Views
 
             // Tema seçimini yükle
             themePicker.SelectedIndex = (ThemeHelper.SelectedTheme == AppTheme.Dark) ? 1 : 0;
+            _databaseService=databaseService;
         }
 
         private async void Kaydet_Clicked(object sender, EventArgs e)
         {
-            SettingsHelper.WebServiceUrl = entryUrl.Text;
-            SettingsHelper.WebServicePort = entryPort.Text;
-            SettingsHelper.UserName = entryUser.Text;
-            SettingsHelper.Password = entryPassword.Text;
+            var ayarlar = new AyarlarModel
+            {
+                WebServisURL = entryUrl.Text,
+                Port = int.Parse(entryPort.Text),
+                KullaniciAdi = entryUser.Text,
+                Sifre = entryPassword.Text
+            };
 
+            await _databaseService.AyarKaydet(ayarlar);  // 📌 Yeni metod eklendi, SQLite'a kaydedecek
             await DisplayAlert("Başarılı", "Ayarlar kaydedildi!", "Tamam");
         }
 
