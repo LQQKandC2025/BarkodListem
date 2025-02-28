@@ -15,19 +15,28 @@ using BarkodListem.Services;
 namespace BarkodListem
 {
 
+
     public partial class MainPage : ContentPage
     {
-        public static MainPage Instance { get; private set; }
+        public static MainPage Instance { get; private set; } 
         public readonly BarkodListViewModel _viewModel;
-        public string OpenList = String.Empty;
-        public MainPage(BarkodListViewModel viewModel)
+        private readonly WebService _webService;
+
+        public MainPage(BarkodListViewModel viewModel,WebService webService)
         {
             InitializeComponent();
             BindingContext = _viewModel = viewModel;
+           _webService=webService;
             Instance = this;
            
         }
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await _viewModel.LoadData();
+        }
 
+        
         public CollectionView BarkodListesi => barkodListesi;
         // 📌 QR Kodu Okuma İşlemi
         private bool isScanning = false;
@@ -143,15 +152,22 @@ namespace BarkodListem
 
         private async void ListeyiGonder_Clicked(object sender, EventArgs e)
         {
-            string listeAdi = await DisplayPromptAsync("Liste İsmi", "Barkodları göndermek için bir liste ismi giriniz:", "Tamam", "İptal", "Liste İsmi");
+            // 📌 Mevcut liste adını al
+            string mevcutListeAdi = _viewModel.AktifListeAdi;
+
+            // 📌 Eğer liste "Geçici Liste" ise, yeni bir isim iste
+            string listeAdi = await DisplayPromptAsync("Liste İsmi",
+                "Barkodları göndermek için bir liste ismi giriniz:",
+                "Tamam", "İptal",
+                mevcutListeAdi == "Geçici Liste" ? "" : mevcutListeAdi // Geçici Liste ise boş bırak
+            );
 
             if (!string.IsNullOrEmpty(listeAdi))
             {
                 bool confirm = await DisplayAlert("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
                 if (confirm)
                 {
-                    var webService = new WebService();
-                    bool success = await webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
+                    bool success = await _webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
                     string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
                     await DisplayAlert("Bilgi", mesaj, "Tamam");
                 }
@@ -181,7 +197,9 @@ namespace BarkodListem
             // DI üzerinden DatabaseService örneğini al (using Microsoft.Extensions.DependencyInjection)
             //var dbService = App.Services.GetService<DatabaseService>();
             //await Navigation.PushAsync(new ListelerPage(dbService));
-            await Navigation.PushAsync(new ListelerPage(new DatabaseService("barkodlistem.db"))); // ✅ Doğrudan yeni instance oluştur
+            string dbPath = Path.Combine(FileSystem.AppDataDirectory, "barkodlistem.db");
+            var dbService = new DatabaseService(dbPath);
+            await Navigation.PushAsync(new ListelerPage(dbService, _viewModel, _webService));
 
         }
         private async void ListeyiDegistir_Clicked(object sender, EventArgs e)
@@ -202,6 +220,7 @@ namespace BarkodListem
                 _viewModel.SetAktifListe(yeniListeAdi);
             }
         }
+
 
 
     }

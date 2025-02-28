@@ -2,13 +2,14 @@
 using SQLite;
 using BarkodListem.Data;
 using System.Collections.ObjectModel;
+using BarkodListem.Services;
 
 namespace BarkodListem.Data
 {
     public class DatabaseService
     {
         private static SQLiteAsyncConnection _database;
-
+        
         public DatabaseService(string dbPath)
         {
             // 📌 Eski tabloyu tamamen kaldır ve yeni bir tane oluştur
@@ -23,12 +24,23 @@ namespace BarkodListem.Data
 
 
         }
-
+        public async Task<AyarlarModel> AyarlarGetir()
+        {
+            return await _database.Table<AyarlarModel>().FirstOrDefaultAsync();
+        }
         public async Task BarkodEkle(BarkodModel barkod)
         {
             await _database.InsertAsync(barkod);
         }
-
+        public async Task UpdateBarkodListeAdi(string eskiListeAdi, string yeniListeAdi)
+        {
+            var barkodlar = await _database.Table<BarkodModel>().Where(b => b.ListeAdi == eskiListeAdi).ToListAsync();
+            foreach (var b in barkodlar)
+            {
+                b.ListeAdi = yeniListeAdi;
+                await _database.UpdateAsync(b);
+            }
+        }
         public Task<List<BarkodModel>> BarkodlariGetir(string listeAdi)
         {
             return _database.Table<BarkodModel>().Where(b => b.ListeAdi == listeAdi).ToListAsync();
@@ -71,6 +83,8 @@ namespace BarkodListem.Data
         {
             await _database.Table<BarkodModel>().DeleteAsync(b => b.ListeAdi == liste.ListeAdi);
         }
+
+
 
     }
 }

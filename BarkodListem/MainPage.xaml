@@ -2,9 +2,17 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:BarkodListem.Models"
+             xmlns:viewmodels="clr-namespace:BarkodListem.ViewModels"
+             x:DataType="viewmodels:BarkodListViewModel"
              x:Class="BarkodListem.MainPage"
-            
-             Title="Barkod Listem">
+             Title="Barkod Listesi Oluştur.">
+    
+    
+    
+    
+    
+    
+    
 
     <VerticalStackLayout Padding="20">
 
@@ -19,11 +27,13 @@
         </Label>
 
         <!-- Elle barkod girme kutusu -->
+        <Frame BorderColor="Gray" CornerRadius="5" Padding="2" HasShadow="False">
         <Entry x:Name="barkodEntry"
                Placeholder="Barkodu elle gir..."
                FontSize="18" 
                ReturnType="Done"
                Completed="BarkodEntry_Completed"/>
+        </Frame>
         <!-- 2 sütun x 3 satırlık Grid ile 5 buton -->
         <Grid ColumnDefinitions="*,*"
               RowDefinitions="Auto,Auto,Auto,Auto"
@@ -38,28 +48,37 @@
                     Clicked="QRKodTara_Clicked"
                     BackgroundColor="DodgerBlue"
                     TextColor="White"
-                    CornerRadius="0" />
+                    CornerRadius="0" 
+                    ImageSource="barcode_icon.png"
+                    ContentLayout="Top,10"/>
 
             <Button Text="BARKOD KAYDET"
                     Grid.Row="1" Grid.Column="0"
                     Clicked="BarkodEntry_Completed"
                     BackgroundColor="Green"
                     TextColor="White"
-                    CornerRadius="0" />
+                    CornerRadius="0"
+                    ImageSource="barcode_kaydet.png"
+                    ContentLayout="Top,10"/>
 
             <Button Text="LİSTEYİ GÖNDER"
                     Grid.Row="1" Grid.Column="1"
                     Clicked="ListeyiGonder_Clicked"
                     BackgroundColor="Orange"
                     TextColor="White"
-                    CornerRadius="0" />
+                    CornerRadius="0"
+                    ImageSource="servise_gonder.png"
+                    ContentLayout="Top,10"                   
+                    />
 
             <Button Text="LİSTEYİ TEMİZLE"
                     Grid.Row="2" Grid.Column="0"
                     Clicked="ClearListButton_Clicked"
                     BackgroundColor="Crimson"
                     TextColor="White"
-                    CornerRadius="0" />
+                    CornerRadius="0" 
+                    ImageSource="listeyi_sil.png"
+                    ContentLayout="Top,10"/>
 
 
             <Button Text="AYARLAR"
@@ -67,7 +86,9 @@
                     Clicked="Ayarlar_Clicked"
                     BackgroundColor="Gray"
                     TextColor="White"
-                    CornerRadius="0" />
+                    CornerRadius="0" 
+                    ImageSource="ayarlar.png"
+                    ContentLayout="Top,10"/>
 
             <Button Text="LİSTELER"
                     Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
@@ -88,16 +109,15 @@
                 Margin="0,10,0,0"
                 HeightRequest="400">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate x:DataType="models:BarkodModel">
                         <Border Padding="10"
                     BackgroundColor="LightGray"
                     Margin="5">
-                            <Grid ColumnDefinitions="*, Auto,Auto">
+                            <Grid ColumnDefinitions="*, Auto">
                                 <Label Text="{Binding Barkod}"
                            FontSize="16"
                            VerticalOptions="Center"
                            Grid.Column="0" />
-
                                 <Button Text="Sil"
                             FontSize="14"
                             BackgroundColor="Red"
@@ -106,17 +126,13 @@
                             Clicked="BarkodSilCommand"
                             CommandParameter="{Binding}"
                             Grid.Column="1" />
-                                <Button Text="Listeyi Değiştir"
-                            FontSize="18"
-                            Clicked="ListeyiDegistir_Clicked"
-                            BackgroundColor="Gray"
-                            TextColor="White"
-                            CornerRadius="0"/>
+                           
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
         </ScrollView>
 
     </VerticalStackLayout>

@@ -30,22 +30,33 @@ namespace BarkodListem.ViewModels
         public ICommand ListeyiGonderCommand { get; }
         public async Task LoadData()
         {
-
-            // 📌 Program açıldığında liste boş gelsin
-            Barkodlar.Clear();
+            if (!string.IsNullOrEmpty(AktifListeAdi))
+            {
+                var barkodlar = await _databaseService.BarkodlariGetir(AktifListeAdi);
+                Barkodlar.Clear();
+                foreach (var barkod in barkodlar)
+                {
+                    Barkodlar.Add(barkod);
+                }
+            }
         }
 
         [Obsolete]
-        public BarkodListViewModel(DatabaseService databaseService)
+        public BarkodListViewModel(DatabaseService databaseService,WebService webService)
         {
             _databaseService = databaseService;
-            _webService = new WebService();
+            _webService = webService;
             BarkodEkleCommand = new Command<string>(async (barkod) => await BarkodEkle(barkod));
             BarkodSilCommand = new Command<BarkodModel>(async (barkod) => await BarkodSil(barkod));
             ListeyiGonderCommand = new Command(async () => await ListeyiGonder());
+
+
+
+
             // 📌 Varsayılan liste adı
             AktifListeAdi = "Geçici Liste";
         }
+
         public async Task BarkodEkle(string barkod)
         {
             if (!string.IsNullOrEmpty(barkod))
@@ -131,10 +142,24 @@ namespace BarkodListem.ViewModels
                 await Application.Current.MainPage.DisplayAlert("Hata", "Kayıtlar silinemedi.", "Tamam");
             }
         }
-        public void SetAktifListe(string yeniListeAdi)
+        public async Task SetAktifListe(string yeniListeAdi)
         {
-            _aktifListeAdi = yeniListeAdi;
-            Barkodlar.Clear();  // 📌 Liste değiştiği için barkodları temizle
+            // Eski değeri saklayın (isteğe bağlı)
+            string eskiListeAdi = _aktifListeAdi;
+
+            // Doğrudan _aktifListeAdi'ye atama yerine property setter'ını kullanın:
+            AktifListeAdi = yeniListeAdi;  // Bu satır OnPropertyChanged çağırır
+
+            // Veritabanındaki tüm barkodların liste adını güncelleyin
+            await _databaseService.UpdateBarkodListeAdi(eskiListeAdi, yeniListeAdi);
+
+            // Yeni listeye ait barkodları veritabanından çekip UI'yi güncelleyin:
+            var yeniBarkodlar = await _databaseService.BarkodlariGetir(AktifListeAdi);
+            Barkodlar.Clear();
+            foreach (var barkod in yeniBarkodlar)
+            {
+                Barkodlar.Add(barkod);
+            }
         }
 
     }

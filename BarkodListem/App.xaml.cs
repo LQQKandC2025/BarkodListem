@@ -1,4 +1,6 @@
-﻿using BarkodListem.ViewModels;
+﻿using BarkodListem.Services;
+using BarkodListem.ViewModels;
+
 
 namespace BarkodListem
 {
@@ -6,11 +8,13 @@ namespace BarkodListem
     {
         public static IServiceProvider Services { get; private set; }
 
-        public App(IServiceProvider services)
+        private readonly WebService _webService;
+        public App(IServiceProvider services,WebService webService)
         {
             InitializeComponent();
             Services = services;
-            MainPage = new NavigationPage(new MainPage(Services.GetService<BarkodListViewModel>())); // ✅ NavigationPage kullan
+            _webService=webService;
+            MainPage = new NavigationPage(new MainPage(Services.GetService<BarkodListViewModel>(),_webService )); // ✅ NavigationPage kullan
         }
 
         //protected override Window CreateWindow(IActivationState? activationState)

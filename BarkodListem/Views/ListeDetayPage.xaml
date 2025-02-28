@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:BarkodListem.Models"
+             x:Class="BarkodListem.Views.ListeDetayPage"
+             Title="{Binding Liste.ListeAdi}">
+	<VerticalStackLayout Padding="20" Spacing="10">
+		<!-- Üst Menü: Düzenle, Gönder, Sil -->
+		<Grid ColumnDefinitions="*,*,*" Margin="0,0,0,10">
+			<Button Text="Düzenle"
+                    Grid.Column="0"
+                    BackgroundColor="Blue"
+                    TextColor="White"
+                    Clicked="Duzenle_Clicked"/>
+			<Button Text="Gönder"
+                    Grid.Column="1"
+                    BackgroundColor="Orange"
+                    TextColor="White"
+                    Clicked="Gonder_Clicked"/>
+			<Button Text="Sil"
+                    Grid.Column="2"
+                    BackgroundColor="Red"
+                    TextColor="White"
+                    Clicked="Sil_Clicked"/>
+		</Grid>
+
+		<!-- Barkodların listelendiği bölüm -->
+		<Frame BorderColor="Gray" CornerRadius="5" Padding="5">
+			<CollectionView x:Name="BarkodDetayListesi"
+                            ItemsSource="{Binding Liste.Barkodlar}">
+				<CollectionView.ItemTemplate>
+					<DataTemplate x:DataType="models:BarkodModel">
+						<Label Text="{Binding Barkod}" FontSize="16" Padding="5"/>
+					</DataTemplate>
+				</CollectionView.ItemTemplate>
+			</CollectionView>
+		</Frame>
+	</VerticalStackLayout>
+</ContentPage>

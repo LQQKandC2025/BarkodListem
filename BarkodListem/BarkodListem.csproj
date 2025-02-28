@@ -51,10 +51,6 @@
 	  <AndroidKeyStore>False</AndroidKeyStore>
 	</PropertyGroup>
 
-	<PropertyGroup>
-	  <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.26100.0</TargetFrameworks>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources/Images/app_icon.png" />
@@ -92,6 +88,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Views\ListeDetayPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\ListelerPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -114,6 +113,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Folder Include="Platforms\Android\Resources\Images\" />
 	  <Folder Include="Resources\AppIcon\" />
 	</ItemGroup>
 

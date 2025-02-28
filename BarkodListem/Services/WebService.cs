@@ -1,30 +1,53 @@
-﻿using System.Text;
-using System.Text.Json;
-using BarkodListem.Models;
+﻿using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
-
+using BarkodListem.Data;
+using System;
+using BarkodListem.Models;
 
 namespace BarkodListem.Services
 {
     public class WebService
     {
-        private readonly HttpClient _httpClient;
-        private const string _baseUrl = "https://your-web-service.com/api"; // Web servisin URL'sini buraya ekleyin
+        private readonly DatabaseService _databaseService;
 
-        public WebService()
+        public WebService(DatabaseService databaseService)
         {
-            _httpClient = new HttpClient();
+            _databaseService = databaseService;
         }
+
 
         public async Task<bool> BarkodListesiGonder(List<BarkodModel> barkodlar, string listeAdi)
         {
             try
             {
-                var httpClient = new HttpClient();
-                var jsonData = JsonConvert.SerializeObject(new { ListeAdi = listeAdi, Barkodlar = barkodlar });
+                // 📌 Ayarlar veritabanından alınsın
+                var ayarlar = await _databaseService.AyarlarGetir();
+
+                if (ayarlar == null || string.IsNullOrEmpty(ayarlar.WebServisURL))
+                {
+                    Console.WriteLine("Hata: Web Servis URL'si ayarlardan alınamadı.");
+                    return false;
+                }
+
+                // 📌 Web servis adresini ayarlardan al
+                string webServiceUrl = $"{ayarlar.WebServisURL}:{ayarlar.Port}/api/BarkodEkle";
+
+                // 📌 Kullanıcı bilgilerini de ekleyelim
+                var jsonData = JsonConvert.SerializeObject(new
+                {
+                    KullaniciAdi = ayarlar.KullaniciAdi,
+                    Sifre = ayarlar.Sifre,
+                    ListeAdi = listeAdi,
+                    Barkodlar = barkodlar
+                });
+
                 var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync("https://senin-webservisin.com/api/barkodgonder", content);
+                var httpClient = new HttpClient();
+                var response = await httpClient.PostAsync(webServiceUrl, content);
+
                 return response.IsSuccessStatusCode;
             }
             catch (Exception ex)
