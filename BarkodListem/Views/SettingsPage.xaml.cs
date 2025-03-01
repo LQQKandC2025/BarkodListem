@@ -9,15 +9,24 @@ namespace BarkodListem.Views
     public partial class SettingsPage : ContentPage
     {
         private readonly DatabaseService _databaseService;
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            var ayarlar = await _databaseService.AyarlarGetir();
+            if (ayarlar != null)
+            {
+                entryUrl.Text = ayarlar.WebServisURL;
+                entryPort.Text = ayarlar.Port.ToString();
+                entryUser.Text = ayarlar.KullaniciAdi;
+                entryPassword.Text = ayarlar.Sifre;
+            }
+        }
         public SettingsPage(DatabaseService databaseService)
         {
             InitializeComponent();
 
-            // XAML'deki Entry nesneleri burada kullanılabilir olmalı
-            entryUrl.Text = SettingsHelper.WebServiceUrl;
-            entryPort.Text = SettingsHelper.WebServicePort;
-            entryUser.Text = SettingsHelper.UserName;
-            entryPassword.Text = SettingsHelper.Password;
+
 
             // Tema seçimini yükle
             themePicker.SelectedIndex = (ThemeHelper.SelectedTheme == AppTheme.Dark) ? 1 : 0;
