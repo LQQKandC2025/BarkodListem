@@ -32,7 +32,7 @@
                Placeholder="Barkodu elle gir..."
                FontSize="18" 
                ReturnType="Done"
-               Completed="BarkodEntry_Completed"/>
+               Completed="BarkodEkle_Clicked"/>
         </Frame>
         <!-- 2 sütun x 3 satırlık Grid ile 5 buton -->
         <Grid ColumnDefinitions="*,*"

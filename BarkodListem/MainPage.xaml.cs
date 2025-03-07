@@ -122,8 +122,9 @@ namespace BarkodListem
                 
                     
                 _viewModel.BarkodEkleCommand.Execute(barkodEntry.Text);
-                barkodEntry.Text = string.Empty; // Giriş temizlensin
-                
+                barkodEntry.Text = string.Empty; // Giriş kutusunu temizle
+                barkodEntry.Focus(); // 📌 İmleci tekrar giriş kutusuna getir
+
             }
         }
 
@@ -191,6 +192,7 @@ namespace BarkodListem
         {
             // BARKOD KAYDET butonunun Clicked ile aynı işlemi
             BarkodEkle_Clicked(sender, e);
+            barkodEntry.Focus(); // 📌 İmleci tekrar giriş kutusuna getir
         }
         private async void Listeler_Clicked(object sender, EventArgs e)
         {

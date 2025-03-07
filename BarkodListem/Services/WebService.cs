@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using BarkodListem.Data;
 using System;
 using BarkodListem.Models;
+using Java.Net;
 
 namespace BarkodListem.Services
 {
@@ -31,24 +32,55 @@ namespace BarkodListem.Services
                     return false;
                 }
 
-                // 📌 Web servis adresini ayarlardan al
-                string webServiceUrl = $"{ayarlar.WebServisURL}:{ayarlar.Port}/api/BarkodEkle";
+                // 📌 Kullanıcının girdiği URL'yi URI formatına çevir
+                Uri baseUri = new Uri(ayarlar.WebServisURL);
 
-                // 📌 Kullanıcı bilgilerini de ekleyelim
-                var jsonData = JsonConvert.SerializeObject(new
+                // 📌 Alan adını ve portu çek
+                string domain = baseUri.Host;
+                int port = baseUri.IsDefaultPort ? ayarlar.Port : baseUri.Port;
+
+                // 📌 Son kısmı ekleyerek tam web servisi adresini oluştur
+                string webServiceUrl = $"http://{domain}:{port}{baseUri.AbsolutePath}/BarkodService.asmx";
+
+                // 📌 Barkodları XML formatına çevirme
+                StringBuilder barkodXml = new StringBuilder();
+                foreach (var barkod in barkodlar)
                 {
-                    KullaniciAdi = ayarlar.KullaniciAdi,
-                    Sifre = ayarlar.Sifre,
-                    ListeAdi = listeAdi,
-                    Barkodlar = barkodlar
-                });
+                    barkodXml.Append($"<string>{barkod.Barkod}</string>");
+                }
 
-                var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+                // 📌 SOAP isteğini oluştur
+                string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+        <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
+                       xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
+                       xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+          <soap:Body>
+            <BarkodEkle xmlns=""http://barkodwebservice.com/"">
+              <username>{ayarlar.KullaniciAdi}</username>
+              <password>{ayarlar.Sifre}</password>
+              <listeAdi>{listeAdi}</listeAdi>
+              <barkodlar>{barkodXml}</barkodlar>
+            </BarkodEkle>
+          </soap:Body>
+        </soap:Envelope>";
 
-                var httpClient = new HttpClient();
-                var response = await httpClient.PostAsync(webServiceUrl, content);
+                // 📌 HTTP isteğini oluştur
+                using (var client = new HttpClient())
+                {
+                    client.Timeout = TimeSpan.FromMinutes(2);
+                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, webServiceUrl);
+                    request.Headers.Add("SOAPAction", "http://barkodwebservice.com/BarkodEkle");
+                    request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
-                return response.IsSuccessStatusCode;
+                    // 📌 İstek gönder
+                    HttpResponseMessage response = await client.SendAsync(request);
+
+                    // 📌 Yanıtı kontrol et
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"📌 SOAP Yanıtı: {responseContent}");
+
+                    return response.IsSuccessStatusCode;
+                }
             }
             catch (Exception ex)
             {
@@ -56,5 +88,7 @@ namespace BarkodListem.Services
                 return false;
             }
         }
+
+
     }
 }
