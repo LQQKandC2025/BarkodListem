@@ -53,19 +53,15 @@
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiIcon Include="Resources/Images/app_icon.png">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</MauiIcon>
-		<MauiImage Include="Resources\Images\ayarlar.png">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</MauiImage>
-		<MauiImage Include="Resources\Images\listesil.png">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</MauiImage>
-		<MauiImage Include="Resources\Images\save1.png">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</MauiImage>
-
+		<MauiImage Include="Resources\Images\app_icon.png"></MauiImage>
+		<MauiImage Include="Resources\Images\ayarlar.png"></MauiImage>
+		<MauiImage Include="Resources\Images\listesil.png"></MauiImage>
+		<MauiImage Include="Resources\Images\save1.png"></MauiImage>
+		<MauiImage Include="Resources\Images\webservis1.png"></MauiImage>
+		<MauiImage Include="Resources\Images\barkodoku.png"></MauiImage>
+		<MauiImage Include="Resources\Images\qrlistesi.png"></MauiImage>
+	</ItemGroup>
+<ItemGroup>
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
@@ -83,13 +79,19 @@
 	  <Compile Remove="Views\ScannerPage.xaml.cs" />
 	</ItemGroup>
 
-	<ItemGroup>
+<!-- 	<ItemGroup>
+	  <None Remove="Resources\AppIcon\app_icon.png" />
+	  <None Remove="Resources\ayarlar.png" />
+	  <None Remove="Resources\barkodoku.png" />
 	  <None Remove="Resources\Images\ayarlar.png" />
 	  <None Remove="Resources\Images\barkodoku.png" />
 	  <None Remove="Resources\Images\listesil.png" />
 	  <None Remove="Resources\Images\save1.png" />
 	  <None Remove="Resources\Images\webservis1.png" />
-	</ItemGroup>
+	  <None Remove="Resources\listesil.png" />
+	  <None Remove="Resources\save1.png" />
+	  <None Remove="Resources\webservis1.png" />
+	</ItemGroup> -->
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Build.Framework" Version="17.13.9" />
@@ -133,20 +135,9 @@
 
 	<ItemGroup>
 	  <Folder Include="Platforms\Android\Resources\Images\" />
-	  <Folder Include="Resources\AppIcon\" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <MauiImage Include="Resources\Images\webservis1.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </MauiImage>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <MauiImage Include="Resources\Images\barkodoku.png">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </MauiImage>
-	</ItemGroup>
+	
 
 	<ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">
