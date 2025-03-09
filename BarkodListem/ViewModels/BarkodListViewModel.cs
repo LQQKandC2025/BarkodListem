@@ -12,7 +12,8 @@ namespace BarkodListem.ViewModels
         private readonly DatabaseService _databaseService;
         private readonly WebService _webService;
 
-        private string _aktifListeAdi;
+        private string _aktifListeAdi = string.Empty;
+        public string girilenListe = string.Empty;
         public string AktifListeAdi
         {
             get => _aktifListeAdi;
@@ -42,7 +43,7 @@ namespace BarkodListem.ViewModels
         }
 
         [Obsolete]
-        public BarkodListViewModel(DatabaseService databaseService,WebService webService)
+        public BarkodListViewModel(DatabaseService databaseService, WebService webService)
         {
             _databaseService = databaseService;
             _webService = webService;
@@ -59,13 +60,29 @@ namespace BarkodListem.ViewModels
 
         public async Task BarkodEkle(string barkod)
         {
+
+
             if (!string.IsNullOrEmpty(barkod))
             {
                 // Eğer ilk defa ekleniyorsa liste ismi sorulsun
                 if (string.IsNullOrEmpty(_aktifListeAdi))
                 {
-                    string girilenListe = await Application.Current.MainPage.DisplayPromptAsync(
-                        "Liste İsmi", "Lütfen liste ismi giriniz:", "Tamam", "İptal", "Liste İsmi");
+
+                    if (Application.Current?.Windows.Count > 0)
+                    {
+                        var page = Application.Current.Windows[0].Page;
+                        if (page != null)
+                        {
+                            string girilenListe = await page.DisplayPromptAsync(
+                                "Liste İsmi", "Lütfen liste ismi giriniz:", "Tamam", "İptal", "Liste İsmi");
+
+                            if (string.IsNullOrEmpty(girilenListe))
+                                return; // Kullanıcı iptal ederse işlem iptal
+
+                            _aktifListeAdi = girilenListe;
+                        }
+                    }
+
                     if (string.IsNullOrEmpty(girilenListe))
                         return; // Kullanıcı iptal ederse işlem iptal
                     _aktifListeAdi = girilenListe;
@@ -111,15 +128,29 @@ namespace BarkodListem.ViewModels
         {
             if (Barkodlar.Count == 0)
             {
-                await Application.Current.MainPage.DisplayAlert("Hata", "Gönderilecek barkod yok!", "Tamam");
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Hata", "Gönderilecek barkod yok!", "Tamam");
+                }
+                else
+                {
+                    Console.WriteLine("MainPage şu anda null.");
+                }
                 return;
             }
 
             // 📌 Sadece ilk defa liste ismi sorulsun
             if (string.IsNullOrEmpty(_aktifListeAdi))
             {
-                _aktifListeAdi = await Application.Current.MainPage.DisplayPromptAsync(
+                if (Application.Current?.MainPage != null)
+                {
+                    _aktifListeAdi = await Application.Current.MainPage.DisplayPromptAsync(
                     "Liste İsmi", "Lütfen liste ismi giriniz:", "Tamam", "İptal", "Liste İsmi");
+                }
+                else
+                {
+                    Console.WriteLine("MainPage şu anda null.");
+                }
 
                 if (string.IsNullOrEmpty(_aktifListeAdi)) return; // Kullanıcı iptal ettiyse gönderme
             }
@@ -127,7 +158,14 @@ namespace BarkodListem.ViewModels
             bool success = await _webService.BarkodListesiGonder(Barkodlar.ToList(), _aktifListeAdi);
 
             string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
-            await Application.Current.MainPage.DisplayAlert("Bilgi", mesaj, "Tamam");
+            if (Application.Current?.MainPage != null)
+            {
+                await Application.Current.MainPage.DisplayAlert("Bilgi", mesaj, "Tamam");
+            }
+            else
+            {
+                Console.WriteLine("MainPage şu anda null.");
+            }
         }
         public async Task ClearAllBarkodsAsync()
         {
@@ -139,9 +177,17 @@ namespace BarkodListem.ViewModels
             }
             else
             {
-                await Application.Current.MainPage.DisplayAlert("Hata", "Kayıtlar silinemedi.", "Tamam");
+                if (Application.Current?.Windows.Count > 0)
+                {
+                    var page = Application.Current.Windows[0].Page;
+                    if (page != null)
+                    {
+                        await page.DisplayAlert("Hata", "Kayıtlar silinemedi.", "Tamam"); // MainPage yerine page kullanıldı
+                    }
+                }
             }
         }
+
         public async Task SetAktifListe(string yeniListeAdi)
         {
             // Eski değeri saklayın (isteğe bağlı)
