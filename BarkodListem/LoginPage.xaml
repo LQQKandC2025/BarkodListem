@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BarkodListem.LoginPage"
+             Title="Giriş Yap">
+
+	<VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="CenterAndExpand">
+		<Border Stroke="Gray" StrokeThickness="2" Padding="15" BackgroundColor="#E0E0E0">
+			<Border.StrokeShape>
+				<RoundRectangle CornerRadius="10"/>
+			</Border.StrokeShape>
+			<Border.Shadow>
+				<Shadow Brush="Black" Opacity="0.3" Offset="5,5" />
+			</Border.Shadow>
+			<VerticalStackLayout Spacing="15" Padding="10">
+
+
+					<Label Text="Giriş Yap" FontSize="24" HorizontalOptions="Center" />
+
+
+				<Border Stroke="Gray" StrokeThickness="1" Padding="5" BackgroundColor="#FFFFFF">
+					<Border.Shadow>
+						<Shadow Brush="Black" Opacity="0.2" Offset="1,1" />
+					</Border.Shadow>
+					<Entry x:Name="usernameEntry" Placeholder="Kullanıcı Adı" FontSize="18"/>
+				</Border>
+
+				<Border Stroke="Gray" StrokeThickness="1" Padding="5" BackgroundColor="#FFFFFF">
+					<Border.Shadow>
+						<Shadow Brush="Black" Opacity="0.2" Offset="1,1" />
+					</Border.Shadow>
+					<Entry x:Name="passwordEntry" FontSize="18" Placeholder="Şifre" IsPassword="True" />
+				</Border>
+
+				<Border Stroke="Black" StrokeThickness="1" Padding="5" BackgroundColor="#F0F0F0">
+					<Border.Shadow>
+						<Shadow Brush="Gray" Opacity="0.5" Offset="2,2" />
+					</Border.Shadow>
+					<Button  FontSize="24" Text="Giriş" Clicked="OnLoginClicked" BackgroundColor="DodgerBlue" TextColor="White" />
+				</Border>
+
+				<Label x:Name="errorLabel" TextColor="Red" IsVisible="False" HorizontalOptions="Center" />
+			</VerticalStackLayout>
+		</Border>
+	</VerticalStackLayout>
+</ContentPage>

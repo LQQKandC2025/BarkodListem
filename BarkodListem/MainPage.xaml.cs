@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using ZXing.Net.Maui;
-using ZXing.Net.Maui.Controls;
+﻿using ZXing.Net.Maui;
 using BarkodListem.ViewModels;
 using BarkodListem.Models;
 using BarkodListem.Views;
-using ZXing;
 using BarkodListem.Data;
 using BarkodListem.Services;
 
 
 
+
 namespace BarkodListem
 {
-
-
     public partial class MainPage : ContentPage
     {
-        public static MainPage Instance { get; private set; } 
+        public static MainPage Instance { get; private set; }
         public readonly BarkodListViewModel _viewModel;
         private readonly WebService _webService;
         private readonly DatabaseService _databaseService;
-        public MainPage(BarkodListViewModel viewModel,WebService webService, DatabaseService databaseService)
+        public MainPage(BarkodListViewModel viewModel, WebService webService, DatabaseService databaseService)
         {
             InitializeComponent();
             BindingContext = _viewModel = viewModel;
@@ -36,7 +30,7 @@ namespace BarkodListem
             await _viewModel.LoadData();
         }
 
-        
+
         public CollectionView BarkodListesi => barkodListesi;
         // 📌 QR Kodu Okuma İşlemi
         private bool isScanning = false;
@@ -44,73 +38,77 @@ namespace BarkodListem
         [Obsolete]
         private async void QRKodTara_Clicked(object sender, EventArgs e)
         {
-#if ANDROID // 📌 Yalnızca Android için çalıştır
-            if (isScanning)
-                return;
 
-            isScanning = true;
+            await Navigation.PushAsync(new ScannerPage(_viewModel));
+            //#if ANDROID // 📌 Yalnızca Android için çalıştır
+            //            if (isScanning)
+            //                return;
 
-            try
-            {
-                var scanPage = new ZXing.Net.Maui.Controls.CameraBarcodeReaderView();
+            //            isScanning = true;
 
-                if (DeviceInfo.Version.Major >= 33) // 📌 Android 33 ve üstü için BarcodeReaderOptions kullan
-                {
-                    scanPage.Options = new ZXing.Net.Maui.BarcodeReaderOptions
-                    {
-                        Formats = BarcodeFormats.All,
-                        AutoRotate = true,
-                        Multiple = false
-                    };
-                }
+            //            try
+            //            {
+            //                var scanPage = new ZXing.Net.Maui.Controls.CameraBarcodeReaderView();
 
-                HashSet<string> tarananBarkodlar = new HashSet<string>();
+            //                if (DeviceInfo.Version.Major >= 33) // 📌 Android 33 ve üstü için BarcodeReaderOptions kullan
+            //                {
+            //                    scanPage.Options = new ZXing.Net.Maui.BarcodeReaderOptions
+            //                    {
+            //                        Formats = BarcodeFormats.All,
+            //                        AutoRotate = true,  // Kameranın yönünü otomatik algıla
+            //                        Multiple = false,   // Aynı anda birden fazla kod okuma kapalı
+            //                        TryHarder = true,  // Düşük kontrastlı kodları algılamak için ekstra çaba göster
+            //                        TryInverted = true, // Ters renkli (negatif) QR kodları da oku       
+            //                    };
+            //                }
 
-                scanPage.BarcodesDetected += (s, e) =>
-                {
-                    Device.BeginInvokeOnMainThread(() =>
-                    {
-                        if (e.Results.Any())
-                        {
-                            var result = e.Results.FirstOrDefault()?.Value;
+            //                HashSet<string> tarananBarkodlar = new HashSet<string>();
 
-                            if (!string.IsNullOrEmpty(result) && !tarananBarkodlar.Contains(result))
-                            {
-                                tarananBarkodlar.Add(result);
-                                _viewModel.BarkodEkleCommand.Execute(result);
+            //                scanPage.BarcodesDetected += (s, e) =>
+            //                {
+            //                    Device.BeginInvokeOnMainThread(() =>
+            //                    {
+            //                        if (e.Results.Any())
+            //                        {
+            //                            var result = e.Results.FirstOrDefault()?.Value;
 
-                                // Barkod okunduğunda bip sesi çal
-                                try
-                                {
-                                    using (var toneG = new Android.Media.ToneGenerator(Android.Media.Stream.System, 100))
-                                    {
-                                        toneG.StartTone(Android.Media.Tone.Dtmf1, 200); // 200 ms süreli bip
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine($"Bip sesi çalma hatası: {ex.Message}");
-                                }
+            //                            if (!string.IsNullOrEmpty(result) && !tarananBarkodlar.Contains(result))
+            //                            {
+            //                                tarananBarkodlar.Add(result);
+            //                                _viewModel.BarkodEkleCommand.Execute(result);
 
-                                Navigation.PopAsync();
-                            }
-                        }
-                    });
-                };
+            //                                // Barkod okunduğunda bip sesi çal
+            //                                try
+            //                                {
+            //                                    using (var toneG = new Android.Media.ToneGenerator(Android.Media.Stream.System, 100))
+            //                                    {
+            //                                        toneG.StartTone(Android.Media.Tone.Dtmf1, 200); // 200 ms süreli bip
+            //                                    }
+            //                                }
+            //                                catch (Exception ex)
+            //                                {
+            //                                    Console.WriteLine($"Bip sesi çalma hatası: {ex.Message}");
+            //                                }
 
-                await Navigation.PushAsync(new ContentPage { Content = scanPage });
-            }
-            catch (Exception ex)
-            {
-                await DisplayAlert("Hata", $"Barkod okuma hatası: {ex.Message}", "Tamam");
-            }
-            finally
-            {
-                isScanning = false;
-            }
-#else
-    await DisplayAlert("Hata", "Barkod tarayıcı yalnızca Android'de destekleniyor.", "Tamam");
-#endif
+            //                                Navigation.PopAsync();
+            //                            }
+            //                        }
+            //                    });
+            //                };
+
+            //                await Navigation.PushAsync(new ContentPage { Content = scanPage });
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                await DisplayAlert("Hata", $"Barkod okuma hatası: {ex.Message}", "Tamam");
+            //            }
+            //            finally
+            //            {
+            //                isScanning = false;
+            //            }
+            //#else
+            //    await DisplayAlert("Hata", "Barkod tarayıcı yalnızca Android'de destekleniyor.", "Tamam");
+            //#endif
         }
 
 
@@ -119,8 +117,8 @@ namespace BarkodListem
         {
             if (!string.IsNullOrEmpty(barkodEntry.Text))
             {
-                
-                    
+
+
                 _viewModel.BarkodEkleCommand.Execute(barkodEntry.Text);
                 barkodEntry.Text = string.Empty; // Giriş kutusunu temizle
                 barkodEntry.Focus(); // 📌 İmleci tekrar giriş kutusuna getir
@@ -211,7 +209,7 @@ namespace BarkodListem
 
             if (!string.IsNullOrEmpty(yeniListeAdi))
             {
-                _viewModel.SetAktifListe(yeniListeAdi);
+                await _viewModel.SetAktifListe(yeniListeAdi);
             }
         }
         private async void ListeAdiniDegistir_Tapped(object sender, EventArgs e)
@@ -219,11 +217,14 @@ namespace BarkodListem
             string yeniListeAdi = await DisplayPromptAsync("Yeni Liste", "Yeni liste ismi giriniz:", "Tamam", "İptal", "Liste İsmi");
             if (!string.IsNullOrEmpty(yeniListeAdi))
             {
-                _viewModel.SetAktifListe(yeniListeAdi);
+                await _viewModel.SetAktifListe(yeniListeAdi);
             }
         }
 
-
+        private void LogoutButton_Clicked(object sender, EventArgs e)
+        {
+            App.Logout(); // Kullanıcıyı çıkış yaptır
+        }
 
     }
 }

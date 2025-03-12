@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net9.0-android35.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-		
+
 		<!-- Note for MacCatalyst:
 		The default runtime is maccatalyst-x64, except in Release config, in which case the default is maccatalyst-x64;maccatalyst-arm64.
 		When specifying both architectures, use the plural <RuntimeIdentifiers> instead of the singular <RuntimeIdentifier>.
@@ -17,21 +17,22 @@
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-
+	
 		<!-- Display name -->
 		<ApplicationTitle>BarkodListem</ApplicationTitle>
 
+		
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.barkodlistem</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
-	
+
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
-		
-	    <AndroidUseLegacyAapt>true</AndroidUseLegacyAapt>
+
+		<AndroidUseLegacyAapt>true</AndroidUseLegacyAapt>
 
 
 
@@ -46,17 +47,19 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android35.0|AnyCPU'">
-	  <AndroidPackageFormat>apk</AndroidPackageFormat>
-	  <AndroidKeyStore>False</AndroidKeyStore>
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<AndroidKeyStore>False</AndroidKeyStore>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android35.0|AnyCPU'">
-	  <AndroidKeyStore>False</AndroidKeyStore>
+		<AndroidKeyStore>False</AndroidKeyStore>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<!-- App Icon -->
-		<MauiImage Include="Resources\Images\app_icon.png"></MauiImage>
+		<AndroidResource Remove="$(MonoAndroidResourcePrefix)/*/*.*" />
+		<!--<MauiImage Include="Resources\AppIcon\app_icon.png" />-->
+
 		<MauiImage Include="Resources\Images\ayarlar.png"></MauiImage>
 		<MauiImage Include="Resources\Images\listesil.png"></MauiImage>
 		<MauiImage Include="Resources\Images\save1.png"></MauiImage>
@@ -64,12 +67,13 @@
 		<MauiImage Include="Resources\Images\barkodoku.png"></MauiImage>
 		<MauiImage Include="Resources\Images\qrlistesi.png"></MauiImage>
 	</ItemGroup>
-<ItemGroup>
+	<ItemGroup>
 		<!-- Splash Screen -->
 		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="128,128" />
 
 		<!-- Images -->
 		<!--<MauiImage Include="Resources\Images\*" />-->
+
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -79,10 +83,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Remove="Views\ScannerPage.xaml.cs" />
+		<Compile Remove="Views\ScannerPage.xaml.cs" />
 	</ItemGroup>
 
-<!-- 	<ItemGroup>
+
+
+	<!-- 	<ItemGroup>
 	  <None Remove="Resources\AppIcon\app_icon.png" />
 	  <None Remove="Resources\ayarlar.png" />
 	  <None Remove="Resources\barkodoku.png" />
@@ -108,55 +114,62 @@
 		<PackageReference Include="ZXing.Net.Maui" Version="0.4.0" />
 		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.4.0" />
 	</ItemGroup>
-
 	<ItemGroup>
-	  <None Include="Views\ScannerPage.xaml.cs" />
+		<Compile Include="Views\ScannerPage.xaml.cs" />
+		<Page Include="Views\ScannerPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\ListeDetayPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ListelerPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ListePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\MainPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\ScannerPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\SettingsPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+		<MauiXaml Update="LoginPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\ListeDetayPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\ListelerPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\ListePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\MainPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\ScannerPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\SettingsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="9.0.40" />
+		<PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="9.0.40" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Platforms\Android\Resources\Images\" />
+		<Folder Include="Platforms\Android\Resources\app_icon\" />
+		<Folder Include="Platforms\Android\Resources\Images\" />
 	</ItemGroup>
 
-	
+
 
 	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
 	</ItemGroup>
 	<UsingTask TaskName="GetFileSystemEntries" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" />
 </Project>
