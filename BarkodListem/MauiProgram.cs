@@ -33,6 +33,7 @@ namespace BarkodListem
             builder.Services.AddSingleton<BarkodListViewModel>(); // Singleton olarak ekle
             builder.Services.AddTransient<MainPage>(); // MainPage için bağımlılık çözümü
             builder.Services.AddSingleton<WebService>();
+            builder.Services.AddSingleton(Plugin.Maui.Audio.AudioManager.Current);
 
 
 #if DEBUG

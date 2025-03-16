@@ -1,4 +1,5 @@
 ﻿using BarkodListem.Data;
+using BarkodListem.Helpers;
 using BarkodListem.Services;
 using BarkodListem.ViewModels;
 
@@ -12,9 +13,11 @@ namespace BarkodListem
         public static IServiceProvider Services { get; private set; }
         private static DatabaseService _databaseService;
         private static WebService _webService;
+        
         public App(IServiceProvider services,WebService webService,DatabaseService databaseService)
         {
             InitializeComponent();
+            ThemeHelper.ApplyTheme(ThemeHelper.SelectedTheme);
             Services = services;
             _webService=webService;
             _databaseService=databaseService;

@@ -50,7 +50,10 @@ namespace BarkodListem.Data
         }
         public Task<List<BarkodModel>> BarkodlariGetir(string listeAdi)
         {
-            return _database.Table<BarkodModel>().Where(b => b.ListeAdi == listeAdi).ToListAsync();
+            return _database.Table<BarkodModel>()
+                .Where(b => b.ListeAdi == listeAdi)
+                .OrderByDescending(b => b.Id)
+                .ToListAsync();
         }
 
         public async Task BarkodSil(BarkodModel barkod)

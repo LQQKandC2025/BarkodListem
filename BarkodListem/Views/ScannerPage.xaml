@@ -36,5 +36,14 @@
                 HorizontalOptions="End"
                 VerticalOptions="Start"
                 Margin="10"/>
+        <Button 
+            x:Name="toggleContinuousScan"
+            Text="Sürekli Okuma: Kapalı"
+            Clicked="OnToggleContinuousScanClicked"
+            BackgroundColor="Gray"
+            TextColor="White"
+            HorizontalOptions="Center"
+            VerticalOptions="End"
+            Margin="10"/>
     </Grid>
 </ContentPage>

@@ -4,7 +4,7 @@ using BarkodListem.Models;
 using BarkodListem.Views;
 using BarkodListem.Data;
 using BarkodListem.Services;
-
+using Plugin.Maui.Audio;
 
 
 
@@ -39,7 +39,8 @@ namespace BarkodListem
         private async void QRKodTara_Clicked(object sender, EventArgs e)
         {
 
-            await Navigation.PushAsync(new ScannerPage(_viewModel));
+            var audioManager = ServiceHelper.GetService<IAudioManager>(); // 📌 Get AudioManager
+            await Navigation.PushAsync(new ScannerPage(_viewModel, audioManager)); // Pass it to ScannerPage
             //#if ANDROID // 📌 Yalnızca Android için çalıştır
             //            if (isScanning)
             //                return;

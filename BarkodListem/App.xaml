@@ -5,10 +5,39 @@
              x:Class="BarkodListem.App">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+            <!-- Açık Tema ve Koyu Tema Renkleri -->
+            <Color x:Key="LightBackgroundColor">#E0E0E0</Color>
+            <Color x:Key="DarkBackgroundColor">#303030</Color>
+
+            <Color x:Key="LightEntryBackground">White</Color>
+            <Color x:Key="DarkEntryBackground">#424242</Color>
+
+            <Color x:Key="LightTextColor">Black</Color>
+            <Color x:Key="DarkTextColor">White</Color>
+
+            <Color x:Key="LightButtonBackground">DodgerBlue</Color>
+            <Color x:Key="DarkButtonBackground">#1976D2</Color>
+
+            <!-- `DynamicResource` ile Kullanılacak Renkler -->
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightBackgroundColor}, Dark={StaticResource DarkBackgroundColor}}"/>
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightEntryBackground}, Dark={StaticResource DarkEntryBackground}}"/>
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource LightTextColor}, Dark={StaticResource DarkTextColor}}"/>
+            </Style>
+
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource LightTextColor}, Dark={StaticResource DarkTextColor}}"/>
+            </Style>
+
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightButtonBackground}, Dark={StaticResource DarkButtonBackground}}"/>
+                <Setter Property="TextColor" Value="White"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
+
+
 </Application>

@@ -34,8 +34,9 @@ namespace BarkodListem.ViewModels
             if (!string.IsNullOrEmpty(AktifListeAdi))
             {
                 var barkodlar = await _databaseService.BarkodlariGetir(AktifListeAdi);
+                var siraliBarkodlar = barkodlar.OrderByDescending(b => b.Id).ToList();
                 Barkodlar.Clear();
-                foreach (var barkod in barkodlar)
+                foreach (var barkod in siraliBarkodlar)
                 {
                     Barkodlar.Add(barkod);
                 }
@@ -60,14 +61,10 @@ namespace BarkodListem.ViewModels
 
         public async Task BarkodEkle(string barkod)
         {
-
-
             if (!string.IsNullOrEmpty(barkod))
             {
-                // Eğer ilk defa ekleniyorsa liste ismi sorulsun
                 if (string.IsNullOrEmpty(_aktifListeAdi))
                 {
-
                     if (Application.Current?.Windows.Count > 0)
                     {
                         var page = Application.Current.Windows[0].Page;
@@ -77,22 +74,23 @@ namespace BarkodListem.ViewModels
                                 "Liste İsmi", "Lütfen liste ismi giriniz:", "Tamam", "İptal", "Liste İsmi");
 
                             if (string.IsNullOrEmpty(girilenListe))
-                                return; // Kullanıcı iptal ederse işlem iptal
+                                return;
 
                             _aktifListeAdi = girilenListe;
                         }
                     }
-
-                    if (string.IsNullOrEmpty(girilenListe))
-                        return; // Kullanıcı iptal ederse işlem iptal
-                    _aktifListeAdi = girilenListe;
                 }
 
                 var yeniBarkod = new BarkodModel { Barkod = barkod, ListeAdi = _aktifListeAdi };
                 await _databaseService.BarkodEkle(yeniBarkod);
-                Barkodlar.Insert(0, yeniBarkod);  // Yeni barkod en üste eklensin
 
-                // Liste kaydırma: Yeni eklenen barkod görünür olsun
+                // 📌 **Barkodu başa ekleyelim**
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    Barkodlar.Insert(0, yeniBarkod); // 📌 **Başa ekle**
+                });
+
+                // 📌 **Listeyi başa kaydır**
                 await Task.Delay(500);
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
@@ -101,13 +99,10 @@ namespace BarkodListem.ViewModels
                     {
                         MainPage.Instance.BarkodListesi.ScrollTo(index, position: ScrollToPosition.Start, animate: true);
                     }
-                    else
-                    {
-                        Console.WriteLine("Hata: Barkod listede yok, kaydırma yapılamadı.");
-                    }
                 });
             }
         }
+
 
         private async Task BarkodSil(BarkodModel barkod)
         {
