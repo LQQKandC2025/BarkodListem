@@ -126,7 +126,10 @@ namespace BarkodListem
 
             }
         }
+        private void ResimGonder_Clicked(object sender, EventArgs e)
+        {
 
+        }
         // 📌 Barkod Seçip Silme İşlemi
         private async void BarkodSilCommand(object sender, EventArgs e)
         {

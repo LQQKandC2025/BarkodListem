@@ -91,21 +91,29 @@
                             ImageSource="listesil.png"
                             ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
 
-                    <Button Text="AYARLAR"
-                            Grid.Row="2" Grid.Column="1"
-                            Clicked="Ayarlar_Clicked"
-                            TextColor="Black"
-                            CornerRadius="0" 
-                            ImageSource="ayarlar.png"
-                            ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
-
                     <Button Text="LİSTELER"
-                            Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
+                            Grid.Row="2" Grid.Column="1" 
                             Clicked="Listeler_Clicked"
                             TextColor="Black"
                             ImageSource="qrlistesi.png"
                             ContentLayout="Top,10"
                             CornerRadius="0" BackgroundColor="#F0F0F0"/>
+
+                    <Button Text="RESİM GÖNDER"
+                            Grid.Row="3" Grid.Column="0"
+                            Clicked="ResimGonder_Clicked"
+                            TextColor="Black"
+                            CornerRadius="0" 
+                            ImageSource="ayarlar.png"
+                            ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+
+                    <Button Text="AYARLAR"
+                            Grid.Row="3" Grid.Column="1"
+                            Clicked="Ayarlar_Clicked"
+                            TextColor="Black"
+                            CornerRadius="0" 
+                            ImageSource="ayarlar.png"
+                            ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
                 </Grid>
 
                 <!-- Okunan/eklenen barkodların listesi büyütüldü -->
