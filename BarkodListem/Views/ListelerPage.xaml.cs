@@ -70,7 +70,7 @@ namespace BarkodListem.Views
                 string listeAdi = await DisplayPromptAsync("Liste İsmi",
                     "Barkodları göndermek için bir liste ismi giriniz:",
                     "Tamam", "İptal",
-                    mevcutListeAdi == "Geçici Liste" ? "" : mevcutListeAdi // Geçici Liste ise boş bırak
+                    mevcutListeAdi == "Geçici Liste" ? _viewModel.AktifListeAdi : mevcutListeAdi // Geçici Liste ise boş bırak
                 );
 
                 if (string.IsNullOrEmpty(listeAdi))
