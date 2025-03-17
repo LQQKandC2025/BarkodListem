@@ -58,6 +58,12 @@
 	<ItemGroup>
 		<!-- App Icon -->
 		<AndroidResource Remove="$(MonoAndroidResourcePrefix)/*/*.*" />
+		<AndroidResource Remove="Platforms\Android\Resources\Images\**" />
+		<Compile Remove="Platforms\Android\Resources\Images\**" />
+		<EmbeddedResource Remove="Platforms\Android\Resources\Images\**" />
+		<MauiCss Remove="Platforms\Android\Resources\Images\**" />
+		<MauiXaml Remove="Platforms\Android\Resources\Images\**" />
+		<None Remove="Platforms\Android\Resources\Images\**" />
 		<!--<MauiImage Include="Resources\AppIcon\app_icon.png" />-->
 
 		<MauiImage Include="Resources\Images\ayarlar.png"></MauiImage>
@@ -153,7 +159,7 @@
 
 	<ItemGroup>
 		<Folder Include="Platforms\Android\Resources\app_icon\" />
-		<Folder Include="Platforms\Android\Resources\Images\" />
+		<Folder Include="Platforms\Android\Resources\mipmap\" />
 	</ItemGroup>
 
 
@@ -164,6 +170,10 @@
 			<AutoGen>True</AutoGen>
 			<DependentUpon>Resources.resx</DependentUpon>
 		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<MauiIcon Include="Resources\mipmap\app_icon.png" />
+		<MauiIcon Include="Resources\mipmap\app_icon_round.png" />
 	</ItemGroup>
 
 	<ItemGroup>

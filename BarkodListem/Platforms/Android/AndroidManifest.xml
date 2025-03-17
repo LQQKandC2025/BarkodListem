@@ -1,12 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" 
-android:versionCode="1" 
-android:versionName="1,0">
-<application android:allowBackup="false" 
-android:supportsRtl="true" 
-android:label="BarkodListem" 
-android:usesCleartextTraffic="true">
-</application>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0">
+	<application android:allowBackup="false" android:supportsRtl="true" android:label="BarkodListem" android:usesCleartextTraffic="true" android:icon="@mipmap/app_icon_round"></application>
+	<!-- İzinler -->
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-feature android:name="android.hardware.camera" android:required="true" />
 	<uses-permission android:name="android.permission.INTERNET" />
