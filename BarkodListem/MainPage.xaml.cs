@@ -165,16 +165,19 @@ namespace BarkodListem
                 mevcutListeAdi == "Geçici Liste" ? "" : mevcutListeAdi // Geçici Liste ise boş bırak
             );
 
-            if (!string.IsNullOrEmpty(listeAdi))
+            if (string.IsNullOrEmpty(listeAdi))
             {
-                bool confirm = await DisplayAlert("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
-                if (confirm)
-                {
-                    bool success = await _webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
-                    string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
-                    await DisplayAlert("Bilgi", mesaj, "Tamam");
-                }
+                listeAdi = _viewModel.AktifListeAdi;
             }
+
+            bool confirm = await DisplayAlert("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
+            if (confirm)
+            {
+                bool success = await _webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
+                string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
+                await DisplayAlert("Bilgi", mesaj, "Tamam");
+            }
+
         }
         private async void Ayarlar_Clicked(object sender, EventArgs e)
         {
@@ -222,6 +225,10 @@ namespace BarkodListem
             if (!string.IsNullOrEmpty(yeniListeAdi))
             {
                 await _viewModel.SetAktifListe(yeniListeAdi);
+            }
+            else
+            {
+                await _viewModel.SetAktifListe(_viewModel.AktifListeAdi); ;
             }
         }
 

@@ -15,22 +15,22 @@ namespace BarkodListem.Views
         public ObservableCollection<ListeModel> Listeler { get; set; } = new();
         public ObservableCollection<BarkodModel> SeciliListeBarkodlar { get; set; } = new();
 
-  
+
         private string dbPath = Path.Combine(FileSystem.AppDataDirectory, "barkodlistem.db");
         private readonly WebService _webService;
 
-        public ListelerPage(DatabaseService databaseService, BarkodListViewModel viewModel,WebService webService)
+        public ListelerPage(DatabaseService databaseService, BarkodListViewModel viewModel, WebService webService)
         {
             InitializeComponent();
             _databaseService = databaseService;
 
-            
+
             _viewModel = viewModel;  // ViewModel burada atandı+
 
             _webService=webService;
             BindingContext = this;
 
-            
+
             LoadListeler();
         }
 
@@ -57,7 +57,7 @@ namespace BarkodListem.Views
             if (e.CurrentSelection.FirstOrDefault() is ListeModel seciliListe)
             {
                 // Burada ListelerPage'de listelenen "seciliListe"yi ve view model'i yeni sayfaya geçiriyoruz.
-                await Navigation.PushAsync(new ListeDetayPage(seciliListe, _viewModel,_webService));
+                await Navigation.PushAsync(new ListeDetayPage(seciliListe, _viewModel, _webService));
             }
         }
         public async void ListeGonder_Clicked(object sender, EventArgs e)
@@ -73,16 +73,18 @@ namespace BarkodListem.Views
                     mevcutListeAdi == "Geçici Liste" ? "" : mevcutListeAdi // Geçici Liste ise boş bırak
                 );
 
-                if (!string.IsNullOrEmpty(listeAdi))
+                if (string.IsNullOrEmpty(listeAdi))
                 {
-                    bool confirm = await DisplayAlert("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
-                    if (confirm)
-                    {
-                        bool success = await _webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
-                        string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
-                        await DisplayAlert("Bilgi", mesaj, "Tamam");
-                    }
+                    listeAdi = _viewModel.AktifListeAdi;
                 }
+                bool confirm = await DisplayAlert("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
+                if (confirm)
+                {
+                    bool success = await _webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
+                    string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
+                    await DisplayAlert("Bilgi", mesaj, "Tamam");
+                }
+
             }
         }
         public async void ListeSil_Clicked(object sender, EventArgs e)
