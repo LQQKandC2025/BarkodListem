@@ -23,7 +23,7 @@ namespace BarkodListem.Views
             InitializeComponent();
             _viewModel = viewModel;
             this.audioManager = audioManager; // Inject AudioManager
-            scanBarcodeReaderView.BarcodesDetected += OnBarcodesDetected;
+           // scanBarcodeReaderView.BarcodesDetected += OnBarcodesDetected;
         }
 
         protected override void OnAppearing()

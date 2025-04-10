@@ -94,7 +94,7 @@
                     Clicked="ResimGonder_Clicked"
                     TextColor="Black"
                     CornerRadius="0" 
-                    ImageSource="ayarlar.png"
+                    ImageSource="resimgonder.png"
                     ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
 
                     <Button Text="AYARLAR"

@@ -68,6 +68,7 @@
 
 		<MauiImage Include="Resources\Images\ayarlar.png"></MauiImage>
 		<MauiImage Include="Resources\Images\listesil.png"></MauiImage>
+		<MauiImage Include="Resources\Images\resimgonder.png" />
 		<MauiImage Include="Resources\Images\save1.png"></MauiImage>
 		<MauiImage Include="Resources\Images\webservis1.png"></MauiImage>
 		<MauiImage Include="Resources\Images\barkodoku.png"></MauiImage>
@@ -90,6 +91,10 @@
 
 	<ItemGroup>
 		<Compile Remove="Views\ScannerPage.xaml.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="Resources\Images\resimgonder.png" />
 	</ItemGroup>
 
 

@@ -12,9 +12,10 @@
             x:Name="scanBarcodeReaderView"
             BarcodesDetected="OnBarcodesDetected"
             IsTorchOn="False"
-            VerticalOptions="FillAndExpand" 
+            VerticalOptions="Fill" 
             CameraLocation="Rear"
-            IsDetecting="True" Visual="Default"/>
+            IsDetecting="True"
+            Visual="Default"/>
 
         <!-- Kırmızı Çerçeve ile Taramayı Belirginleştirme -->
         <Border Stroke="Red"
@@ -36,6 +37,8 @@
                 HorizontalOptions="End"
                 VerticalOptions="Start"
                 Margin="10"/>
+
+        <!-- Sürekli Okuma Butonu -->
         <Button 
             x:Name="toggleContinuousScan"
             Text="Sürekli Okuma: Kapalı"

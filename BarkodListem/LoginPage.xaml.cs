@@ -19,7 +19,7 @@ public partial class LoginPage : ContentPage
         _databaseService = new DatabaseService(dbPath);
         CheckDatabaseForCredentials();
     }
-
+    [System.Obsolete]
     private async void OnLoginClicked(object sender, EventArgs e)
     {
         string username = usernameEntry.Text?.Trim();
@@ -31,7 +31,7 @@ public partial class LoginPage : ContentPage
             errorLabel.IsVisible = true;
             return;
         }
-
+      
         if (await ValidateCredentials(username, password))
         {
             App.LoginSuccessful(); // Giriş başarılıysa MainPage aç

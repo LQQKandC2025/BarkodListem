@@ -13,8 +13,9 @@ namespace BarkodListem
         public static IServiceProvider Services { get; private set; }
         private static DatabaseService _databaseService;
         private static WebService _webService;
-        
-        public App(IServiceProvider services,WebService webService,DatabaseService databaseService)
+
+        [System.Obsolete]
+        public App(IServiceProvider services, WebService webService, DatabaseService databaseService)
         {
             InitializeComponent();
             ThemeHelper.ApplyTheme(ThemeHelper.SelectedTheme);
@@ -24,12 +25,14 @@ namespace BarkodListem
             MainPage = new LoginPage();
             //MainPage = new NavigationPage(new MainPage(Services.GetService<BarkodListViewModel>(),_webService,_databaseService)); // ✅ NavigationPage kullan
         }
+        [System.Obsolete]
         public static void LoginSuccessful()
         {
             IsLoggedIn = true;
 
             Application.Current.MainPage = new NavigationPage(new MainPage(Services.GetService<BarkodListViewModel>(), _webService, _databaseService));
         }
+        [System.Obsolete]
         public static void Logout()
         {
             IsLoggedIn = false;

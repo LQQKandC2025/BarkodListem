@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-			 
+			 xmlns:models="clr-namespace:BarkodListem.Models"
+
              x:Class="BarkodListem.Views.ListelerPage"
              Title="Kayıtlı Listeler">
     <VerticalStackLayout Padding="20">
@@ -12,7 +13,7 @@
                 SelectionMode="Single"
                 SelectionChanged="ListeSecildi">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="models:ListeModel">
                     <Border Padding="10"
                     BackgroundColor="LightGray"
                     Margin="5">
@@ -47,7 +48,7 @@
                 ItemsSource="{Binding SeciliListeBarkodlar}"
                 Margin="0,10,0,0">
             <CollectionView.ItemTemplate>
-                <DataTemplate>
+                <DataTemplate x:DataType="models:BarkodModel">
                     <Border Padding="10"
 							BackgroundColor="LightGray"
 							Margin="5">

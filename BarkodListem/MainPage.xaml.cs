@@ -231,7 +231,7 @@ namespace BarkodListem
                 await _viewModel.SetAktifListe(_viewModel.AktifListeAdi); ;
             }
         }
-
+        [Obsolete]
         private void LogoutButton_Clicked(object sender, EventArgs e)
         {
             App.Logout(); // Kullanıcıyı çıkış yaptır
