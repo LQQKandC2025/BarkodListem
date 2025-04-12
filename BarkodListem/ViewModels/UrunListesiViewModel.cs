@@ -5,7 +5,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using BarkodListem.ViewModels;
 using BarkodListem.Data;
 
 namespace BarkodListem.ViewModels
@@ -14,6 +13,7 @@ namespace BarkodListem.ViewModels
     {
         public ObservableCollection<UrunModel> Urunler { get; set; } = new();
         public ICommand FotografCekCommand { get; set; }
+        public ICommand FotografSSHCommand { get; set; }
 
         private readonly WebService _webService;
         private string _sevkiyatNo;
@@ -23,9 +23,10 @@ namespace BarkodListem.ViewModels
         public UrunListesiViewModel()
         {
             var databaseService = new DatabaseService(dbPath);
-          
             _webService = new WebService(databaseService);
-            FotografCekCommand = new Command<string>(async (tip) => await FotografCekAsync(tip));
+
+            FotografCekCommand = new Command<UrunModel>(async (urun) => await FotografCekAsync(urun, "TF"));
+            FotografSSHCommand = new Command<UrunModel>(async (urun) => await FotografCekAsync(urun, "SSH"));
         }
 
         public async Task YukleAsync(string sevkiyatNo)
@@ -48,7 +49,7 @@ namespace BarkodListem.ViewModels
             Notify(nameof(Urunler));
         }
 
-        private async Task FotografCekAsync(string tip)
+        private async Task FotografCekAsync(UrunModel urun, string tip)
         {
             if (!MediaPicker.Default.IsCaptureSupported)
             {
@@ -59,15 +60,11 @@ namespace BarkodListem.ViewModels
             try
             {
                 var photo = await MediaPicker.Default.CapturePhotoAsync();
-                if (photo == null) return;
-
-                var urun = SelectedUrun;
-                if (urun == null) return;
+                if (photo == null || urun == null) return;
 
                 var saveFolder = Path.Combine(FileSystem.Current.AppDataDirectory, urun.ResimKlasoru);
                 Directory.CreateDirectory(saveFolder);
 
-                // sýra numarasý tespiti
                 int sira = Directory.GetFiles(saveFolder, $"{tip}_{urun.DosyaKodu}_*.jpg").Length + 1;
                 string fileName = $"{tip}_{urun.DosyaKodu}_{sira}.jpg";
                 string fullPath = Path.Combine(saveFolder, fileName);
@@ -81,17 +78,6 @@ namespace BarkodListem.ViewModels
             catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
-            }
-        }
-
-        private UrunModel _selectedUrun;
-        public UrunModel SelectedUrun
-        {
-            get => _selectedUrun;
-            set
-            {
-                _selectedUrun = value;
-                Notify();
             }
         }
 
