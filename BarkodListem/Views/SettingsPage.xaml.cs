@@ -1,8 +1,7 @@
 ﻿
-using BarkodListem.Helpers;
-
-using BarkodListem.Models;
 using BarkodListem.Data;
+using BarkodListem.Helpers;
+using BarkodListem.Models;
 
 namespace BarkodListem.Views
 {

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BarkodListem.ViewModels"
+             x:Class="BarkodListem.Pages.UrunListesiPage"
+             Title="Ürün Listesi">
+    <ContentPage.BindingContext>
+        <vm:UrunListesiViewModel />
+    </ContentPage.BindingContext>
+
+    <VerticalStackLayout Padding="10" Spacing="10">
+        <Label Text="Sevkiyat Ürün Listesi" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center" />
+
+        <CollectionView ItemsSource="{Binding Urunler}" x:Name="UrunListesi">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnSpacing="10" Padding="10" BackgroundColor="#f5f5f5" RowSpacing="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackLayout Grid.Column="0">
+                            <Label Text="{Binding STOK_ADI}" FontAttributes="Bold">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UrunListesiViewModel}}, Path=FotografCekCommand}" CommandParameter="TF" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{Binding STOK_SPEC}" FontSize="12" />
+                            <Label Text="Miktar: {Binding MIKTAR}" FontSize="12" />
+                        </StackLayout>
+
+                        <Button Text="SSH"
+                                Grid.Column="1"
+                                VerticalOptions="Center"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UrunListesiViewModel}}, Path=FotografCekCommand}"
+                                CommandParameter="SSH"
+                                BackgroundColor="#4CAF50"
+                                TextColor="White" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <HorizontalStackLayout Spacing="20" HorizontalOptions="Center">
+            <Button Text="GERİ DÖN" Clicked="OnGeriDonClicked" />
+            <Button Text="GALERİ" Clicked="OnGaleriClicked" />
+        </HorizontalStackLayout>
+    </VerticalStackLayout>
+</ContentPage>

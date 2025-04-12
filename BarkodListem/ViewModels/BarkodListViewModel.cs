@@ -1,8 +1,8 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Input;
-using BarkodListem.Data;
+﻿using BarkodListem.Data;
 using BarkodListem.Models;
 using BarkodListem.Services;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace BarkodListem.ViewModels
 {

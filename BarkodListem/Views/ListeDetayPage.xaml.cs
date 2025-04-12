@@ -1,7 +1,6 @@
-﻿using Microsoft.Maui.Controls;
-using BarkodListem.Models;
-using BarkodListem.ViewModels;
+﻿using BarkodListem.Models;
 using BarkodListem.Services;
+using BarkodListem.ViewModels;
 
 namespace BarkodListem.Views
 {
@@ -39,7 +38,7 @@ namespace BarkodListem.Views
             bool confirm = await DisplayAlert("Gönderim Onayı", $"{Liste.ListeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
             if (confirm)
             {
-               
+
                 bool success = await _webService.BarkodListesiGonder(Liste.Barkodlar.ToList(), Liste.ListeAdi);
                 string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
                 await DisplayAlert("Bilgi", mesaj, "Tamam");

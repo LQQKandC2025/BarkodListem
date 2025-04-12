@@ -1,12 +1,7 @@
-﻿using ZXing.Net.Maui;
-using ZXing.Net.Maui.Controls;
+﻿using BarkodListem.Pages;
 using BarkodListem.ViewModels;
-using BarkodListem;
-using Microsoft.Maui.Controls;
-using System.Linq;
-using AndroidX.Lifecycle;
-
 using Plugin.Maui.Audio;
+using ZXing.Net.Maui;
 
 namespace BarkodListem.Views
 {
@@ -23,7 +18,7 @@ namespace BarkodListem.Views
             InitializeComponent();
             _viewModel = viewModel;
             this.audioManager = audioManager; // Inject AudioManager
-           // scanBarcodeReaderView.BarcodesDetected += OnBarcodesDetected;
+                                              // scanBarcodeReaderView.BarcodesDetected += OnBarcodesDetected;
         }
 
         protected override void OnAppearing()
@@ -67,7 +62,7 @@ namespace BarkodListem.Views
 
         private async void OnBarcodesDetected(object sender, BarcodeDetectionEventArgs e)
         {
-            if (isProcessing) return; // Prevent multiple detections
+            if (isProcessing) return;
             isProcessing = true;
 
             if (e.Results.Any())
@@ -75,12 +70,11 @@ namespace BarkodListem.Views
                 var barkod = e.Results.FirstOrDefault()?.Value;
                 if (!string.IsNullOrEmpty(barkod))
                 {
-                    // 📢 BİP SESİ ÇIKAR (Alternatif ToneGenerator ile)
                     try
                     {
                         using (var toneG = new Android.Media.ToneGenerator(Android.Media.Stream.System, 100))
                         {
-                            toneG.StartTone(Android.Media.Tone.Dtmf1, 200); // 200 ms bip sesi
+                            toneG.StartTone(Android.Media.Tone.Dtmf1, 200);
                         }
                     }
                     catch (Exception ex)
@@ -90,21 +84,34 @@ namespace BarkodListem.Views
 
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
-                        await _viewModel.BarkodEkle(barkod); // 📌 Barkodu başa ekleyecek metot
-
-                        // 📌 **Eğer sürekli okuma modu KAPALIYSA, sayfayı kapat**
-                        if (!isContinuousMode)
+                        if (barkod.StartsWith("SVK-"))
                         {
-                            if (Navigation.NavigationStack.Count > 1)
+                            // 📌 Listeye ekleme yerine sevkiyat formuna yönlendir
+                            await Navigation.PushAsync(new SevkiyatDetayPage(barkod));
+
+                            // Eğer sürekli okuma modu kapalıysa sayfayı kapatalım
+                            if (!isContinuousMode && Navigation.NavigationStack.Count > 1)
                             {
-                                await Navigation.PopAsync();
+                                await Navigation.PopAsync(); // ScannerPage kapanır
                             }
                         }
                         else
                         {
-                            // 📌 Sürekli okuma modu AÇIKSA, algılamayı tekrar başlat
-                            await Task.Delay(500); // Çakışmayı önlemek için kısa bekleme süresi
-                            scanBarcodeReaderView.IsDetecting = true;
+                            // Barkod listeye eklenecek
+                            await _viewModel.BarkodEkle(barkod);
+
+                            if (!isContinuousMode)
+                            {
+                                if (Navigation.NavigationStack.Count > 1)
+                                {
+                                    await Navigation.PopAsync();
+                                }
+                            }
+                            else
+                            {
+                                await Task.Delay(500);
+                                scanBarcodeReaderView.IsDetecting = true;
+                            }
                         }
                     });
                 }
@@ -112,6 +119,7 @@ namespace BarkodListem.Views
 
             isProcessing = false;
         }
+
 
 
 

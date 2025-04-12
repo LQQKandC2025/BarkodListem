@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using BarkodListem.Data;
-using Microsoft.Extensions.Logging;
-using ZXing.Net.Maui.Controls;
-
-using BarkodListem.ViewModels;
+﻿using BarkodListem.Data;
 using BarkodListem.Services;
+using BarkodListem.ViewModels;
+using ZXing.Net.Maui.Controls;
+using Microsoft.Extensions.Logging;
 namespace BarkodListem
 {
     public static class MauiProgram

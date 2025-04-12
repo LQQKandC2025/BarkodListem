@@ -1,27 +1,25 @@
 ﻿using BarkodListem.Models;
 using SQLite;
-using BarkodListem.Data;
 using System.Collections.ObjectModel;
-using BarkodListem.Services;
 
 namespace BarkodListem.Data
 {
     public class DatabaseService
     {
         private static SQLiteAsyncConnection _database;
-        
+
         public DatabaseService(string dbPath)
         {
-             _database = new SQLiteAsyncConnection(dbPath);
+            _database = new SQLiteAsyncConnection(dbPath);
             // 📌 Eski tabloyu tamamen kaldır ve yeni bir tane oluştur
-           // _database.DropTableAsync<BarkodModel>().Wait();  // ❌ Mevcut tabloyu sil
-                                                             //_database.CreateTableAsync<BarkodModel>().Wait();  // ✅ Yeni tablo oluştur
+            // _database.DropTableAsync<BarkodModel>().Wait();  // ❌ Mevcut tabloyu sil
+            //_database.CreateTableAsync<BarkodModel>().Wait();  // ✅ Yeni tablo oluştur
             //_database.DropTableAsync<ListeModel>().Wait();
-           // _database.DropTableAsync<AyarlarModel>().Wait();
+            // _database.DropTableAsync<AyarlarModel>().Wait();
 
-         
+
             _database.CreateTableAsync<BarkodModel>().Wait();
-       //     _database.CreateTableAsync<ListeModel>().Wait();
+            //     _database.CreateTableAsync<ListeModel>().Wait();
             _database.CreateTableAsync<AyarlarModel>().Wait(); //
 
 

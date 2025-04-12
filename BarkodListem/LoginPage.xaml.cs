@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BarkodListem.Data;
 using BarkodListem.Models;
-using BarkodListem.Data;
 
 namespace BarkodListem;
 
@@ -12,7 +7,7 @@ public partial class LoginPage : ContentPage
 {
     public string dbPath = Path.Combine(FileSystem.AppDataDirectory, "barkodlistem.db");
     public DatabaseService _databaseService;
-    
+
     public LoginPage()
     {
         InitializeComponent();
@@ -31,7 +26,7 @@ public partial class LoginPage : ContentPage
             errorLabel.IsVisible = true;
             return;
         }
-      
+
         if (await ValidateCredentials(username, password))
         {
             App.LoginSuccessful(); // Giriş başarılıysa MainPage aç
@@ -45,7 +40,7 @@ public partial class LoginPage : ContentPage
 
     private async Task<bool> ValidateCredentials(string username, string password)
     {
-        var ayarlar = await _databaseService.AyarlarGetir(); 
+        var ayarlar = await _databaseService.AyarlarGetir();
         if (ayarlar != null)
         {
             return username == ayarlar.KullaniciAdi && password == ayarlar.Sifre;
@@ -55,7 +50,7 @@ public partial class LoginPage : ContentPage
 
     private async void CheckDatabaseForCredentials()
     {
-        var ayarlar = await _databaseService.AyarlarGetir(); 
+        var ayarlar = await _databaseService.AyarlarGetir();
         if (ayarlar == null)
         {
             await _databaseService.AyarKaydet(new AyarlarModel

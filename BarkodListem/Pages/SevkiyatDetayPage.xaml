@@ -1,0 +1,82 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BarkodListem.Pages.SevkiyatDetayPage"
+             Title="Sevkiyat Detayı">
+
+    <ScrollView>
+        <Grid Padding="20"
+              ColumnSpacing="10"
+              RowSpacing="12"
+              HorizontalOptions="Center"
+              WidthRequest="520">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Şık görünümlü giriş alanları -->
+            <Label Grid.Row="0" Grid.Column="0" Text="SEVK_FIS_ID" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="0" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SEVK_FIS_ID}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="1" Grid.Column="0" Text="SEVK_TARIH" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="1" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SEVK_TARIH}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="2" Grid.Column="0" Text="SEVKIYAT_NO" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="2" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SEVKIYAT_NO}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="3" Grid.Column="0" Text="ISLEM_TURU" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="3" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding ISLEM_TURU}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="4" Grid.Column="0" Text="TESLIM_NOTU" VerticalOptions="Start" FontAttributes="Bold" />
+            <Frame Grid.Row="4" Grid.Column="1" CornerRadius="10" HasShadow="True">
+                <Editor Text="{Binding TESLIM_NOTU}" HeightRequest="100" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="5" Grid.Column="0" Text="TESLIM_ALAN" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="5" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding TESLIM_ALAN}" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="6" Grid.Column="0" Text="TEL1" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="6" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding TEL1}" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="7" Grid.Column="0" Text="TESLIM_ONAY_KODU" VerticalOptions="Center" FontAttributes="Bold" />
+            <HorizontalStackLayout Grid.Row="7" Grid.Column="1" Spacing="10">
+                <Frame CornerRadius="10" HasShadow="True" Padding="0" WidthRequest="140">
+                    <Entry Text="{Binding TESLIM_ONAY_KODU}" BackgroundColor="Transparent" />
+                </Frame>
+                <Button Text="KOD GÖNDER" Command="{Binding KodGonderCommand}" />
+            </HorizontalStackLayout>
+
+            <!-- Alt Butonlar -->
+            <HorizontalStackLayout Grid.Row="8" Grid.ColumnSpan="2" HorizontalOptions="Center" Spacing="20" Margin="0,10,0,0">
+                <Button Text="KAYDET" Command="{Binding KaydetCommand}" WidthRequest="140" />
+                <Button Text="ÜRÜN LİSTESİ" Clicked="OnUrunListesiClicked" WidthRequest="140" />
+            </HorizontalStackLayout>
+
+        </Grid>
+    </ScrollView>
+</ContentPage>

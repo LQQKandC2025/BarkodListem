@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace BarkodListem.Services
+﻿namespace BarkodListem.Services
 {
     [System.Obsolete]
     public static class ServiceHelper

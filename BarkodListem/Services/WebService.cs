@@ -1,11 +1,8 @@
-﻿using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using BarkodListem.Data;
-using System;
+﻿using BarkodListem.Data;
+using BarkodListem.Helpers;
 using BarkodListem.Models;
-using Java.Net;
+using System.Data;
+using System.Text;
 
 namespace BarkodListem.Services
 {
@@ -17,7 +14,20 @@ namespace BarkodListem.Services
         {
             _databaseService = databaseService;
         }
-
+        private string BuildServiceUrl(string baseUrl, int port)
+        {
+            try
+            {
+                var uri = new Uri(baseUrl);
+                string domain = uri.Host;
+                int finalPort = uri.IsDefaultPort ? port : uri.Port;
+                return $"http://{domain}:{finalPort}{uri.AbsolutePath}/BarkodService.asmx";
+            }
+            catch
+            {
+                return $"http://{baseUrl}:{port}/BarkodService.asmx";
+            }
+        }
 
         public async Task<bool> BarkodListesiGonder(List<BarkodModel> barkodlar, string listeAdi)
         {
@@ -88,6 +98,138 @@ namespace BarkodListem.Services
                 return false;
             }
         }
+        public async Task<DataTable> SevkiyatSorgula(string sevkiyatNo)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+
+            if (ayarlar == null || string.IsNullOrEmpty(ayarlar.WebServisURL))
+                throw new Exception("Web Servis URL'si ayarlardan alınamadı.");
+
+            // 📌 Portlu URL oluştur
+            Uri baseUri = new Uri(ayarlar.WebServisURL);
+            string domain = baseUri.Host;
+            int port = baseUri.IsDefaultPort ? ayarlar.Port : baseUri.Port;
+            string webServiceUrl = $"http://{domain}:{port}{baseUri.AbsolutePath}/BarkodService.asmx";
+
+            // 📌 SOAP Request
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <SevkiyatSorgula xmlns=""http://barkodwebservice.com/"">
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <sevkiyatNo>{sevkiyatNo}</sevkiyatNo>
+    </SevkiyatSorgula>
+  </soap:Body>
+</soap:Envelope>";
+
+            using (var client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromSeconds(60);
+
+                var request = new HttpRequestMessage(HttpMethod.Post, webServiceUrl);
+                request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatSorgula");
+                request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+                var response = await client.SendAsync(request);
+                string resultXml = await response.Content.ReadAsStringAsync();
+
+                // 🔍 Yalnızca <SevkiyatSorgulaResult> içeriğini ayıkla
+                string cleanedXml = ExtractDataTableXml(resultXml, "SevkiyatSorgulaResult");
+
+                // 📥 XML'i DataTable'a dönüştür
+                var ds = new DataSet();
+                ds.ReadXml(new StringReader(cleanedXml));
+                return ds.Tables.Count > 0 ? ds.Tables[0] : new DataTable();
+            }
+        }
+
+
+        public async Task<string> SevkiyatGuncelle(string sevkiyatNo, string teslimNotu, string adiSoyadi, string tel1, string onayKodu)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+
+            Uri baseUri = new Uri(ayarlar.WebServisURL);
+            string domain = baseUri.Host;
+            int port = baseUri.IsDefaultPort ? ayarlar.Port : baseUri.Port;
+
+            string webServiceUrl = $"http://{domain}:{port}{baseUri.AbsolutePath}/BarkodService.asmx";
+
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <SevkiyatGuncelle xmlns=""http://barkodwebservice.com/"">
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <sevkiyatNo>{sevkiyatNo}</sevkiyatNo>
+      <teslimNotu>{teslimNotu}</teslimNotu>
+      <adiSoyadi>{adiSoyadi}</adiSoyadi>
+      <tel1>{tel1}</tel1>
+      <teslimOnayKodu>{onayKodu}</teslimOnayKodu>
+    </SevkiyatGuncelle>
+  </soap:Body>
+</soap:Envelope>";
+
+            using (var client = new HttpClient())
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, webServiceUrl);
+                request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatGuncelle");
+                request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+                var response = await client.SendAsync(request);
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
+        private string ExtractDataTableXml(string soapXml, string resultTag)
+        {
+            var startTag = $"<{resultTag}>";
+            var endTag = $"</{resultTag}>";
+
+            int start = soapXml.IndexOf(startTag) + startTag.Length;
+            int end = soapXml.IndexOf(endTag);
+
+            if (start <= 0 || end <= 0 || end <= start)
+                throw new Exception("SOAP içeriğinde beklenen veri bulunamadı.");
+
+            string innerXml = soapXml.Substring(start, end - start);
+            return $"<Root>{innerXml}</Root>"; // Tek kök elementli XML haline getir
+        }
+
+        public async Task<DataTable> SevkiyatUrunListesi(string sevkiyatNo)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+
+            // 📌 SOAP request şablonu
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <SevkiyatUrunListesi xmlns=""http://barkodwebservice.com/"">
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <sevkiyatNo>{sevkiyatNo}</sevkiyatNo>
+    </SevkiyatUrunListesi>
+  </soap:Body>
+</soap:Envelope>";
+
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatUrunListesi");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            var resultXml = await response.Content.ReadAsStringAsync();
+
+            return SoapHelper.ParseDataTableFromXml(resultXml, "SevkiyatUrunListesiResult");
+        }
+
 
 
     }

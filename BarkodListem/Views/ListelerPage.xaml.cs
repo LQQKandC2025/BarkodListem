@@ -1,9 +1,9 @@
 ﻿
-using System.Collections.ObjectModel;
+using BarkodListem.Data;
 using BarkodListem.Models;
 using BarkodListem.Services;
-using BarkodListem.Data;
 using BarkodListem.ViewModels;
+using System.Collections.ObjectModel;
 
 
 namespace BarkodListem.Views
