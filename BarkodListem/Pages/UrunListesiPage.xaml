@@ -4,12 +4,8 @@
              xmlns:vm="clr-namespace:BarkodListem.ViewModels"
              x:Class="BarkodListem.Pages.UrunListesiPage"
              Title="Ürün Listesi">
-
-    <ContentPage.BindingContext>
-        <vm:UrunListesiViewModel />
-    </ContentPage.BindingContext>
-
-    <VerticalStackLayout Padding="10" Spacing="10">
+    <ScrollView>
+        <VerticalStackLayout Padding="10" Spacing="10">
         <Label Text="Sevkiyat Ürün Listesi"
                FontSize="20"
                FontAttributes="Bold"
@@ -28,8 +24,8 @@
                             <Label Text="{Binding STOK_ADI}" FontAttributes="Bold" TextColor="#333">
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UrunListesiViewModel}}, Path=FotografTFCommand}"
-                                        CommandParameter="{Binding .}" />
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UrunListesiViewModel}}, Path=FotografCekCommand}"
+                                    CommandParameter="{Binding .}" />
                                 </Label.GestureRecognizers>
                             </Label>
                             <Label Text="{Binding STOK_SPEC}" FontSize="12" TextColor="#666" />
@@ -53,4 +49,5 @@
             <Button Text="GALERİ" Clicked="OnGaleriClicked" />
         </HorizontalStackLayout>
     </VerticalStackLayout>
+        </ScrollView>
 </ContentPage>

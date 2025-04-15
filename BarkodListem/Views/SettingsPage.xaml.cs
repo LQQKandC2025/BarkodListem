@@ -20,6 +20,7 @@ namespace BarkodListem.Views
                 entryUser.Text = ayarlar.KullaniciAdi;
                 entryPassword.Text = ayarlar.Sifre;
             }
+            versionLabel.Text = "Versiyon: " + AppInfo.Current.VersionString;
         }
         public SettingsPage(DatabaseService databaseService)
         {

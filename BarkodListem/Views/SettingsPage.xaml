@@ -27,6 +27,12 @@
 				<x:String>Karanlık</x:String>
 			</Picker.Items>
 		</Picker>
-	</VerticalStackLayout>
+        <Label x:Name="versionLabel"
+       HorizontalOptions="Center"
+       Margin="0,30,0,10"
+       TextColor="Gray"
+       FontAttributes="Italic"
+       FontSize="12" />
+    </VerticalStackLayout>
 
 </ContentPage>

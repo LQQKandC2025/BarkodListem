@@ -23,6 +23,7 @@ namespace BarkodListem
             _webService=webService;
             Instance = this;
             _databaseService=databaseService;
+
         }
         protected override async void OnAppearing()
         {
@@ -130,6 +131,7 @@ namespace BarkodListem
             {
                 // ViewModel üzerinden hem veritabanını temizle hem de in-memory listeden kayıtları sil
                 await _viewModel.ClearAllBarkodsAsync();
+                
             }
         }
         private void BarkodEntry_Completed(object sender, EventArgs e)

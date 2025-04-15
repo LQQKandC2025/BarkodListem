@@ -36,6 +36,15 @@
                 <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LightButtonBackground}, Dark={StaticResource DarkButtonBackground}}"/>
                 <Setter Property="TextColor" Value="White"/>
             </Style>
+            <Style TargetType="Shell">
+                <Setter Property="BackgroundColor" Value="#f2f2f2" />
+                <Setter Property="TitleColor" Value="Black" />
+                <Setter Property="ForegroundColor" Value="Black" />
+            </Style>
+            <Style TargetType="NavigationPage">
+                <Setter Property="BarBackgroundColor" Value="#E6FFFFFF"/>
+                <Setter Property="BarTextColor" Value="Black"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 

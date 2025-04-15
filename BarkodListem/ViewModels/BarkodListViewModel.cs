@@ -169,6 +169,7 @@ namespace BarkodListem.ViewModels
             {
                 // UI listesini de temizle
                 Barkodlar.Clear();
+                SetAktifListe("Geçici Liste"); // Varsayılan listeye geri dön
             }
             else
             {

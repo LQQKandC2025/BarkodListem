@@ -33,7 +33,7 @@ namespace BarkodListem.Views
 
             scanBarcodeReaderView.Options = new BarcodeReaderOptions
             {
-                Formats = BarcodeFormats.All, // Sadece QR kodları oku
+                Formats = BarcodeFormats.TwoDimensional, // Sadece QR kodları oku
                 AutoRotate = true,
                 Multiple = false,
                 TryHarder = true,
@@ -84,27 +84,20 @@ namespace BarkodListem.Views
 
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
-                        if (barkod.StartsWith("SVK-"))
+                        if (barkod.ToUpper().StartsWith("SVK-"))
                         {
-                            // 📌 Listeye ekleme yerine sevkiyat formuna yönlendir
+                            scanBarcodeReaderView.IsDetecting = false;
                             await Navigation.PushAsync(new SevkiyatDetayPage(barkod));
-
-                            // Eğer sürekli okuma modu kapalıysa sayfayı kapatalım
-                            if (!isContinuousMode && Navigation.NavigationStack.Count > 1)
-                            {
-                                await Navigation.PopAsync(); // ScannerPage kapanır
-                            }
                         }
                         else
                         {
-                            // Barkod listeye eklenecek
                             await _viewModel.BarkodEkle(barkod);
 
                             if (!isContinuousMode)
                             {
                                 if (Navigation.NavigationStack.Count > 1)
                                 {
-                                    await Navigation.PopAsync();
+                                    await Navigation.PopAsync(); // ❗ sadece normal barkodlar için
                                 }
                             }
                             else
@@ -119,6 +112,8 @@ namespace BarkodListem.Views
 
             isProcessing = false;
         }
+
+
 
 
 
