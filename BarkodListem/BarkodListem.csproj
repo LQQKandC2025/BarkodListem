@@ -82,6 +82,7 @@
 		<MauiImage Include="Resources\Images\webservis1.png"></MauiImage>
 		<MauiImage Include="Resources\Images\barkodoku.png"></MauiImage>
 		<MauiImage Include="Resources\Images\qrlistesi.png"></MauiImage>
+		<MauiImage Include="Resources\Images\listeekle.png"></MauiImage>
 	</ItemGroup>
 	<ItemGroup>
 		<!-- Splash Screen -->

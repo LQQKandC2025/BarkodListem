@@ -24,6 +24,7 @@ namespace BarkodListem.ViewModels
         public string TESLIM_ALAN { get; set; }
         public string TEL1 { get; set; }
         public string TESLIM_ONAY_KODU { get; set; }
+        public string ARAC_PLAKA { get; set; }
 
         public ICommand KaydetCommand => new Command(async () => await KaydetAsync());
         public ICommand UrunListesiCommand => new Command(OnUrunListesi);
@@ -53,6 +54,7 @@ namespace BarkodListem.ViewModels
                     TESLIM_ALAN = row["ADI_SOYADI"]?.ToString();
                     TEL1 = row["TEL_1"]?.ToString();
                     TESLIM_ONAY_KODU = row["TESLIM_ONAY_KODU"]?.ToString();
+                    ARAC_PLAKA = row["ARAC_PLAKA"]?.ToString();
 
                     NotifyAll();
                 }
