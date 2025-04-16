@@ -89,12 +89,12 @@
                     ContentLayout="Top,10"
                     CornerRadius="0" BackgroundColor="#F0F0F0"/>
 
-                    <Button Text="RESİM GÖNDER"
+                    <Button Text="YENİ LİSTE"
                     Grid.Row="3" Grid.Column="0"
-                    Clicked="ResimGonder_Clicked"
+                    Clicked="YeniListeOlustur_Clicked"
                     TextColor="Black"
                     CornerRadius="0" 
-                    ImageSource="resimgonder.png"
+                    ImageSource="listeekle.png"
                     ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
 
                     <Button Text="AYARLAR"

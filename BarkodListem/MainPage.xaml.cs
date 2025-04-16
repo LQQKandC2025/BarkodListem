@@ -66,6 +66,16 @@ namespace BarkodListem
                 }
             }
         }
+        private async void YeniListeOlustur_Clicked(object sender, EventArgs e)
+        {
+            string yeniListeAdi = await DisplayPromptAsync("Yeni Liste", "Yeni liste ismi giriniz:", "Tamam", "İptal");
+
+            if (!string.IsNullOrWhiteSpace(yeniListeAdi))
+            {
+                await _viewModel.YeniListeOlustur(yeniListeAdi);
+                await DisplayAlert("Başarılı", $"Yeni liste oluşturuldu: {yeniListeAdi}", "Tamam");
+            }
+        }
         private void ResimGonder_Clicked(object sender, EventArgs e)
         {
 

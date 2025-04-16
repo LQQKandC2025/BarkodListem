@@ -162,6 +162,16 @@ namespace BarkodListem.ViewModels
                 Console.WriteLine("MainPage şu anda null.");
             }
         }
+        public async Task YeniListeOlustur(string yeniListeAdi)
+        {
+            // Aktif liste adını değiştir (OnPropertyChanged çağrılır)
+            AktifListeAdi = yeniListeAdi;
+
+            // Görünümdeki barkod listesini temizle
+            Barkodlar.Clear();
+
+            // Not: Veritabanına kaydetme işlemi yapılmaz. Liste boş başlatılır.
+        }
         public async Task ClearAllBarkodsAsync()
         {
             bool dbResult = await DatabaseService.DeleteAllBarkodsAsync(); // SQLite'da tüm kayıtları silen metot
