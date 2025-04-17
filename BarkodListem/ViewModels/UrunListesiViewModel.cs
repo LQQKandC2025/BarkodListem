@@ -85,5 +85,10 @@ namespace BarkodListem.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+        public ICommand SshFormAcCommand => new Command<UrunModel>(async (urun) =>
+        {
+            if (urun == null) return;
+            await Shell.Current.Navigation.PushModalAsync(new SSHFormPage(urun));
+        });
     }
 }
