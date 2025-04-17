@@ -6,6 +6,10 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using BarkodListem.Data;
+using BarkodListem.Pages;
+{
+
+}
 
 namespace BarkodListem.ViewModels
 {
@@ -44,6 +48,7 @@ namespace BarkodListem.ViewModels
                     SEVK_ARAC_ID = row["SEVK_ARAC_ID"].ToString(),
                     SIP_STR_ID = row["SIP_STR_ID"].ToString(),
                     SEVK_FIS_ID = row["SEVK_FIS_ID"].ToString(),
+                    STOK_ID = row["STOK_ID"].ToString(),
                 });
             }
             Notify(nameof(Urunler));
@@ -85,10 +90,6 @@ namespace BarkodListem.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        public ICommand SshFormAcCommand => new Command<UrunModel>(async (urun) =>
-        {
-            if (urun == null) return;
-            await Shell.Current.Navigation.PushModalAsync(new SSHFormPage(urun));
-        });
+       
     }
 }

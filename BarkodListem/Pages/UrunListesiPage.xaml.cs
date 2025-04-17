@@ -1,3 +1,4 @@
+using BarkodListem.Models;
 using BarkodListem.ViewModels;
 
 namespace BarkodListem.Pages
@@ -24,6 +25,18 @@ namespace BarkodListem.Pages
         private async void OnGaleriClicked(object sender, EventArgs e)
         {
             await Application.Current.MainPage.DisplayAlert("GALERÝ", "Burada galeri açýlacak (devamýnda yapýlacak)", "Tamam");
+        }
+        private async void OnSSHButtonClicked(object sender, EventArgs e)
+        {
+            // Butona týklanan satýrdaki ürünü al
+            var button = sender as Button;
+            var urun = button?.BindingContext as UrunModel;
+
+            if (urun == null)
+                return;
+
+            // SSH formuna gerekli parametreleri taþý
+            await Navigation.PushAsync(new SSHFormPage(urun));
         }
     }
 }

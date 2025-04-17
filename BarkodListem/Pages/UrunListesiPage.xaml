@@ -37,7 +37,7 @@
                                 VerticalOptions="Center"
                                 BackgroundColor="#4CAF50"
                                 TextColor="White"
-                                Command="{Binding BindingContext.SshFormAcCommand, Source={x:Reference UrunListesiPage}}"
+                                Command="{Binding BindingContext.OnSSHButtonClicked, Source={x:Reference UrunListesiPage}}"
                                 CommandParameter="{Binding .}" />
                     </Grid>
                 </DataTemplate>
