@@ -92,7 +92,11 @@ namespace BarkodListem.Data
             await _database.Table<BarkodModel>().DeleteAsync(b => b.ListeAdi == liste.ListeAdi);
         }
 
-
+        public static async Task<SQLiteAsyncConnection> GetConnectionAsync()
+        {
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "barkodlistem.db");
+            return new SQLiteAsyncConnection(dbPath);
+        }
 
     }
 }
