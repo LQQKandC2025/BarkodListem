@@ -6,7 +6,7 @@ namespace BarkodListem.Pages
     public partial class SevkiyatDetayPage : ContentPage
     {
         private readonly SevkiyatDetayViewModel viewModel;
-
+        public string MOBIL_PERSONEL { get; set; } = AppGlobals.mobil_id.ToString();
         public SevkiyatDetayPage(string sevkiyatNo)
         {
             InitializeComponent();

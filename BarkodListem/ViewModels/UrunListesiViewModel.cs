@@ -90,6 +90,9 @@ namespace BarkodListem.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-       
+        public string GetSevkiyatNo()
+        {
+            return _sevkiyatNo;
+        }
     }
 }

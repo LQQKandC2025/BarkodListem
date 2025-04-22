@@ -28,15 +28,16 @@ namespace BarkodListem.Pages
         }
         private async void OnSSHButtonClicked(object sender, EventArgs e)
         {
-            // Butona týklanan satýrdaki ürünü al
             var button = sender as Button;
             var urun = button?.BindingContext as UrunModel;
 
             if (urun == null)
                 return;
 
-            // SSH formuna gerekli parametreleri taþý
-            //await Navigation.PushAsync(new SSHFormPage(urun));
+            var sevkiyatNo = _viewModel?.GetSevkiyatNo();
+            var subeKodu = urun.SUBE_KODU ?? "000"; // urun üzerinden geliyor, garanti olur
+
+            await Navigation.PushAsync(new SSHFormPage(urun, sevkiyatNo, subeKodu));
         }
     }
 }
