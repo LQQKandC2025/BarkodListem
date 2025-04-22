@@ -29,10 +29,11 @@
                                     CommandParameter="{Binding .}" />
                                 </Label.GestureRecognizers>
                             </Label>
-                            <Label Text="{Binding STOK_SPEC}" FontSize="12" TextColor="#666" />
+                                <Label Text="{Binding SIP_STR_ID, StringFormat='Sipariş ID: {0}'}" FontSize="12" TextColor="#666" />
+                                <Label Text="{Binding STOK_ID, StringFormat='Stok ID: {0}'}" FontSize="12" TextColor="#666" />
                             <Label Text="{Binding MIKTAR, StringFormat='Miktar: {0}'}" FontSize="12" TextColor="#666" />
-                        
-                        </StackLayout>
+                                
+                            </StackLayout>
                             <Button Text="SSH"
                             Grid.Column="1"
                             VerticalOptions="Center"

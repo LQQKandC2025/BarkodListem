@@ -69,14 +69,32 @@ namespace BarkodListem.ViewModels
         {
             try
             {
-                var sonuc = await _webService.SevkiyatGuncelle(
-                    sevkiyatNo,
-                    TESLIM_NOTU,
-                    TESLIM_ALAN,
-                    TEL1,
-                    TESLIM_ONAY_KODU);
+                var db = await DatabaseService.GetConnectionAsync();
 
-                await Application.Current.MainPage.DisplayAlert("Durum", sonuc, "Tamam");
+                var model = new SevkiyatFisModel
+                {
+                    SEVK_FIS_ID = int.TryParse(SEVK_FIS_ID, out int fisId) ? fisId : 0,
+                    SEVK_TARIH = DateTime.TryParse(SEVK_TARIH, out var tarih) ? tarih : null,
+                    SEVKIYAT_NO = SEVKIYAT_NO,
+                    ISLEM_TURU = ISLEM_TURU,
+                    TESLIM_NOTU = TESLIM_NOTU,
+                    ADI_SOYADI = TESLIM_ALAN,
+                    TEL_1 = TEL1,
+                    TESLIM_ONAY_KODU = TESLIM_ONAY_KODU,
+                    MOBIL_PERSONEL = AppGlobals.mobil_id.ToString()
+                };
+
+                // Güncelleme varsa silip tekrar ekle
+                var mevcut = await db.Table<SevkiyatFisModel>()
+                                     .Where(x => x.SEVK_FIS_ID == model.SEVK_FIS_ID)
+                                     .FirstOrDefaultAsync();
+
+                if (mevcut != null)
+                    await db.DeleteAsync(mevcut);
+
+                await db.InsertAsync(model);
+
+                await Application.Current.MainPage.DisplayAlert("Kayýt", "Sevkiyat bilgileri kaydedildi.", "Tamam");
             }
             catch (Exception ex)
             {

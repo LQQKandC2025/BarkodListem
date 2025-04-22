@@ -9,6 +9,8 @@ namespace BarkodListem.Models
     [Table("SSH_DETAY")]
     public class SSHDetayModel
     {
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; } // 
         public int? SSH_DETAY_ID { get; set; }
         public int? SIRANO { get; set; }
         public DateTime TARIH { get; set; }
@@ -28,7 +30,7 @@ namespace BarkodListem.Models
         public string SORUN_KAYNAGI { get; set; } = string.Empty;
         public string SORUN { get; set; } = string.Empty;
         public string SORUN_DETAY { get; set; } = string.Empty;
-        public string SEVKIYAT_NO { get; set; }
+        public string SEVKIYAT_NO { get; set; } = string.Empty;
     }
 
 }

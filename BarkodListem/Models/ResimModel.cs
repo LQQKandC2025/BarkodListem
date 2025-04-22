@@ -9,6 +9,7 @@ namespace BarkodListem.Models
     [Table("RESIMLER")]
     public class ResimModel
     {
+        [PrimaryKey, AutoIncrement]  // 🔥 BURASI ZORUNLU!
         public int id { get; set; }
         public string RESIM_SAHIP_ID { get; set; }
         public int? SIRALAMA { get; set; }

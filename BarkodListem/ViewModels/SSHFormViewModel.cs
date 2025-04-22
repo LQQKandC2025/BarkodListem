@@ -22,10 +22,10 @@ public partial class SSHFormViewModel : ObservableObject
     public int SpecId { get; set; }
     public int SevkFisId { get; set; }
     public string SevkiyatNo { get; set; }
-    public DateTime Tarih { get; set; } = DateTime.Today;
+    public DateOnly Tarih { get; set; } = DateOnly.FromDateTime(DateTime.Today);
     public string SshTuru { get; set; } = "ÜCRETSİZ";
     public string SorunDurum { get; set; } = "İŞLEMDE";
-    public DateTime SshSure { get; set; } = new(2010, 1, 1, 0, 10, 0);
+    public TimeOnly SshSure { get; set; } = new(0, 10);
 
     [ObservableProperty]
     private string sorunAciklama;
@@ -64,42 +64,59 @@ public partial class SSHFormViewModel : ObservableObject
     {
         var db = await DatabaseService.GetConnectionAsync();
 
-        var mevcut = await db.Table<SSHDetayModel>()
+        var mevcutAna = await db.Table<SSHAnaModel>()
+            .Where(x => x.SEVKIYAT_NO == _sevkiyatNo)
+            .FirstOrDefaultAsync();
+
+        if (mevcutAna == null)
+        {
+            var yeniAna = new SSHAnaModel
+            {
+                TARIH = DateTime.Today,
+                SUBE_KODU = _subeKodu,
+                ACIKLAMA = SorunAciklama,
+                DURUMU = "BEKLEMEDE",
+                SEVKIYAT_NO = _sevkiyatNo
+            };
+            await db.InsertAsync(yeniAna);
+        }
+
+        var mevcutDetay = await db.Table<SSHDetayModel>()
             .Where(x => x.SEVKIYAT_NO == _sevkiyatNo && x.SIRANO == _sirano)
             .FirstOrDefaultAsync();
 
-        if (mevcut != null)
+        if (mevcutDetay != null)
         {
-            mevcut.SORUN_ACIKLAMA = SorunAciklama;
-            await db.UpdateAsync(mevcut);
+            mevcutDetay.SORUN_ACIKLAMA = SorunAciklama;
+            mevcutDetay.TARIH = DateTime.Today;
+            mevcutDetay.MIKTAR = Convert.ToDouble(Miktar);
+            mevcutDetay.SPEC_ID = SpecId;
+            mevcutDetay.STOK_ID = StokId;
+            mevcutDetay.SEVK_FIS_ID = SevkFisId;
+
+            await db.UpdateAsync(mevcutDetay);
         }
         else
         {
-            var detay = new SSHDetayModel
+            var yeniDetay = new SSHDetayModel
             {
+                SIRANO = _sirano,
                 TARIH = DateTime.Today,
                 SORUN_ACIKLAMA = SorunAciklama,
                 MIKTAR = Convert.ToDouble(Miktar),
                 STOK_ID = StokId,
                 SPEC_ID = SpecId,
                 SEVK_FIS_ID = SevkFisId,
-                SEVKIYAT_NO = _sevkiyatNo,
-                SIRANO = _sirano,
                 SSH_TURU = SshTuru,
                 SORUN_DURUM = SorunDurum,
-                SSH_SURE = SshSure,
+                SSH_SURE = DateTime.Today.Add(SshSure.ToTimeSpan()),
                 TUTAR = 0,
-                SSH_SEVK_FIS_ID = 0,
-                IRS_STR_ID = 0,
-                SORUN_KAYNAGI = "DİĞER",
-                SORUN = "",
-                SORUN_DETAY = ""
+                SEVKIYAT_NO = _sevkiyatNo
             };
-
-            await db.InsertAsync(detay);
+            await db.InsertAsync(yeniDetay);
         }
 
-        await Application.Current.MainPage.DisplayAlert("Başarılı", "SSH kaydı kaydedildi.", "Tamam");
+        await Application.Current.MainPage.DisplayAlert("Başarılı", "SSH kaydı işlendi.", "Tamam");
     }
 
     [RelayCommand]
@@ -110,14 +127,16 @@ public partial class SSHFormViewModel : ObservableObject
             var result = await MediaPicker.CapturePhotoAsync();
             if (result == null) return;
 
-            var fileName = Path.GetFileName(result.FullPath);
-            var destDir = Path.Combine(FileSystem.AppDataDirectory, "Resimler");
-            Directory.CreateDirectory(destDir);
+            var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler", _sevkiyatNo);
+            Directory.CreateDirectory(klasorYolu);
 
-            var newPath = Path.Combine(destDir, fileName);
+            int sira = Directory.GetFiles(klasorYolu, $"SSH_{SevkFisId}_{StokId}_{_urun.SIP_STR_ID}_*.jpg").Length + 1;
+            var fileName = $"SSH_{SevkFisId}_{StokId}_{_urun.SIP_STR_ID}_{sira}.jpg";
+            var fullPath = Path.Combine(klasorYolu, fileName);
+
             using var stream = await result.OpenReadAsync();
-            using var newFile = File.OpenWrite(newPath);
-            await stream.CopyToAsync(newFile);
+            using var fileStream = File.OpenWrite(fullPath);
+            await stream.CopyToAsync(fileStream);
 
             var db = await DatabaseService.GetConnectionAsync();
             var model = new ResimModel
@@ -128,7 +147,8 @@ public partial class SSHFormViewModel : ObservableObject
                 SEVKIYAT_NO = _sevkiyatNo
             };
             await db.InsertAsync(model);
-            await Application.Current.MainPage.DisplayAlert("Resim", "Resim kaydedildi", "Tamam");
+
+            await Application.Current.MainPage.DisplayAlert("Resim", $"Resim kaydedildi:\n{fileName}", "Tamam");
         }
         catch (Exception ex)
         {

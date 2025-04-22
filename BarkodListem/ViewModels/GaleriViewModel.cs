@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using BarkodListem.Models;
 using BarkodListem.Services;
 using BarkodListem.Data;
+using System.IO;
 
 namespace BarkodListem.ViewModels;
 
@@ -17,16 +18,17 @@ public partial class GaleriViewModel : ObservableObject
         var db = await DatabaseService.GetConnectionAsync();
         string stokIdStr = stokId.ToString();
 
-        // 🔍 Bonus filtre: sadece SSH resimleri
         var list = await db.Table<ResimModel>()
-            .Where(r => r.RESIM_SAHIP_ID == stokIdStr && r.SEVKIYAT_NO == sevkiyatNo && r.RESIM_SAHIP == "SSH")
+            .Where(r => r.RESIM_SAHIP_ID == stokIdStr &&
+                        r.SEVKIYAT_NO == sevkiyatNo &&
+                        r.RESIM_SAHIP == "SSH")
             .ToListAsync();
 
         Resimler.Clear();
 
         foreach (var item in list)
         {
-            // ✅ Klasör yapısına uygun yol: Resimler/SEVKIYAT_NO/RESIM_ADI
+            // 🔍 Doğru klasör yolu: Resimler/SEVKIYAT_NO/RESIM_ADI
             var path = Path.Combine(FileSystem.AppDataDirectory, "Resimler", item.SEVKIYAT_NO, item.RESIM_ADI);
             Resimler.Add(new GaleriResim
             {
@@ -41,18 +43,25 @@ public partial class GaleriViewModel : ObservableObject
     {
         if (galeriResim == null) return;
 
-        // 1. Dosyadan sil
-        if (File.Exists(galeriResim.ResimPath))
-            File.Delete(galeriResim.ResimPath);
+        try
+        {
+            // 📁 Dosya sil
+            if (File.Exists(galeriResim.ResimPath))
+                File.Delete(galeriResim.ResimPath);
 
-        // 2. DB'den sil
-        var db = await DatabaseService.GetConnectionAsync();
-        await db.DeleteAsync(galeriResim.OrjinalKayit);
+            // 🗃️ Veritabanından sil
+            var db = await DatabaseService.GetConnectionAsync();
+            await db.DeleteAsync(galeriResim.OrjinalKayit);
 
-        // 3. Arayüzden çıkar
-        Resimler.Remove(galeriResim);
+            // 🗑️ Listeden çıkar
+            Resimler.Remove(galeriResim);
 
-        await Application.Current.MainPage.DisplayAlert("Silindi", "Resim başarıyla silindi.", "Tamam");
+            await Application.Current.MainPage.DisplayAlert("Silindi", "Resim başarıyla silindi.", "Tamam");
+        }
+        catch (Exception ex)
+        {
+            await Application.Current.MainPage.DisplayAlert("HATA", $"Silinemedi: {ex.Message}", "Tamam");
+        }
     }
 }
 
@@ -60,4 +69,5 @@ public class GaleriResim
 {
     public string ResimPath { get; set; }
     public ResimModel OrjinalKayit { get; set; }
+    public string ResimAdi => OrjinalKayit?.RESIM_ADI;
 }

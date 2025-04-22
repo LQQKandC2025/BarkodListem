@@ -36,6 +36,7 @@ namespace BarkodListem.ViewModels
             _sevkiyatNo = sevkiyatNo;
             var dt = await _webService.SevkiyatUrunListesi(sevkiyatNo);
             Urunler.Clear();
+            int siraNo = 1;
             foreach (System.Data.DataRow row in dt.Rows)
             {
                 Urunler.Add(new UrunModel
@@ -50,7 +51,9 @@ namespace BarkodListem.ViewModels
                     SUBE_KODU = row["SUBE_KODU"].ToString(),
                     CARI_ID = row["CARI_ID"].ToString(),
                     SEVKIYAT_NO = sevkiyatNo,
+                    Sirano = siraNo  // 🔥 sıra numarası eklendi
                 });
+                siraNo++;
             }
             Notify(nameof(Urunler));
         }
@@ -73,8 +76,8 @@ namespace BarkodListem.ViewModels
                 Directory.CreateDirectory(saveFolder);
 
                 // 📸 Dosya adı: TF_1120_1255_1.jpg gibi
-                int sira = Directory.GetFiles(saveFolder, $"{tip}_{urun.SEVK_FIS_ID}_{urun.SIP_STR_ID}_*.jpg").Length + 1;
-                string fileName = $"{tip}_{urun.SEVK_FIS_ID}_{urun.SIP_STR_ID}_{sira}.jpg";
+                int sira = Directory.GetFiles(saveFolder, $"{tip}_{urun.SEVK_FIS_ID}_{urun.STOK_ID}_{urun.SIP_STR_ID}_*.jpg").Length + 1;
+                string fileName = $"{tip}_{urun.SEVK_FIS_ID}_{urun.STOK_ID}_{urun.SIP_STR_ID}_{sira}.jpg";
                 string fullPath = Path.Combine(saveFolder, fileName);
 
                 using var stream = await photo.OpenReadAsync();

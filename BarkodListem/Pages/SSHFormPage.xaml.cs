@@ -1,13 +1,14 @@
-using BarkodListem.Models;
+﻿using BarkodListem.Models;
 using BarkodListem.ViewModels;
 
 namespace BarkodListem.Pages;
 
 public partial class SSHFormPage : ContentPage
 {
-    public SSHFormPage(UrunModel urun, string sevkiyatNo, string subeKodu, int siraNo)
+    public SSHFormPage(UrunModel seciliUrun, string sevkiyatNo, string subeKodu, int sirano)
     {
         InitializeComponent();
-        BindingContext = new SSHFormViewModel(urun, sevkiyatNo, subeKodu, siraNo);
+        seciliUrun.Sirano = sirano; // 🔥 Burada modele yazıyoruz
+        BindingContext = new SSHFormViewModel(seciliUrun, sevkiyatNo, subeKodu,sirano);
     }
 }

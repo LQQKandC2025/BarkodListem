@@ -14,6 +14,8 @@ namespace BarkodListem.Models
         public string CARI_ID { get; set; }
         public string SEVKIYAT_NO { get; set; }
 
+        public int Sirano { get; set; }
+
         // TF veya SSH çekilen resim için kullanýlacak
 
 
