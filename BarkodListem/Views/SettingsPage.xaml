@@ -12,7 +12,10 @@
 		<Label Text="Port:"/>
 		<Entry x:Name="entryPort" Placeholder="8080" Keyboard="Numeric"/>
 
-		<Label Text="Kullanıcı Adı:"/>
+        <Label Text="User ID:"/>
+        <Entry x:Name="entryUserId" Placeholder="Empty" Keyboard="Numeric"/>
+
+        <Label Text="Kullanıcı Adı:"/>
 		<Entry x:Name="entryUser" Placeholder="admin"/>
 
 		<Label Text="Şifre:"/>

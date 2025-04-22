@@ -30,6 +30,7 @@
                             </Label>
                             <Label Text="{Binding STOK_SPEC}" FontSize="12" TextColor="#666" />
                             <Label Text="{Binding MIKTAR, StringFormat='Miktar: {0}'}" FontSize="12" TextColor="#666" />
+                        
                         </StackLayout>
 
                         <Button Text="SSH"

@@ -20,6 +20,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -28,22 +29,22 @@
             </Grid.ColumnDefinitions>
 
             <!-- Şık görünümlü giriş alanları -->
-            <Label Grid.Row="0" Grid.Column="0" Text="SEVK_FIS_ID" VerticalOptions="Center" FontAttributes="Bold" />
+            <Label Grid.Row="0" Grid.Column="0" Text="SEVK FİŞ ID" VerticalOptions="Center" FontAttributes="Bold" />
             <Frame Grid.Row="0" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
                 <Entry Text="{Binding SEVK_FIS_ID}" IsReadOnly="True" BackgroundColor="Transparent" />
             </Frame>
 
-            <Label Grid.Row="1" Grid.Column="0" Text="SEVK_TARIH" VerticalOptions="Center" FontAttributes="Bold" />
+            <Label Grid.Row="1" Grid.Column="0" Text="SEVK TARIH" VerticalOptions="Center" FontAttributes="Bold" />
             <Frame Grid.Row="1" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
                 <Entry Text="{Binding SEVK_TARIH}" IsReadOnly="True" BackgroundColor="Transparent" />
             </Frame>
 
-            <Label Grid.Row="2" Grid.Column="0" Text="SEVKIYAT_NO" VerticalOptions="Center" FontAttributes="Bold" />
+            <Label Grid.Row="2" Grid.Column="0" Text="SEVKIYAT NO" VerticalOptions="Center" FontAttributes="Bold" />
             <Frame Grid.Row="2" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
                 <Entry Text="{Binding SEVKIYAT_NO}" IsReadOnly="True" BackgroundColor="Transparent" />
             </Frame>
 
-            <Label Grid.Row="3" Grid.Column="0" Text="ISLEM_TURU" VerticalOptions="Center" FontAttributes="Bold" />
+            <Label Grid.Row="3" Grid.Column="0" Text="İŞLEM TÜRÜ" VerticalOptions="Center" FontAttributes="Bold" />
             <Frame Grid.Row="3" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
                 <Entry Text="{Binding ISLEM_TURU}" IsReadOnly="True" BackgroundColor="Transparent" />
             </Frame>
@@ -53,12 +54,12 @@
                 <Editor Text="{Binding TESLIM_NOTU}" HeightRequest="100" BackgroundColor="Transparent" />
             </Frame>
 
-            <Label Grid.Row="5" Grid.Column="0" Text="TESLIM_ALAN" VerticalOptions="Center" FontAttributes="Bold" />
+            <Label Grid.Row="5" Grid.Column="0" Text="TESLIM ALAN" VerticalOptions="Center" FontAttributes="Bold" />
             <Frame Grid.Row="5" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
                 <Entry Text="{Binding TESLIM_ALAN}" BackgroundColor="Transparent" />
             </Frame>
 
-            <Label Grid.Row="6" Grid.Column="0" Text="TEL1" VerticalOptions="Center" FontAttributes="Bold" />
+            <Label Grid.Row="6" Grid.Column="0" Text="TELEFON" VerticalOptions="Center" FontAttributes="Bold" />
             <Frame Grid.Row="6" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
                 <Entry Text="{Binding TEL1}" BackgroundColor="Transparent" />
             </Frame>

@@ -7,9 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using BarkodListem.Data;
 using BarkodListem.Pages;
-{
 
-}
 
 namespace BarkodListem.ViewModels
 {
@@ -49,6 +47,8 @@ namespace BarkodListem.ViewModels
                     SIP_STR_ID = row["SIP_STR_ID"].ToString(),
                     SEVK_FIS_ID = row["SEVK_FIS_ID"].ToString(),
                     STOK_ID = row["STOK_ID"].ToString(),
+                    SUBE_KODU = row["SUBE_KODU"].ToString(),
+                    CARI_ID = row["CARI_ID"].ToString(),
                 });
             }
             Notify(nameof(Urunler));

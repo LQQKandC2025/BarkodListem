@@ -17,6 +17,7 @@ namespace BarkodListem.Views
             {
                 entryUrl.Text = ayarlar.WebServisURL;
                 entryPort.Text = ayarlar.Port.ToString();
+                entryUserId.Text = ayarlar.user_id.ToString();
                 entryUser.Text = ayarlar.KullaniciAdi;
                 entryPassword.Text = ayarlar.Sifre;
             }
@@ -39,6 +40,7 @@ namespace BarkodListem.Views
             {
                 WebServisURL = entryUrl.Text,
                 Port = int.Parse(entryPort.Text),
+                user_id = int.Parse(entryUserId.Text),
                 KullaniciAdi = entryUser.Text,
                 Sifre = entryPassword.Text
             };

@@ -36,7 +36,7 @@ namespace BarkodListem.Pages
                 return;
 
             // SSH formuna gerekli parametreleri taþý
-            await Navigation.PushAsync(new SSHFormPage(urun));
+            //await Navigation.PushAsync(new SSHFormPage(urun));
         }
     }
 }

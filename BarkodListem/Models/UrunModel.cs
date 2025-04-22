@@ -9,6 +9,8 @@ namespace BarkodListem.Models
         public string SIP_STR_ID { get; set; }
         public string SEVK_FIS_ID { get; set; }
         public string STOK_ID { get; set; }
+        public string SUBE_KODU { get; set; }
+        public string CARI_ID { get; set; }
 
         // TF veya SSH çekilen resim için kullanýlacak
         public string ResimKlasoru => SEVK_FIS_ID;

@@ -1,6 +1,6 @@
 ﻿using BarkodListem.Data;
 using BarkodListem.Models;
-
+using BarkodListem.Helpers;
 namespace BarkodListem;
 
 public partial class LoginPage : ContentPage
@@ -43,7 +43,9 @@ public partial class LoginPage : ContentPage
         var ayarlar = await _databaseService.AyarlarGetir();
         if (ayarlar != null)
         {
+            AppGlobals.mobil_id = ayarlar.user_id;
             return username == ayarlar.KullaniciAdi && password == ayarlar.Sifre;
+
         }
         return false;
     }
