@@ -1,3 +1,4 @@
+using AndroidX.Lifecycle;
 using BarkodListem.ViewModels;
 
 namespace BarkodListem.Pages;
@@ -9,10 +10,14 @@ public partial class GaleriPage : ContentPage
     public string StokId { get; set; }
     public string SevkiyatNo { get; set; }
 
-    public GaleriPage()
+    public GaleriPage(int stokId, string sevkiyatNo)
     {
         InitializeComponent();
-        BindingContext = new GaleriViewModel();
+        var viewModel = new GaleriViewModel();
+        BindingContext = viewModel;
+
+        // ViewModel'e parametreleri geçiriyoruz
+        viewModel.Yukle(stokId, sevkiyatNo);
     }
 
     protected override void OnAppearing()

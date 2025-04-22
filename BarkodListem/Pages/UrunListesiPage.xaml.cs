@@ -30,14 +30,10 @@ namespace BarkodListem.Pages
         {
             var button = sender as Button;
             var urun = button?.BindingContext as UrunModel;
+            if (urun == null) return;
 
-            if (urun == null)
-                return;
-
-            var sevkiyatNo = _viewModel?.GetSevkiyatNo();
-            var subeKodu = urun.SUBE_KODU ?? "000"; // urun üzerinden geliyor, garanti olur
-
-            await Navigation.PushAsync(new SSHFormPage(urun, sevkiyatNo, subeKodu));
+            var siraNo = _viewModel.Urunler.ToList().IndexOf(urun) + 1;
+            await Navigation.PushAsync(new SSHFormPage(urun, _viewModel.GetSevkiyatNo(), urun.SUBE_KODU, siraNo));
         }
     }
 }

@@ -1,4 +1,4 @@
-using BarkodListem.Models;
+﻿using BarkodListem.Models;
 using BarkodListem.Services;
 using Microsoft.Maui.ApplicationModel;
 using System.Collections.ObjectModel;
@@ -49,6 +49,7 @@ namespace BarkodListem.ViewModels
                     STOK_ID = row["STOK_ID"].ToString(),
                     SUBE_KODU = row["SUBE_KODU"].ToString(),
                     CARI_ID = row["CARI_ID"].ToString(),
+                    SEVKIYAT_NO = sevkiyatNo,
                 });
             }
             Notify(nameof(Urunler));
@@ -58,7 +59,7 @@ namespace BarkodListem.ViewModels
         {
             if (!MediaPicker.Default.IsCaptureSupported)
             {
-                await Application.Current.MainPage.DisplayAlert("Hata", "Cihaz kamera deste�i vermiyor.", "Tamam");
+                await Application.Current.MainPage.DisplayAlert("Hata", "Cihaz kamera desteği vermiyor.", "Tamam");
                 return;
             }
 
@@ -67,24 +68,27 @@ namespace BarkodListem.ViewModels
                 var photo = await MediaPicker.Default.CapturePhotoAsync();
                 if (photo == null || urun == null) return;
 
-                var saveFolder = Path.Combine(FileSystem.Current.AppDataDirectory, urun.ResimKlasoru);
+                // 📁 SEVKIYAT_NO klasörü altına kaydet
+                var saveFolder = Path.Combine(FileSystem.AppDataDirectory, "Resimler", urun.SEVKIYAT_NO);
                 Directory.CreateDirectory(saveFolder);
 
-                int sira = Directory.GetFiles(saveFolder, $"{tip}_{urun.DosyaKodu}_*.jpg").Length + 1;
-                string fileName = $"{tip}_{urun.DosyaKodu}_{sira}.jpg";
+                // 📸 Dosya adı: TF_1120_1255_1.jpg gibi
+                int sira = Directory.GetFiles(saveFolder, $"{tip}_{urun.SEVK_FIS_ID}_{urun.SIP_STR_ID}_*.jpg").Length + 1;
+                string fileName = $"{tip}_{urun.SEVK_FIS_ID}_{urun.SIP_STR_ID}_{sira}.jpg";
                 string fullPath = Path.Combine(saveFolder, fileName);
 
                 using var stream = await photo.OpenReadAsync();
                 using var fileStream = File.OpenWrite(fullPath);
                 await stream.CopyToAsync(fileStream);
 
-                await Application.Current.MainPage.DisplayAlert("Ba�ar�l�", $"Foto�raf kaydedildi:\n{fileName}", "Tamam");
+                await Application.Current.MainPage.DisplayAlert("Başarılı", $"Fotoğraf kaydedildi:\n{fileName}", "Tamam");
             }
             catch (Exception ex)
             {
                 await Application.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
             }
         }
+
 
         private void Notify([CallerMemberName] string propertyName = null)
         {

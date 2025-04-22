@@ -15,16 +15,19 @@ public partial class GaleriViewModel : ObservableObject
     public async void Yukle(int stokId, string sevkiyatNo)
     {
         var db = await DatabaseService.GetConnectionAsync();
+        string stokIdStr = stokId.ToString();
 
+        // 🔍 Bonus filtre: sadece SSH resimleri
         var list = await db.Table<ResimModel>()
-            .Where(r => r.RESIM_SAHIP_ID == stokId.ToString() && r.SEVKIYAT_NO == sevkiyatNo)
+            .Where(r => r.RESIM_SAHIP_ID == stokIdStr && r.SEVKIYAT_NO == sevkiyatNo && r.RESIM_SAHIP == "SSH")
             .ToListAsync();
 
         Resimler.Clear();
 
         foreach (var item in list)
         {
-            var path = Path.Combine(FileSystem.AppDataDirectory, "Resimler", item.RESIM_ADI);
+            // ✅ Klasör yapısına uygun yol: Resimler/SEVKIYAT_NO/RESIM_ADI
+            var path = Path.Combine(FileSystem.AppDataDirectory, "Resimler", item.SEVKIYAT_NO, item.RESIM_ADI);
             Resimler.Add(new GaleriResim
             {
                 ResimPath = path,
@@ -46,8 +49,10 @@ public partial class GaleriViewModel : ObservableObject
         var db = await DatabaseService.GetConnectionAsync();
         await db.DeleteAsync(galeriResim.OrjinalKayit);
 
+        // 3. Arayüzden çıkar
         Resimler.Remove(galeriResim);
-        await Shell.Current.DisplayAlert("Silindi", "Resim başarıyla silindi.", "Tamam");
+
+        await Application.Current.MainPage.DisplayAlert("Silindi", "Resim başarıyla silindi.", "Tamam");
     }
 }
 

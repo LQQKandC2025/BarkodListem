@@ -5,7 +5,14 @@
 			<action android:name="android.media.action.IMAGE_CAPTURE" />
 		</intent>
 	</queries>
-	<application android:allowBackup="false" android:supportsRtl="true" android:label="BarkodListem" android:usesCleartextTraffic="true" android:icon="@mipmap/app_icon_round"></application>
+	<application 
+		android:debuggable="true"
+		android:allowBackup="false" 
+		android:supportsRtl="true" 
+		android:label="BarkodListem" 
+		android:usesCleartextTraffic="true" 
+		android:icon="@mipmap/app_icon_round">
+	</application>
 	<!-- İzinler -->
 	<uses-permission android:name="android.permission.CAMERA" />
 	<uses-feature android:name="android.hardware.camera" android:required="true" />

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using BarkodListem.Data;
 using BarkodListem.Models;
+using BarkodListem.Pages;
 using BarkodListem.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,15 +14,49 @@ public partial class SSHFormViewModel : ObservableObject
     private readonly UrunModel _urun;
     private readonly string _sevkiyatNo;
     private readonly string _subeKodu;
+    private readonly int _sirano;
+
+    // Formda gösterilecek alanlar
+    public decimal Miktar { get; set; }
+    public int StokId { get; set; }
+    public int SpecId { get; set; }
+    public int SevkFisId { get; set; }
+    public string SevkiyatNo { get; set; }
+    public DateTime Tarih { get; set; } = DateTime.Today;
+    public string SshTuru { get; set; } = "ÜCRETSİZ";
+    public string SorunDurum { get; set; } = "İŞLEMDE";
+    public DateTime SshSure { get; set; } = new(2010, 1, 1, 0, 10, 0);
 
     [ObservableProperty]
     private string sorunAciklama;
 
-    public SSHFormViewModel(UrunModel urun, string sevkiyatNo, string subeKodu)
+    public SSHFormViewModel(UrunModel urun, string sevkiyatNo, string subeKodu, int sirano)
     {
         _urun = urun;
         _sevkiyatNo = sevkiyatNo;
         _subeKodu = subeKodu;
+        _sirano = sirano;
+
+        Miktar = urun.MIKTAR;
+        StokId = int.TryParse(urun.STOK_ID, out var st) ? st : 0;
+        SpecId = int.TryParse(urun.STOK_SPEC, out var sp) ? sp : 0;
+        SevkFisId = int.TryParse(urun.SEVK_FIS_ID, out var sf) ? sf : 0;
+        SevkiyatNo = sevkiyatNo;
+
+        _ = YukleKayitAsync();
+    }
+
+    private async Task YukleKayitAsync()
+    {
+        var db = await DatabaseService.GetConnectionAsync();
+        var mevcut = await db.Table<SSHDetayModel>()
+            .Where(x => x.SEVKIYAT_NO == _sevkiyatNo && x.SIRANO == _sirano)
+            .FirstOrDefaultAsync();
+
+        if (mevcut != null)
+        {
+            SorunAciklama = mevcut.SORUN_ACIKLAMA;
+        }
     }
 
     [RelayCommand]
@@ -29,33 +64,42 @@ public partial class SSHFormViewModel : ObservableObject
     {
         var db = await DatabaseService.GetConnectionAsync();
 
-        // 1. SSH_ANA kaydı
-        var ana = new SSHAnaModel
+        var mevcut = await db.Table<SSHDetayModel>()
+            .Where(x => x.SEVKIYAT_NO == _sevkiyatNo && x.SIRANO == _sirano)
+            .FirstOrDefaultAsync();
+
+        if (mevcut != null)
         {
-            TARIH = DateTime.Today,
-            SUBE_KODU = _subeKodu,
-            ACIKLAMA = SorunAciklama,
-            DURUMU = "BEKLEMEDE",
-            SEVKIYAT_NO = _sevkiyatNo
-        };
-
-        await db.InsertAsync(ana);
-
-        // 2. SSH_DETAY kaydı
-        var detay = new SSHDetayModel
+            mevcut.SORUN_ACIKLAMA = SorunAciklama;
+            await db.UpdateAsync(mevcut);
+        }
+        else
         {
-            TARIH = DateTime.Today,
-            SORUN_ACIKLAMA = SorunAciklama,
-            MIKTAR = Convert.ToDouble(_urun.MIKTAR),
-            STOK_ID = Convert.ToInt32(_urun.STOK_ID),
-            SPEC_ID = Convert.ToInt32(_urun.STOK_SPEC),
-            SEVK_FIS_ID = Convert.ToInt32(_urun.SEVK_FIS_ID),
-            SEVKIYAT_NO = _sevkiyatNo
-        };
+            var detay = new SSHDetayModel
+            {
+                TARIH = DateTime.Today,
+                SORUN_ACIKLAMA = SorunAciklama,
+                MIKTAR = Convert.ToDouble(Miktar),
+                STOK_ID = StokId,
+                SPEC_ID = SpecId,
+                SEVK_FIS_ID = SevkFisId,
+                SEVKIYAT_NO = _sevkiyatNo,
+                SIRANO = _sirano,
+                SSH_TURU = SshTuru,
+                SORUN_DURUM = SorunDurum,
+                SSH_SURE = SshSure,
+                TUTAR = 0,
+                SSH_SEVK_FIS_ID = 0,
+                IRS_STR_ID = 0,
+                SORUN_KAYNAGI = "DİĞER",
+                SORUN = "",
+                SORUN_DETAY = ""
+            };
 
-        await db.InsertAsync(detay);
+            await db.InsertAsync(detay);
+        }
 
-        await Shell.Current.DisplayAlert("Başarılı", "SSH kaydı eklendi", "Tamam");
+        await Application.Current.MainPage.DisplayAlert("Başarılı", "SSH kaydı kaydedildi.", "Tamam");
     }
 
     [RelayCommand]
@@ -64,40 +108,37 @@ public partial class SSHFormViewModel : ObservableObject
         try
         {
             var result = await MediaPicker.CapturePhotoAsync();
+            if (result == null) return;
 
-            if (result != null)
+            var fileName = Path.GetFileName(result.FullPath);
+            var destDir = Path.Combine(FileSystem.AppDataDirectory, "Resimler");
+            Directory.CreateDirectory(destDir);
+
+            var newPath = Path.Combine(destDir, fileName);
+            using var stream = await result.OpenReadAsync();
+            using var newFile = File.OpenWrite(newPath);
+            await stream.CopyToAsync(newFile);
+
+            var db = await DatabaseService.GetConnectionAsync();
+            var model = new ResimModel
             {
-                var fileName = Path.GetFileName(result.FullPath);
-                var destDir = Path.Combine(FileSystem.AppDataDirectory, "Resimler");
-                Directory.CreateDirectory(destDir);
-
-                var newPath = Path.Combine(destDir, fileName);
-                using var stream = await result.OpenReadAsync();
-                using var newFile = File.OpenWrite(newPath);
-                await stream.CopyToAsync(newFile);
-
-                // RESIMLER tablosuna kayıt
-                var db = await DatabaseService.GetConnectionAsync();
-                var model = new ResimModel
-                {
-                    RESIM_SAHIP_ID = _urun.STOK_ID.ToString(),
-                    RESIM_SAHIP = "SSH",
-                    RESIM_ADI = fileName,
-                    SEVKIYAT_NO = _sevkiyatNo
-                };
-                await db.InsertAsync(model);
-                await Shell.Current.DisplayAlert("Resim", "Resim kaydedildi", "Tamam");
-            }
+                RESIM_SAHIP_ID = StokId.ToString(),
+                RESIM_SAHIP = "SSH",
+                RESIM_ADI = fileName,
+                SEVKIYAT_NO = _sevkiyatNo
+            };
+            await db.InsertAsync(model);
+            await Application.Current.MainPage.DisplayAlert("Resim", "Resim kaydedildi", "Tamam");
         }
         catch (Exception ex)
         {
-            await Shell.Current.DisplayAlert("Hata", ex.Message, "Tamam");
+            await Application.Current.MainPage.DisplayAlert("HATA", ex.Message, "Tamam");
         }
     }
 
     [RelayCommand]
     private async Task Galeri()
     {
-        await Shell.Current.GoToAsync($"galerisayfasi?stokId={_urun.STOK_ID}&sevkiyatNo={_sevkiyatNo}");
+        await Application.Current.MainPage.Navigation.PushAsync(new GaleriPage(StokId, _sevkiyatNo));
     }
 }

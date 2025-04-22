@@ -1,22 +1,94 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:BarkodListem.ViewModels"
              x:Class="BarkodListem.Pages.SSHFormPage"
              Title="SSH Formu">
 
-
-
     <ScrollView>
-        <VerticalStackLayout Padding="20" Spacing="15">
+        <Grid Padding="20" ColumnSpacing="10" RowSpacing="12" HorizontalOptions="FillAndExpand">
 
-            <Label Text="Sorun Açıklaması:" FontSize="16"/>
-            <Editor Text="{Binding SorunAciklama}" Placeholder="Lütfen açıklama girin..." AutoSize="TextChanges"/>
+            <Grid.RowDefinitions>
+                <!-- Her alan için ayrı satır -->
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-            <Button Text="Kaydet" Command="{Binding KaydetCommand}" />
-            <Button Text="Resim Çek" Command="{Binding ResimCekCommand}" />
-            <Button Text="Galeri" Command="{Binding GaleriCommand}" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-        </VerticalStackLayout>
+            <!-- Alanlar -->
+            <Label Grid.Row="0" Grid.Column="0" Text="Miktar:" FontAttributes="Bold" />
+            <Frame Grid.Row="0" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding Miktar}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="1" Grid.Column="0" Text="Stok ID:" FontAttributes="Bold" />
+            <Frame Grid.Row="1" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding StokId}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="2" Grid.Column="0" Text="Spec ID:" FontAttributes="Bold" />
+            <Frame Grid.Row="2" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SpecId}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="3" Grid.Column="0" Text="Sevk Fiş ID:" FontAttributes="Bold" />
+            <Frame Grid.Row="3" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SevkFisId}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="4" Grid.Column="0" Text="Sevkiyat No:" FontAttributes="Bold" />
+            <Frame Grid.Row="4" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SevkiyatNo}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="5" Grid.Column="0" Text="Tarih:" FontAttributes="Bold" />
+            <Frame Grid.Row="5" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding Tarih, StringFormat='{}{0:dd.MM.yyyy}'}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="6" Grid.Column="0" Text="SSH Türü:" FontAttributes="Bold" />
+            <Frame Grid.Row="6" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SshTuru}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="7" Grid.Column="0" Text="Sorun Durumu:" FontAttributes="Bold" />
+            <Frame Grid.Row="7" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SorunDurum}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="8" Grid.Column="0" Text="SSH Süre:" FontAttributes="Bold" />
+            <Frame Grid.Row="8" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SshSure, StringFormat='{}{0:HH\\:mm}'}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+
+            <Label Grid.Row="9" Grid.Column="0" Text="Sorun Açıklaması:" FontAttributes="Bold" />
+            <Frame Grid.Row="9" Grid.Column="1" CornerRadius="10" HasShadow="True">
+                <Editor Text="{Binding SorunAciklama}" Placeholder="Lütfen açıklama girin..." AutoSize="TextChanges" HeightRequest="80" BackgroundColor="Transparent"/>
+            </Frame>
+
+            <!-- Butonlar -->
+            <HorizontalStackLayout Grid.Row="10" Grid.ColumnSpan="2" Spacing="10" Margin="0,10,0,0" HorizontalOptions="Center">
+                <Button Text="Kaydet" Command="{Binding KaydetCommand}" WidthRequest="100"/>
+                <Button Text="Resim Çek" Command="{Binding ResimCekCommand}" WidthRequest="100"/>
+                <Button Text="Galeri" Command="{Binding GaleriCommand}" WidthRequest="100"/>
+            </HorizontalStackLayout>
+
+        </Grid>
     </ScrollView>
 </ContentPage>

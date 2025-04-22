@@ -5,9 +5,9 @@ namespace BarkodListem.Pages;
 
 public partial class SSHFormPage : ContentPage
 {
-    public SSHFormPage(UrunModel seciliUrun, string sevkiyatNo, string subeKodu)
+    public SSHFormPage(UrunModel urun, string sevkiyatNo, string subeKodu, int siraNo)
     {
         InitializeComponent();
-        BindingContext = new SSHFormViewModel(seciliUrun, sevkiyatNo, subeKodu);
+        BindingContext = new SSHFormViewModel(urun, sevkiyatNo, subeKodu, siraNo);
     }
 }

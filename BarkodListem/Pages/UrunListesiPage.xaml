@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:BarkodListem.ViewModels"
              x:Class="BarkodListem.Pages.UrunListesiPage"
+             x:Name="UrunListesiPageRef"
              Title="Ürün Listesi">
     <ScrollView>
         <VerticalStackLayout Padding="10" Spacing="10">
@@ -32,15 +33,14 @@
                             <Label Text="{Binding MIKTAR, StringFormat='Miktar: {0}'}" FontSize="12" TextColor="#666" />
                         
                         </StackLayout>
-
-                        <Button Text="SSH"
-                                Grid.Column="1"
-                                VerticalOptions="Center"
-                                BackgroundColor="#4CAF50"
-                                TextColor="White"
-                                Command="{Binding BindingContext.OnSSHButtonClicked, Source={x:Reference UrunListesiPage}}"
-                                CommandParameter="{Binding .}" />
-                    </Grid>
+                            <Button Text="SSH"
+                            Grid.Column="1"
+                            VerticalOptions="Center"
+                            BackgroundColor="#4CAF50"
+                            TextColor="White"
+                            Clicked="OnSSHButtonClicked"
+                            CommandParameter="{Binding .}" />       
+                        </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
