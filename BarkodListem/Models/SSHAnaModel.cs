@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using SQLite;
 namespace BarkodListem.Models
 {
+    [Table("SSH_ANA")]
     public class SSHAnaModel
     {
         public int? SSH_ID { get; set; } // boş geçilecek

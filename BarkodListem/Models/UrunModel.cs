@@ -1,3 +1,4 @@
+
 namespace BarkodListem.Models
 {
     public class UrunModel

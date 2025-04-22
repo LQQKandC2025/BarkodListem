@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BarkodListem.ViewModels"
+             x:Class="BarkodListem.Pages.GaleriPage"
+             Title="Galeri">
+
+
+
+    <ScrollView>
+        <VerticalStackLayout Padding="10">
+            <CollectionView ItemsSource="{Binding Resimler}" ItemsLayout="VerticalGrid, 2">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Margin="5">
+                            <Image Source="{Binding ResimPath}" Aspect="AspectFill" HeightRequest="150"/>
+                            <Button Text="SİL" Command="{Binding BindingContext.SilCommand, Source={x:Reference Name=GaleriPageRef}}" 
+                                    CommandParameter="{Binding}" />
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

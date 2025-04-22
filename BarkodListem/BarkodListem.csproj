@@ -149,6 +149,9 @@
 		<MauiXaml Update="LoginPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Pages\GaleriPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Pages\SSHFormPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
