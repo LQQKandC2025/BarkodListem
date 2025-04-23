@@ -51,6 +51,7 @@ namespace BarkodListem
         {
             if (!string.IsNullOrEmpty(barkodEntry.Text))
             {
+                barkodEntry.Text= barkodEntry.Text.Trim().ToUpper(); 
 
                 if (barkodEntry.Text.StartsWith("SVK-"))
                 {

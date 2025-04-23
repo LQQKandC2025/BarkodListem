@@ -94,6 +94,7 @@ public partial class SSHFormViewModel : ObservableObject
             mevcutDetay.SPEC_ID = SpecId;
             mevcutDetay.STOK_ID = StokId;
             mevcutDetay.SEVK_FIS_ID = SevkFisId;
+            mevcutDetay.SEVKIYAT_NO = SevkiyatNo;
 
             await db.UpdateAsync(mevcutDetay);
         }

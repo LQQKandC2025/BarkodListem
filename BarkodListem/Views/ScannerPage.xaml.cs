@@ -67,7 +67,7 @@ namespace BarkodListem.Views
 
             if (e.Results.Any())
             {
-                var barkod = e.Results.FirstOrDefault()?.Value;
+                var barkod = e.Results.FirstOrDefault()?.Value.ToUpper();
                 if (!string.IsNullOrEmpty(barkod))
                 {
                     try

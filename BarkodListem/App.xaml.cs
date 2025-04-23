@@ -51,7 +51,7 @@ namespace BarkodListem
                 {
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
-                        await Application.Current.MainPage.DisplayAlert("Dosya Yok", "Kaynak veritabanı dosyası bulunamadı.", "Tamam");
+                       // await Application.Current.MainPage.DisplayAlert("Dosya Yok", "Kaynak veritabanı dosyası bulunamadı.", "Tamam");
                     });
                     return;
                 }
@@ -60,14 +60,14 @@ namespace BarkodListem
 
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await Application.Current.MainPage.DisplayAlert("Başarılı", "Veritabanı debug konumuna kopyalandı.", "Tamam");
+                   // await Application.Current.MainPage.DisplayAlert("Başarılı", "Veritabanı debug konumuna kopyalandı.", "Tamam");
                 });
             }
             catch (Exception ex)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
-                    await Application.Current.MainPage.DisplayAlert("HATA", ex.Message, "Tamam");
+                   // await Application.Current.MainPage.DisplayAlert("HATA", ex.Message, "Tamam");
                 });
             }
         }

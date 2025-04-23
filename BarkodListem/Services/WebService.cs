@@ -290,6 +290,7 @@ namespace BarkodListem.Services
                     $"<SORUN_ACIKLAMA>{d.SORUN_ACIKLAMA}</SORUN_ACIKLAMA>" +
                     $"<SEVK_FIS_ID>{d.SEVK_FIS_ID}</SEVK_FIS_ID>" +
                     $"<IRS_STR_ID>{d.IRS_STR_ID}</IRS_STR_ID>" +
+                    $"<SEVKIYAT_NO>{d.SEVKIYAT_NO}</SEVKIYAT_NO>"+
                     $"</SSHDetayModel>");
             }
 
@@ -304,9 +305,10 @@ namespace BarkodListem.Services
       <ana>
         <SEVKIYAT_NO>{ana.SEVKIYAT_NO}</SEVKIYAT_NO>
         <SUBE_KODU>{ana.SUBE_KODU}</SUBE_KODU>
-        <CARI_ID>{ana.CARI_ID}</CARI_ID>
-        <TARIH>{ana.TARIH}</TARIH>
+       <CARI_ID>{(ana.CARI_ID > 0 ? ana.CARI_ID.ToString() : "0")}</CARI_ID>
+        <TARIH>{ana.TARIH.ToString("yyyy-MM-ddTHH:mm:ss")}</TARIH>
         <EVRAK_NO>0</EVRAK_NO>
+        <DURUMU>{ana.DURUMU}</DURUMU>
       </ana>
       <detaylar>
         {detayXml}
@@ -321,7 +323,7 @@ namespace BarkodListem.Services
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
             var response = await client.SendAsync(request);
-            string result = await response.Content.ReadAsStringAsync();
+            
             return await response.Content.ReadAsStringAsync();
         }
 
