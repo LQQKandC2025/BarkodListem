@@ -10,11 +10,14 @@ using BarkodListem.Models;
 
 namespace BarkodListem.ViewModels
 {
+
     public class SevkiyatDetayViewModel : INotifyPropertyChanged
     {
         private readonly WebService _webService;
         private readonly string sevkiyatNo;
         public string dbPath = Path.Combine(FileSystem.AppDataDirectory, "barkodlistem.db");
+
+        public DatabaseService _databaseService;
         public event PropertyChangedEventHandler PropertyChanged;
 
         public string SEVK_FIS_ID { get; set; }
@@ -30,7 +33,7 @@ namespace BarkodListem.ViewModels
         public ICommand KaydetCommand => new Command(async () => await KaydetAsync());
         public ICommand UrunListesiCommand => new Command(OnUrunListesi);
         public ICommand KodGonderCommand => new Command(OnKodGonder);
-        private readonly DatabaseService _databaseService;
+  
 
         public SevkiyatDetayViewModel(string sevkiyatNo)
         {
@@ -69,10 +72,12 @@ namespace BarkodListem.ViewModels
 
         private async Task KaydetAsync()
         {
+            _databaseService = new DatabaseService(dbPath);
+            var ayarlar = await _databaseService.AyarlarGetir();
             try
             {
                 var db = await DatabaseService.GetConnectionAsync();
-                var ayarlar = await _databaseService.AyarlarGetir();
+               
                 string aktifNo = SEVKIYAT_NO;
 
                 // 1️⃣ Sevkiyat fişi

@@ -199,7 +199,6 @@ namespace BarkodListem.Services
             string innerXml = soapXml.Substring(start, end - start);
             return $"<Root>{innerXml}</Root>"; // Tek kök elementli XML haline getir
         }
-
         public async Task<DataTable> SevkiyatUrunListesi(string sevkiyatNo)
         {
             var ayarlar = await _databaseService.AyarlarGetir();
@@ -235,12 +234,13 @@ namespace BarkodListem.Services
         {
             string url = BuildServiceUrl((await _databaseService.AyarlarGetir()).WebServisURL, (await _databaseService.AyarlarGetir()).Port);
             var ayarlar = await _databaseService.AyarlarGetir();
+
             string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <SevkiyatKaydet xmlns=""http://barkodwebservice.com/\"" 
+    <SevkiyatKaydet xmlns=""http://barkodwebservice.com/"">
       <username>{ayarlar.KullaniciAdi}</username>
       <password>{ayarlar.Sifre}</password>
       <sevkiyat>
@@ -263,8 +263,10 @@ namespace BarkodListem.Services
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
             var response = await client.SendAsync(request);
+            //     string result = await response.Content.ReadAsStringAsync();
             return await response.Content.ReadAsStringAsync();
         }
+
 
         public async Task<string> SSHKaydet(string username, string password, SSHAnaModel ana, List<SSHDetayModel> detaylar)
         {
@@ -296,15 +298,18 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <SSHKaydet xmlns=""http://barkodwebservice.com/\"" 
+    <SSHKaydet xmlns=""http://barkodwebservice.com/"">
       <username>{ayarlar.KullaniciAdi}</username>
       <password>{ayarlar.Sifre}</password>
       <ana>
-        <SEVKIYAT_NO>{ ana.SEVKIYAT_NO}</SEVKIYAT_NO>
-        <EVRAK_NO>{ ana.EVRAK_NO}</EVRAK_NO>
+        <SEVKIYAT_NO>{ana.SEVKIYAT_NO}</SEVKIYAT_NO>
+        <SUBE_KODU>{ana.SUBE_KODU}</SUBE_KODU>
+        <CARI_ID>{ana.CARI_ID}</CARI_ID>
+        <TARIH>{ana.TARIH}</TARIH>
+        <EVRAK_NO>0</EVRAK_NO>
       </ana>
       <detaylar>
-        { detayXml}
+        {detayXml}
       </detaylar>
     </SSHKaydet>
   </soap:Body>
@@ -316,6 +321,7 @@ namespace BarkodListem.Services
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
             var response = await client.SendAsync(request);
+            string result = await response.Content.ReadAsStringAsync();
             return await response.Content.ReadAsStringAsync();
         }
 
@@ -346,7 +352,7 @@ namespace BarkodListem.Services
       <username>{ayarlar.KullaniciAdi}</username>
       <password>{ayarlar.Sifre}</password>
       <resimler>
-        { xml}
+        {xml}
       </resimler>
     </ResimleriKaydet>
   </soap:Body>

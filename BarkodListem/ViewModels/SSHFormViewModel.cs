@@ -75,6 +75,7 @@ public partial class SSHFormViewModel : ObservableObject
                 TARIH = DateTime.Today,
                 SUBE_KODU = _subeKodu,
                 ACIKLAMA = SorunAciklama,
+                CARI_ID = 0,
                 DURUMU = "BEKLEMEDE",
                 SEVKIYAT_NO = _sevkiyatNo
             };
