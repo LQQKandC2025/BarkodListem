@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.ComponentModel;
 using System.Data;
 using System.Threading.Tasks;
@@ -6,6 +6,7 @@ using System.Windows.Input;
 using BarkodListem.Services;
 using BarkodListem.Data;
 using Microsoft.Maui.Controls;
+using BarkodListem.Models;
 
 namespace BarkodListem.ViewModels
 {
@@ -29,6 +30,7 @@ namespace BarkodListem.ViewModels
         public ICommand KaydetCommand => new Command(async () => await KaydetAsync());
         public ICommand UrunListesiCommand => new Command(OnUrunListesi);
         public ICommand KodGonderCommand => new Command(OnKodGonder);
+        private readonly DatabaseService _databaseService;
 
         public SevkiyatDetayViewModel(string sevkiyatNo)
         {
@@ -70,31 +72,49 @@ namespace BarkodListem.ViewModels
             try
             {
                 var db = await DatabaseService.GetConnectionAsync();
+                var ayarlar = await _databaseService.AyarlarGetir();
+                string aktifNo = SEVKIYAT_NO;
 
-                var model = new SevkiyatFisModel
+                // 1Ô∏è‚É£ Sevkiyat fi≈üi
+                var sevkiyat = await db.Table<SevkiyatFisModel>()
+                                       .Where(x => x.SEVKIYAT_NO == aktifNo)
+                                       .FirstOrDefaultAsync();
+
+                if (sevkiyat != null)
                 {
-                    SEVK_FIS_ID = int.TryParse(SEVK_FIS_ID, out int fisId) ? fisId : 0,
-                    SEVK_TARIH = DateTime.TryParse(SEVK_TARIH, out var tarih) ? tarih : null,
-                    SEVKIYAT_NO = SEVKIYAT_NO,
-                    ISLEM_TURU = ISLEM_TURU,
-                    TESLIM_NOTU = TESLIM_NOTU,
-                    ADI_SOYADI = TESLIM_ALAN,
-                    TEL_1 = TEL1,
-                    TESLIM_ONAY_KODU = TESLIM_ONAY_KODU,
-                    MOBIL_PERSONEL = AppGlobals.mobil_id.ToString()
-                };
+                    // Web servise g√∂nder
+                    var sonuc1 = await _webService.SevkiyatKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, sevkiyat);
+                    await Application.Current.MainPage.DisplayAlert("Sevkiyat", sonuc1, "Tamam");
+                }
 
-                // G¸ncelleme varsa silip tekrar ekle
-                var mevcut = await db.Table<SevkiyatFisModel>()
-                                     .Where(x => x.SEVK_FIS_ID == model.SEVK_FIS_ID)
+                // 2Ô∏è‚É£ SSH_ANA
+                var sshAna = await db.Table<SSHAnaModel>()
+                                     .Where(x => x.SEVKIYAT_NO == aktifNo)
                                      .FirstOrDefaultAsync();
 
-                if (mevcut != null)
-                    await db.DeleteAsync(mevcut);
+                // 3Ô∏è‚É£ SSH_DETAY
+                var sshDetaylar = await db.Table<SSHDetayModel>()
+                                          .Where(x => x.SEVKIYAT_NO == aktifNo)
+                                          .ToListAsync();
 
-                await db.InsertAsync(model);
+                if (sshAna != null || sshDetaylar.Any())
+                {
+                    var sonuc2 = await _webService.SSHKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, sshAna, sshDetaylar);
+                    await Application.Current.MainPage.DisplayAlert("SSH", sonuc2, "Tamam");
+                }
 
-                await Application.Current.MainPage.DisplayAlert("Kay˝t", "Sevkiyat bilgileri kaydedildi.", "Tamam");
+                // 4Ô∏è‚É£ RESIMLER
+                var resimler = await db.Table<ResimModel>()
+                                       .Where(x => x.SEVKIYAT_NO == aktifNo)
+                                       .ToListAsync();
+
+                if (resimler.Any())
+                {
+                    var sonuc3 = await _webService.ResimleriKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, resimler);
+                    await Application.Current.MainPage.DisplayAlert("Resimler", sonuc3, "Tamam");
+                }
+
+                await Application.Current.MainPage.DisplayAlert("Kayƒ±t", "T√ºm bilgiler ba≈üarƒ±yla g√∂nderildi.", "Tamam");
             }
             catch (Exception ex)
             {
@@ -104,14 +124,14 @@ namespace BarkodListem.ViewModels
 
         private void OnUrunListesi()
         {
-            // ‹r¸n listesi sayfas˝na yˆnlendirme yap˝labilir.
-            Application.Current.MainPage.DisplayAlert("Bilgi", "‹r¸n listesi butonuna bas˝ld˝.", "Tamam");
+            // √úr√ºn listesi sayfasƒ±na y√∂nlendirme yapƒ±labilir.
+            Application.Current.MainPage.DisplayAlert("Bilgi", "√úr√ºn listesi butonuna basƒ±ldƒ±.", "Tamam");
         }
 
         private void OnKodGonder()
         {
-            // Kod gˆnderme i˛lemi daha sonra eklenecek.
-            Application.Current.MainPage.DisplayAlert("Bilgi", "Kod gˆnderme i˛lemi burada yap˝lacak.", "Tamam");
+            // Kod g√∂nderme i≈ülemi daha sonra eklenecek.
+            Application.Current.MainPage.DisplayAlert("Bilgi", "Kod g√∂nderme i≈ülemi burada yapƒ±lacak.", "Tamam");
         }
 
         private void NotifyAll()

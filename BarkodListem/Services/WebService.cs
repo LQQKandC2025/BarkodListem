@@ -3,6 +3,7 @@ using BarkodListem.Helpers;
 using BarkodListem.Models;
 using System.Data;
 using System.Text;
+using static Android.Media.MediaRouter2;
 
 namespace BarkodListem.Services
 {
@@ -229,6 +230,138 @@ namespace BarkodListem.Services
 
             return SoapHelper.ParseDataTableFromXml(resultXml, "SevkiyatUrunListesiResult");
         }
+
+        public async Task<string> SevkiyatKaydet(string username, string password, SevkiyatFisModel model)
+        {
+            string url = BuildServiceUrl((await _databaseService.AyarlarGetir()).WebServisURL, (await _databaseService.AyarlarGetir()).Port);
+            var ayarlar = await _databaseService.AyarlarGetir();
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <SevkiyatKaydet xmlns=""http://barkodwebservice.com/\"" 
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <sevkiyat>
+        <SEVK_TARIH>{model.SEVK_TARIH?.ToString("yyyy-MM-ddTHH:mm:ss")}</SEVK_TARIH>
+        <SEVKIYAT_NO>{model.SEVKIYAT_NO}</SEVKIYAT_NO>
+        <ISLEM_TURU>{model.ISLEM_TURU}</ISLEM_TURU>
+        <TESLIM_NOTU>{model.TESLIM_NOTU}</TESLIM_NOTU>
+        <ADI_SOYADI>{model.ADI_SOYADI}</ADI_SOYADI>
+        <TEL_1>{model.TEL_1}</TEL_1>
+        <TESLIM_ONAY_KODU>{model.TESLIM_ONAY_KODU}</TESLIM_ONAY_KODU>
+        <MOBIL_PERSONEL>{model.MOBIL_PERSONEL}</MOBIL_PERSONEL>
+      </sevkiyat>
+    </SevkiyatKaydet>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatKaydet");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<string> SSHKaydet(string username, string password, SSHAnaModel ana, List<SSHDetayModel> detaylar)
+        {
+            string url = BuildServiceUrl((await _databaseService.AyarlarGetir()).WebServisURL, (await _databaseService.AyarlarGetir()).Port);
+            var ayarlar = await _databaseService.AyarlarGetir();
+            StringBuilder detayXml = new StringBuilder();
+            foreach (var d in detaylar)
+            {
+                detayXml.Append($"<SSHDetayModel>" +
+                    $"<SIRANO>{d.SIRANO}</SIRANO>" +
+                    $"<STOK_ID>{d.STOK_ID}</STOK_ID>" +
+                    $"<SPEC_ID>{d.SPEC_ID}</SPEC_ID>" +
+                    $"<MIKTAR>{d.MIKTAR}</MIKTAR>" +
+                    $"<SSH_TURU>{d.SSH_TURU}</SSH_TURU>" +
+                    $"<SORUN_KAYNAGI>{d.SORUN_KAYNAGI}</SORUN_KAYNAGI>" +
+                    $"<SORUN_DURUM>{d.SORUN_DURUM}</SORUN_DURUM>" +
+                    $"<TUTAR>{d.TUTAR}</TUTAR>" +
+                    $"<SSH_SURE>{d.SSH_SURE:yyyy-MM-ddTHH:mm:ss}</SSH_SURE>" +
+                    $"<SORUN>{d.SORUN}</SORUN>" +
+                    $"<SORUN_DETAY>{d.SORUN_DETAY}</SORUN_DETAY>" +
+                    $"<SORUN_ACIKLAMA>{d.SORUN_ACIKLAMA}</SORUN_ACIKLAMA>" +
+                    $"<SEVK_FIS_ID>{d.SEVK_FIS_ID}</SEVK_FIS_ID>" +
+                    $"<IRS_STR_ID>{d.IRS_STR_ID}</IRS_STR_ID>" +
+                    $"</SSHDetayModel>");
+            }
+
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <SSHKaydet xmlns=""http://barkodwebservice.com/\"" 
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <ana>
+        <SEVKIYAT_NO>{ ana.SEVKIYAT_NO}</SEVKIYAT_NO>
+        <EVRAK_NO>{ ana.EVRAK_NO}</EVRAK_NO>
+      </ana>
+      <detaylar>
+        { detayXml}
+      </detaylar>
+    </SSHKaydet>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SSHKaydet");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<string> ResimleriKaydet(string username, string password, List<ResimModel> resimler)
+        {
+            string url = BuildServiceUrl((await _databaseService.AyarlarGetir()).WebServisURL, (await _databaseService.AyarlarGetir()).Port);
+            var ayarlar = await _databaseService.AyarlarGetir();
+            StringBuilder xml = new StringBuilder();
+            foreach (var r in resimler)
+            {
+                xml.Append($"<ResimModel>" +
+    $"<SEVKIYAT_NO>{r.SEVKIYAT_NO}</SEVKIYAT_NO>" +
+    $"<RESIM_ADI>{r.RESIM_ADI}</RESIM_ADI>" +
+    $"<RESIM_SAHIP>{r.RESIM_SAHIP}</RESIM_SAHIP>" +
+    $"<RESIM_SAHIP_ID>{r.RESIM_SAHIP_ID}</RESIM_SAHIP_ID>" +
+    $"<RESIM_TURU>{r.RESIM_TURU}</RESIM_TURU>" +
+    $"<RESIM_ACIKLAMA>{r.RESIM_ACIKLAMA}</RESIM_ACIKLAMA>" +
+    $"<SIRALAMA>{r.SIRALAMA}</SIRALAMA>" +
+    $"</ResimModel>");
+            }
+
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <ResimleriKaydet xmlns=""http://barkodwebservice.com/\"" 
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <resimler>
+        { xml}
+      </resimler>
+    </ResimleriKaydet>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimleriKaydet");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            return await response.Content.ReadAsStringAsync();
+        }
+
+
 
 
 
