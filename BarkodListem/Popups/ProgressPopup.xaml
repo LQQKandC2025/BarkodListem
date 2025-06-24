@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup 
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:Class="BarkodListem.Popups.ProgressPopup"
+    WidthRequest="300"
+    HeightRequest="220">
+    <VerticalStackLayout Padding="20" Spacing="15" HeightRequest="120">
+        <ProgressBar x:Name="progressBar" Progress="0" HeightRequest="10" />
+        <CollectionView x:Name="stepsCollectionView" HeightRequest="100"
+            ItemsSource="{Binding Steps}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="*,Auto" Padding="5,2">
+                        <Label Text="{Binding Text}" FontSize="14" />
+                        <Label Text="{Binding Status}" FontSize="16" TextColor="Green" Grid.Column="1" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+        <Button x:Name="btnTamam" 
+                Text="Tamam" 
+                IsEnabled="False"
+                Clicked="btnTamam_Clicked"
+                HorizontalOptions="Fill"
+                Margin="0,10,0,0" />
+    </VerticalStackLayout>
+</toolkit:Popup>

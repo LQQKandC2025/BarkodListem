@@ -1,0 +1,56 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BarkodListem.LoginPage"
+             Title="Giriş Yap"
+             BackgroundColor="{DynamicResource BackgroundColor}">
+    <!-- 📌 Arka plan rengi temaya göre değişir -->
+    <VerticalStackLayout Padding="30" Spacing="20" VerticalOptions="CenterAndExpand">
+        <Border Stroke="{DynamicResource TextColor}" StrokeThickness="2" Padding="15" BackgroundColor="{DynamicResource BackgroundColor}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="Black" Opacity="0.3" Offset="5,5" />
+            </Border.Shadow>
+            <VerticalStackLayout Spacing="15" Padding="10">
+                <Label Text="Giriş Yap"
+                       FontSize="24"
+                       HorizontalOptions="Center"
+                       TextColor="{DynamicResource TextColor}"/>
+                <!-- 📌 Yazı rengi temaya göre değişir -->
+                <Border Stroke="Gray" StrokeThickness="1" Padding="5" BackgroundColor="{DynamicResource EntryBackgroundColor}">
+                    <Border.Shadow>
+                        <Shadow Brush="MidnightBlue" Opacity="0.2" Offset="1,1" />
+                    </Border.Shadow>
+                    <Entry x:Name="usernameEntry"
+                           Placeholder="Kullanıcı Adı"
+                           FontSize="18"
+                           PlaceholderColor="LightGray"/>
+                </Border>
+                <Border Stroke="Gray" StrokeThickness="1" Padding="5" BackgroundColor="{DynamicResource EntryBackgroundColor}">
+                    <Border.Shadow>
+                        <Shadow Brush="MidnightBlue" Opacity="0.2" Offset="1,1" />
+                    </Border.Shadow>
+                    <Entry x:Name="passwordEntry"
+                           FontSize="18"
+                           Placeholder="Şifre"
+                           IsPassword="True"
+                           PlaceholderColor="LightGray"/>
+                </Border>
+                <Border Stroke="Black" StrokeThickness="1" Padding="5" BackgroundColor="{DynamicResource ButtonBackgroundColor}">
+                    <Border.Shadow>
+                        <Shadow Brush="Gray" Opacity="0.5" Offset="2,2" />
+                    </Border.Shadow>
+                    <Button FontSize="24"
+                            Text="Giriş"
+                            Clicked="OnLoginClicked"
+                            TextColor="White"/>
+                </Border>
+                <Label x:Name="errorLabel"
+                       TextColor="Red"
+                       IsVisible="False"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</ContentPage>

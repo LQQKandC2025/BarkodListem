@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BarkodListem.Views.SettingsPage"
+             Title="Ayarlar">
+
+    <VerticalStackLayout Padding="20">
+
+        <Label Text="Web Servis Adresi:"/>
+        <Entry x:Name="entryUrl" Completed="Entry_Completed" Placeholder="http://example.com"/>
+
+        <Label Text="Port:"/>
+        <Entry x:Name="entryPort" Completed="Entry_Completed" Placeholder="8080" Keyboard="Numeric"/>
+
+        <Label Text="User ID:"/>
+        <Entry x:Name="entryUserId" Completed="Entry_Completed" Placeholder="Empty" Keyboard="Numeric"/>
+
+        <Label Text="Kullanıcı Adı:"/>
+        <Entry x:Name="entryUser" Completed="Entry_Completed" Placeholder="admin"/>
+
+        <Label Text="Şifre:"/>
+        <Entry x:Name="entryPassword" Completed="Entry_Completed" Placeholder="******" IsPassword="True"/>
+
+        <Button Text="Kaydet" Clicked="Kaydet_Clicked" BackgroundColor="Green" TextColor="White"/>
+
+        <Label Text="Tema Seçimi:"/>
+        <Picker x:Name="themePicker" SelectedIndexChanged="ThemePicker_SelectedIndexChanged">
+			<Picker.Items>
+				<x:String>Açık</x:String>
+				<x:String>Karanlık</x:String>
+			</Picker.Items>
+		</Picker>
+
+        <!-- Versiyon + Çöp Butonu Yan Yana -->
+        <Grid ColumnDefinitions="*,*,*" Margin="0,30,0,0" Padding="10,0">
+
+            <!-- Sol boş kolon -->
+            <Label Text=""
+           Grid.Column="0" />
+
+            <!-- Ortada Versiyon yazısı -->
+            <Label x:Name="versionLabel"
+           TextColor="Gray"
+           FontAttributes="Italic"
+           FontSize="12"
+           VerticalOptions="Center"
+           HorizontalOptions="Center"
+           Grid.Column="1" />
+
+            <!-- Sağda Çöp butonu -->
+            <Button Text="🗑️"
+        BackgroundColor="Transparent"
+        TextColor="Gray"
+        FontSize="22"
+        Padding="0"
+        Opacity="0.7"
+        Pressed="Button_Pressed"
+        Released="Button_Released"
+        Clicked="OnTemizlikClicked"
+        HorizontalOptions="End"
+        VerticalOptions="Center"
+        Grid.Column="2" />
+        </Grid>
+
+    </VerticalStackLayout>
+
+</ContentPage>
+
+
+

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BarkodListem.ViewModels"
+             xmlns:conv="clr-namespace:BarkodListem.Converters"
+             x:Class="BarkodListem.Pages.UrunListesiPage"
+             x:Name="UrunListesiPageRef"
+             Title="Ürün Listesi">
+    <ScrollView>
+        <VerticalStackLayout Padding="10" Spacing="10">
+            <CollectionView ItemsSource="{Binding Urunler}" x:Name="UrunListesi">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ColumnSpacing="10" Padding="10" RowSpacing="5">
+                            <Grid.BackgroundColor>
+                                <Binding Path="SORUNVAR" Converter="{StaticResource SSHBackgroundConverter}" />
+                            </Grid.BackgroundColor>
+                            <!-- 👇 BURAYA gesture ekledik -->
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    NumberOfTapsRequired="2"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UrunListesiViewModel}}, Path=UrunLongPressCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Grid.GestureRecognizers>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackLayout Grid.Column="0">
+                                <Label Text="{Binding STOK_ADI}" FontAttributes="Bold" TextColor="#333">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:UrunListesiViewModel}}, Path=FotografCekCommand}"
+                                    CommandParameter="{Binding .}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Label Text="{Binding SIP_STR_ID, StringFormat='Sipariş ID: {0}'}" FontSize="12" TextColor="#666" />
+                                <Label Text="{Binding STOK_ID, StringFormat='Stok ID: {0}'}" FontSize="12" TextColor="#666" />
+                                <Label Text="{Binding MIKTAR, StringFormat='Miktar: {0}'}" FontSize="12" TextColor="#666" />
+                            </StackLayout>
+                            <Button Text="SSH"
+                            Grid.Column="1"
+                            VerticalOptions="Center"
+                            BackgroundColor="#4CAF50"
+                            TextColor="White"
+                            Clicked="OnSSHButtonClicked"
+                            CommandParameter="{Binding .}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+            <HorizontalStackLayout Spacing="20" HorizontalOptions="Center">
+                <Button Text="GERİ DÖN" Clicked="OnGeriDonClicked" />
+                <Button Text="TESLİMAT RESİM" Clicked="OnGaleriClicked" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <conv:SSHBackgroundConverter x:Key="SSHBackgroundConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+</ContentPage>

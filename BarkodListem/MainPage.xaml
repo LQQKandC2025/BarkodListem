@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:BarkodListem.ViewModels"
+             xmlns:models="clr-namespace:BarkodListem.Models"
+             x:Class="BarkodListem.MainPage"
+             x:DataType="{x:Type viewmodels:BarkodListViewModel}"
+             Title="Mobil Servis">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <!-- Logout Butonu En Üste ve Sağa Yerleştirildi -->
+        <Button Text="Çıkış Yap"
+                Clicked="LogoutButton_Clicked"
+                BackgroundColor="Red"
+                TextColor="White"
+                Padding="10"
+                HorizontalOptions="End"
+                VerticalOptions="Start"
+                Margin="0,0,20,0"/>
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20">
+                <!-- Elle barkod girme kutusu -->
+                <Border Stroke="Gray" StrokeThickness="1" Padding="0" Margin="0,5,0,0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10"/>
+                    </Border.StrokeShape>
+                    <Border.Shadow>
+                        <Shadow Brush="Black" Opacity="0.2" />
+                    </Border.Shadow>
+                    <Grid Padding="10">
+                        <Entry x:Name="barkodEntry"
+               Placeholder="🔍 Barkodu elle gir..."
+               FontSize="18"
+               BackgroundColor="Transparent"
+               ReturnType="Done"
+               Completed="BarkodEkle_Clicked" />
+                    </Grid>
+                </Border>
+                <!-- Butonlar -->
+                <Grid ColumnDefinitions="*,*"
+              RowDefinitions="Auto,Auto,Auto,Auto"
+              Margin="0,10,0,10"
+              RowSpacing="1"
+              ColumnSpacing="1"
+              BackgroundColor="LightGray">
+                    <Button Text="BARKOD OKUT"
+                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    Clicked="QRKodTara_Clicked"
+                    TextColor="Black"
+                    CornerRadius="0" 
+                    ImageSource="barkodoku.png"
+                    ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+                    <Button Text="BARKOD KAYDET"
+                    Grid.Row="1" Grid.Column="0"
+                    Clicked="BarkodEntry_Completed"
+                    TextColor="Black"
+                    CornerRadius="0"
+                    ImageSource="save1.png"
+                    ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+                    <Button Text="LİSTEYİ GÖNDER"
+                    Grid.Row="1" Grid.Column="1"
+                    Clicked="ListeyiGonder_Clicked"
+                    TextColor="Black"
+                    CornerRadius="0"
+                    ImageSource="webservis1.png"
+                    ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+                    <Button Text="LİSTEYİ TEMİZLE"
+                    Grid.Row="2" Grid.Column="0"
+                    Clicked="ClearListButton_Clicked"
+                    TextColor="Black"
+                    CornerRadius="0" 
+                    ImageSource="listesil.png"
+                    ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+                    <Button Text="LİSTELER"
+                    Grid.Row="2" Grid.Column="1" 
+                    Clicked="Listeler_Clicked"
+                    TextColor="Black"
+                    ImageSource="qrlistesi.png"
+                    ContentLayout="Top,10"
+                    CornerRadius="0" BackgroundColor="#F0F0F0"/>
+                    <Button Text="YENİ LİSTE"
+                    Grid.Row="3" Grid.Column="0"
+                    Clicked="YeniListeOlustur_Clicked"
+                    TextColor="Black"
+                    CornerRadius="0" 
+                    ImageSource="listeekle.png"
+                    ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+                    <Button Text="AYARLAR"
+                    Grid.Row="3" Grid.Column="1"
+                    Clicked="Ayarlar_Clicked"
+                    TextColor="Black"
+                    CornerRadius="0" 
+                    ImageSource="ayarlar.png"
+                    ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+                </Grid>
+                <!-- BAŞLIK (Barkod Listesinin Üstüne Taşındı) -->
+                <Label Text="{Binding AktifListeAdi}" 
+               FontSize="20" 
+               TextColor="Blue" 
+               HorizontalOptions="Center"
+               Margin="0,10,0,10">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="ListeAdiniDegistir_Tapped"/>
+                    </Label.GestureRecognizers>
+                </Label>
+                <!-- Barkod Listesi -->
+                <CollectionView x:Name="barkodListesi"
+                        ItemsSource="{Binding Barkodlar}"
+                        Margin="0,10,0,0"
+                        VerticalOptions="Fill"
+                        HorizontalOptions="Fill">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BarkodModel">
+                            <Border Background="LightGray" 
+                            Stroke="Gray"
+                            StrokeThickness="1"
+                            Padding="10"
+                            Margin="5"
+                            HorizontalOptions="Fill">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="5"/>
+                                </Border.StrokeShape>
+                                <Grid ColumnDefinitions="*, Auto">
+                                    <Label Text="{Binding Barkod}"
+                                   FontSize="16"
+                                   VerticalOptions="Center"
+                                   Grid.Column="0" />
+                                    <Button Text="Sil"
+                                    FontSize="14"
+                                    BackgroundColor="Red"
+                                    TextColor="White"
+                                    CornerRadius="0"
+                                    Clicked="BarkodSilCommand"
+                                    CommandParameter="{Binding}"
+                                    Grid.Column="1" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

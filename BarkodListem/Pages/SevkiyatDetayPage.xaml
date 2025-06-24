@@ -1,0 +1,73 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BarkodListem.Pages.SevkiyatDetayPage"
+             Title="Sevkiyat Detayı">
+    <ScrollView>
+        <Grid Padding="20"
+      ColumnSpacing="10"
+      RowSpacing="12"
+      HorizontalOptions="FillAndExpand">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <!-- Şık görünümlü giriş alanları -->
+            <Label Grid.Row="0" Grid.Column="0" Text="SEVK TARIH" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="0" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SEVK_TARIH}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+            <Label Grid.Row="1" Grid.Column="0" Text="SEVKIYAT NO" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="1" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding SEVKIYAT_NO}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+            <Label Grid.Row="2" Grid.Column="0" Text="İŞLEM TÜRÜ" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="2" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding ISLEM_TURU}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+            <Label Grid.Row="3" Grid.Column="0" Text="TESLIM_NOTU" VerticalOptions="Start" FontAttributes="Bold" />
+            <Frame Grid.Row="3" Grid.Column="1" CornerRadius="10" HasShadow="True">
+                <Editor x:Name="TeslimNotuEditor" Text="{Binding TESLIM_NOTU}" HeightRequest="100" BackgroundColor="Transparent" />
+            </Frame>
+            <Label Grid.Row="4" Grid.Column="0" Text="TESLIM ALAN" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="4" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding TESLIM_ALAN}" BackgroundColor="Transparent" />
+            </Frame>
+            <Label Grid.Row="5" Grid.Column="0" Text="TELEFON" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="5" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding TEL1}" BackgroundColor="Transparent" />
+            </Frame>
+            <Label Grid.Row="6" Grid.Column="0" Text="ONAY KODU" VerticalOptions="Center" FontAttributes="Bold" />
+            <HorizontalStackLayout Grid.Row="6" Grid.Column="1" Spacing="10">
+                <Frame CornerRadius="10" HasShadow="True" Padding="0" WidthRequest="140">
+                    <Entry Text="{Binding TESLIM_ONAY_KODU}" BackgroundColor="Transparent" />
+                </Frame>
+                <Button Text="SMS" Command="{Binding KodGonderCommand}" />
+            </HorizontalStackLayout>
+            <Label Grid.Row="7" Grid.Column="0" Text="ARAÇ PLAKA" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="7" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding ARAC_PLAKA}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+            <Label Grid.Row="8" Grid.Column="0" Text="PERSONEL" VerticalOptions="Center" FontAttributes="Bold" />
+            <Frame Grid.Row="8" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
+                <Entry Text="{Binding MOBIL_PERSONEL}" IsReadOnly="True" BackgroundColor="Transparent" />
+            </Frame>
+            <!-- Alt Butonlar -->
+            <HorizontalStackLayout Grid.Row="9" Grid.ColumnSpan="2" HorizontalOptions="Center" Spacing="20" Margin="0,10,0,0">
+                <Button Text="KAYDET" Command="{Binding KaydetCommand}" WidthRequest="140" />
+                <Button Text="ÜRÜNLER" Clicked="OnUrunListesiClicked" WidthRequest="140" />
+            </HorizontalStackLayout>
+        </Grid>
+    </ScrollView>
+</ContentPage>
