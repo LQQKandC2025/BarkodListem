@@ -60,6 +60,7 @@
 		<None Remove="Platforms\Android\Resources\Images\**" />
 		<!--<MauiImage Include="Resources\AppIcon\app_icon.png" />-->
 		<MauiImage Include="Resources\Images\ayarlar.png"></MauiImage>
+		<MauiImage Include="Resources\Images\irsaliye.png" />
 		<MauiImage Include="Resources\Images\listesil.png"></MauiImage>
 		<MauiImage Include="Resources\Images\resimgonder.png" />
 		<MauiImage Include="Resources\Images\save1.png"></MauiImage>
@@ -82,6 +83,7 @@
 		<Compile Remove="Views\ScannerPage.xaml.cs" />
 	</ItemGroup>
 	<ItemGroup>
+	  <None Remove="Resources\Images\irsaliye.png" />
 	  <None Remove="Resources\Images\resimgonder.png" />
 	</ItemGroup>
 	<!-- 	<ItemGroup>

@@ -47,12 +47,19 @@
               ColumnSpacing="1"
               BackgroundColor="LightGray">
                     <Button Text="BARKOD OKUT"
-                    Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                    Grid.Row="0" Grid.Column="0" 
                     Clicked="QRKodTara_Clicked"
                     TextColor="Black"
                     CornerRadius="0" 
                     ImageSource="barkodoku.png"
                     ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>
+                    <Button Text="İRSALİYE İŞLEMLERİ"
+                    Grid.Row="0" Grid.Column="1" 
+                    Clicked="QRKodTara_Clicked"
+                    TextColor="Black"
+                    CornerRadius="0" 
+                    ImageSource="irsaliye.png"
+                    ContentLayout="Top,10" BackgroundColor="#F0F0F0"/>  
                     <Button Text="BARKOD KAYDET"
                     Grid.Row="1" Grid.Column="0"
                     Clicked="BarkodEntry_Completed"

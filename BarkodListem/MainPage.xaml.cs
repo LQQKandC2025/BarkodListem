@@ -27,7 +27,7 @@ namespace BarkodListem
             await _viewModel.LoadData();
         }
         public CollectionView BarkodListesi => barkodListesi;
-        private bool isScanning = false;
+        //private bool isScanning = false;
         [Obsolete]
         private async void QRKodTara_Clicked(object sender, EventArgs e)
         {
