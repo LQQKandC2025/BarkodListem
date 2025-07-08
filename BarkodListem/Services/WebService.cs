@@ -201,7 +201,7 @@ namespace BarkodListem.Services
                     $"<SORUN_ACIKLAMA>{d.SORUN_ACIKLAMA}</SORUN_ACIKLAMA>" +
                     $"<SEVK_FIS_ID>{d.SEVK_FIS_ID}</SEVK_FIS_ID>" +
                     $"<IRS_STR_ID>{d.IRS_STR_ID}</IRS_STR_ID>" +
-                    $"<SEVKIYAT_NO>{d.SEVKIYAT_NO}</SEVKIYAT_NO>"+
+                    $"<SEVKIYAT_NO>{d.SEVKIYAT_NO}</SEVKIYAT_NO>" +
                     $"</SSHDetayModel>");
             }
             string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -271,6 +271,40 @@ namespace BarkodListem.Services
             var response = await client.SendAsync(request);
             return await response.Content.ReadAsStringAsync();
         }
+
+        public async Task<DataTable> IrsaliyeSorgula(DateTime baslangic, DateTime bitis)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+
+            string soapRequest = $@"<?xml version=\""1.0\"" encoding=\""utf-8\""?>
+< soap:Envelope xmlns:xsi =\""http://www.w3.org/2001/XMLSchema-instance\""
+               xmlns: xsd =\""http://www.w3.org/2001/XMLSchema\""
+               xmlns: soap =\""http://schemas.xmlsoap.org/soap/envelope/\"">
+  < soap:Body >
+    < IrsaliyeSorgula xmlns =\""http://barkodwebservice.com/\"">
+      < username >{ayarlar.KullaniciAdi}</ username >
+      < password >{ayarlar.Sifre}</ password >
+      < baslangic >{baslangic: yyyy - MM - ddTHH:mm: ss}</ baslangic >
+      < bitis >{bitis: yyyy - MM - ddTHH:mm: ss}</ bitis >
+    </ IrsaliyeSorgula >
+  </ soap:Body >
+</ soap:Envelope > ";
+
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeSorgula");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            var resultXml = await response.Content.ReadAsStringAsync();
+
+            return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeSorgulaResult");
+        }
+
+
+
         public async Task<string> ResimYukle(string username, string password, string dosyaAdi, byte[] resimData)
         {
             var ayarlar = await _databaseService.AyarlarGetir();
