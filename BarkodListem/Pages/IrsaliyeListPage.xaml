@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:BarkodListem.ViewModels"
+             xmlns:models="clr-namespace:BarkodListem.Models"
+             x:Class="BarkodListem.Pages.IrsaliyeListPage"
+             x:DataType="vm:IrsaliyeListViewModel"
+             Title="İrsaliye Listesi">
+	<VerticalStackLayout Padding="10" Spacing="10">
+		<Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="10">
+			<DatePicker Date="{Binding StartDate}" />
+			<DatePicker Date="{Binding EndDate}" Grid.Column="1" />
+			<Button Text="Sorgula" Command="{Binding SorgulaCommand}" Grid.Column="2" />
+		</Grid>
+
+		<CollectionView ItemsSource="{Binding Irsaliyeler}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnIrsaliyeSelected">
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="models:IrsaliyeModel">
+					<Grid ColumnDefinitions="Auto,*,*,*" ColumnSpacing="10" Padding="5">
+						<Label Text="{Binding IRSALIYE_ID}" Grid.Column="0" />
+						<Label Text="{Binding IRSALIYE_TURU}" Grid.Column="1" />
+						<Label Text="{Binding IRS_TARIH, StringFormat='{}{0:dd.MM.yyyy}'}" Grid.Column="2" />
+						<Label Text="{Binding IRS_NO}" Grid.Column="3" />
+					</Grid>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+	</VerticalStackLayout>
+</ContentPage>

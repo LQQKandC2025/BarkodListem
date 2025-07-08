@@ -1,51 +1,40 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Data;
-using BarkodListem.Models;
-using BarkodListem.Services;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using BarkodListem.Models;
 
 namespace BarkodListem.ViewModels;
 
 public partial class IrsaliyeListViewModel : ObservableObject
 {
-    private readonly WebService _webService;
+    [ObservableProperty]
+    private DateTime startDate = DateTime.Today.AddDays(-7);
 
     [ObservableProperty]
-    private DateTime baslangicTarihi = DateTime.Today.AddDays(-7);
+    private DateTime endDate = DateTime.Today;
 
-    [ObservableProperty]
-    private DateTime bitisTarihi = DateTime.Today;
+    public ObservableCollection<IrsaliyeModel> Irsaliyeler { get; } = new();
 
-    [ObservableProperty]
-    private ObservableCollection<IrsaliyeModel> irsaliyeler = new();
-
-    public IAsyncRelayCommand SorgulaCommand { get; }
-
-    public IrsaliyeListViewModel(WebService webService)
+    public IrsaliyeListViewModel()
     {
-        _webService = webService;
         SorgulaCommand = new AsyncRelayCommand(SorgulaAsync);
     }
 
+    public IAsyncRelayCommand SorgulaCommand { get; }
+
     private async Task SorgulaAsync()
     {
-        var dt = await _webService.IrsaliyeSorgula(BaslangicTarihi, BitisTarihi);
         Irsaliyeler.Clear();
-        foreach (DataRow row in dt.Rows)
+        await Task.Delay(100);
+        for (int i = 1; i <= 5; i++)
         {
-            var model = new IrsaliyeModel();
-            if (dt.Columns.Contains("IRSALIYE_NO"))
-                model.IRSALIYE_NO = row["IRSALIYE_NO"].ToString();
-            if (dt.Columns.Contains("CARI_ADI"))
-                model.CARI_ADI = row["CARI_ADI"].ToString();
-            if (dt.Columns.Contains("TARIH"))
+            Irsaliyeler.Add(new IrsaliyeModel
             {
-                DateTime.TryParse(row["TARIH"].ToString(), out var tarih);
-                model.TARIH = tarih;
-            }
-            Irsaliyeler.Add(model);
+                IRSALIYE_ID = i,
+                IRSALIYE_TURU = $"TUR{i}",
+                IRS_TARIH = StartDate.AddDays(i),
+                IRS_NO = $"IR-{i:000}"
+            });
         }
     }
 }
