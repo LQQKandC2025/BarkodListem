@@ -145,5 +145,9 @@ namespace BarkodListem
         {
             App.Logout(); // Kullanıcıyı çıkış yaptır
         }
+        private async void Irsaliye_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new IrsaliyeListPage());
+        }
     }
 }
