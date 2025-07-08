@@ -171,6 +171,9 @@
 		<MauiXaml Update="Pages\SevkiyatDetayPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Pages\IrsaliyeListPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="9.0.40" />
