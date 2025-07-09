@@ -276,19 +276,19 @@ namespace BarkodListem.Services
         {
             var ayarlar = await _databaseService.AyarlarGetir();
 
-            string soapRequest = $@"<?xml version=\""1.0\"" encoding=\""utf-8\""?>
-< soap:Envelope xmlns:xsi =\""http://www.w3.org/2001/XMLSchema-instance\""
-               xmlns: xsd =\""http://www.w3.org/2001/XMLSchema\""
-               xmlns: soap =\""http://schemas.xmlsoap.org/soap/envelope/\"">
-  < soap:Body >
-    < IrsaliyeSorgula xmlns =\""http://barkodwebservice.com/\"">
-      < username >{ayarlar.KullaniciAdi}</ username >
-      < password >{ayarlar.Sifre}</ password >
-      < baslangic >{baslangic: yyyy - MM - ddTHH:mm: ss}</ baslangic >
-      < bitis >{bitis: yyyy - MM - ddTHH:mm: ss}</ bitis >
-    </ IrsaliyeSorgula >
-  </ soap:Body >
-</ soap:Envelope > ";
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi =""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd =""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap =""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <IrsaliyeSorgula xmlns =""http://barkodwebservice.com/"">
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <baslangic>{baslangic:yyyy-MM-dd}</baslangic>
+      <bitis>{bitis:yyyy-MM-dd}</bitis>
+    </IrsaliyeSorgula>
+  </soap:Body>
+</soap:Envelope> ";
 
             string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
 

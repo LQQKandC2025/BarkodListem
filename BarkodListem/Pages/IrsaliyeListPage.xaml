@@ -1,31 +1,91 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:BarkodListem.ViewModels"
-             xmlns:models="clr-namespace:BarkodListem.Models"
-             x:Class="BarkodListem.Pages.IrsaliyeListPage"
-             x:DataType="vm:IrsaliyeListViewModel"
-             Title="İrsaliye Listesi">
-	<VerticalStackLayout Padding="10" Spacing="10">
-		<Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="10">
-			<DatePicker Date="{Binding StartDate}" />
-			<DatePicker Date="{Binding EndDate}" Grid.Column="1" />
-			<Button Text="Sorgula" Command="{Binding SorgulaCommand}" Grid.Column="2" />
-		</Grid>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:BarkodListem.ViewModels"
+    xmlns:models="clr-namespace:BarkodListem.Models"
+    x:Class="BarkodListem.Pages.IrsaliyeListPage"
+    x:DataType="vm:IrsaliyeListViewModel"
+    Title="İrsaliye Listesi">
 
-		<CollectionView ItemsSource="{Binding Irsaliyeler}"
-                        SelectionMode="Single"
-                        SelectionChanged="OnIrsaliyeSelected">
-			<CollectionView.ItemTemplate>
-				<DataTemplate x:DataType="models:IrsaliyeModel">
-					<Grid ColumnDefinitions="Auto,*,*,*" ColumnSpacing="10" Padding="5">
-						<Label Text="{Binding IRSALIYE_ID}" Grid.Column="0" />
-						<Label Text="{Binding IRSALIYE_TURU}" Grid.Column="1" />
-						<Label Text="{Binding IRS_TARIH, StringFormat='{}{0:dd.MM.yyyy}'}" Grid.Column="2" />
-						<Label Text="{Binding IRS_NO}" Grid.Column="3" />
-					</Grid>
-				</DataTemplate>
-			</CollectionView.ItemTemplate>
-		</CollectionView>
-	</VerticalStackLayout>
+    <ContentPage.Resources>
+        <!-- Kart görünümü için stil -->
+        <Style x:Key="CardStyle" TargetType="Frame">
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="HasShadow" Value="True"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="BackgroundColor" Value="White"/>
+        </Style>
+        <!-- Buton stili -->
+        <Style x:Key="PrimaryButton" TargetType="Button">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="BackgroundColor" Value="#2196F3"/>
+            <Setter Property="TextColor" Value="White"/>
+            <Setter Property="FontAttributes" Value="Bold"/>
+            <Setter Property="HeightRequest" Value="40"/>
+            <Setter Property="Margin" Value="5,0"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <VerticalStackLayout Padding="10" Spacing="10">
+
+        <!-- Filtre Kartı -->
+        <Frame Style="{StaticResource CardStyle}">
+            <Grid ColumnDefinitions="*,*,Auto" ColumnSpacing="10">
+                <DatePicker
+            Date="{Binding StartDate}"
+            Format="dd.MM.yyyy"
+            HorizontalOptions="FillAndExpand" />
+                <DatePicker
+            Grid.Column="1"
+            Date="{Binding EndDate}"
+            Format="dd.MM.yyyy"
+            HorizontalOptions="FillAndExpand" />
+                <Button
+            Grid.Column="2"
+            Text="Sorgula"
+            Command="{Binding SorgulaCommand}"
+            Style="{StaticResource PrimaryButton}" />
+            </Grid>
+        </Frame>
+
+        <!-- İrsaliye Kartları -->
+        <CollectionView
+        ItemsSource="{Binding Irsaliyeler}"
+        Margin="0,5">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:IrsaliyeModel">
+                    <Frame Style="{StaticResource CardStyle}"
+                 HasShadow="True"
+                 CornerRadius="10">
+                        <!-- TapGesture ile tıklama dinleniyor -->
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer
+                  Tapped="OnIrsaliyeTapped"
+                  CommandParameter="{Binding .}" />
+                        </Frame.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="Auto,*,*,*" ColumnSpacing="10">
+                            <Label
+                  Text="{Binding IRSALIYE_ID}"
+                  FontAttributes="Bold"
+                  Grid.Column="0" />
+                            <Label
+                  Text="{Binding IRSALIYE_TURU}"
+                  Grid.Column="1" />
+                            <Label
+                  Text="{Binding IRS_TARIH, StringFormat='{}{0:dd.MM.yyyy}'}"
+                  Grid.Column="2" />
+                            <Label
+                  Text="{Binding IRS_NO}"
+                  HorizontalTextAlignment="End"
+                  Grid.Column="3" />
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
 </ContentPage>
