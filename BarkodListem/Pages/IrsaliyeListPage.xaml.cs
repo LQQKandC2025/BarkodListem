@@ -40,7 +40,7 @@ public partial class IrsaliyeListPage : ContentPage
         // sender Frame olduğu için onun BindingContext’inden modeli alıyoruz
         if (sender is Frame frame && frame.BindingContext is IrsaliyeModel secilen)
         {
-            await DisplayAlert("İrsaliye", $"İrsaliye No: {secilen.IRS_NO}", "Tamam");
+            await DisplayAlert("İrsaliye", $"İrsaliye ID: {secilen.IRSALIYE_ID}", "Tamam");
         }
     }
 }
