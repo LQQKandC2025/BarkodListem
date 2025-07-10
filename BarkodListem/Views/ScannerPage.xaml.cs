@@ -10,6 +10,8 @@ namespace BarkodListem.Views
         private IAudioManager audioManager;
         private bool isProcessing = false;
         private bool isContinuousMode = false;
+
+        static TaskCompletionSource<string> _tcs;
         public ScannerPage(BarkodListViewModel viewModel, IAudioManager audioManager)
         {
             InitializeComponent();
@@ -108,6 +110,15 @@ namespace BarkodListem.Views
         private async void OnCloseClicked(object sender, EventArgs e)
         {
             await Navigation.PopAsync(); // Sayfayı kapat
+        }
+        public static async Task<string> ScanOnceAsync()
+        {
+            _tcs = new TaskCompletionSource<string>();
+            var page = new ScannerPage();
+            await Shell.Current.Navigation.PushModalAsync(page);
+            var result = await _tcs.Task;
+            await Shell.Current.Navigation.PopModalAsync();
+            return result;
         }
     }
 }

@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:BarkodListem.ViewModels"
     xmlns:models="clr-namespace:BarkodListem.Models"
+	xmlns:dataGrid="clr-namespace:CommunityToolkit.Maui.DataGrid;assembly=CommunityToolkit.Maui.DataGrid"
     x:Class="BarkodListem.Pages.IrsaliyeDetayPage"
     Title="İrsaliye Detay">
 
