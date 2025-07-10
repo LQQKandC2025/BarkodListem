@@ -135,6 +135,9 @@
 		<MauiXaml Update="Pages\GaleriPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="Pages\IrsaliyeDetayPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Pages\IrsaliyeListPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>

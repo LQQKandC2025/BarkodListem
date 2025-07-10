@@ -304,6 +304,37 @@ namespace BarkodListem.Services
         }
 
 
+        public async Task<DataTable> PaketHareketSorgula(int irsaliyeId)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <PaketHareketSorgula xmlns=""http://barkodwebservice.com/"">
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
+      <irsaliyeId>{irsaliyeId}</irsaliyeId>
+    </PaketHareketSorgula>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/PaketHareketSorgula");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            var xml = await response.Content.ReadAsStringAsync();
+
+            // DataTable dönüşü için SoapHelper kullanarak:
+            return SoapHelper.ParseDataTableFromXml(xml, "PaketHareketSorgulaResult");
+        }
+
+
 
         public async Task<string> ResimYukle(string username, string password, string dosyaAdi, byte[] resimData)
         {

@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:BarkodListem.ViewModels"
+    xmlns:models="clr-namespace:BarkodListem.Models"
+    x:Class="BarkodListem.Pages.IrsaliyeDetayPage"
+    Title="İrsaliye Detay">
+
+	<ContentPage.BindingContext>
+		<!-- Code-behind’ta atanacak -->
+	</ContentPage.BindingContext>
+
+	<VerticalStackLayout Padding="10" Spacing="10">
+		<!-- 1. Barkod Girişi ve Kamera Butonu -->
+		<HorizontalStackLayout>
+			<Entry
+                x:Name="barkodEntry"
+                Placeholder="Barkod okut veya gir"
+                HorizontalOptions="FillAndExpand"
+                Keyboard="Text"
+                ClearButtonVisibility="WhileEditing" />
+			<Button
+                Text="📷"
+                WidthRequest="50"
+                Clicked="OnCameraClicked" />
+		</HorizontalStackLayout>
+
+		<!-- 2. DataGrid için (CommunityToolkit.Maui.DataGrid yüklü ise) -->
+		<dataGrid:DataGrid
+            ItemsSource="{Binding PaketHareketler}"
+            AutoGenerateColumns="False"
+            IsReadOnly="True"
+            HeaderHeight="40"
+            RowHeight="30">
+			<dataGrid:DataGrid.Columns>
+				<dataGrid:DataGridTextColumn Header="ID"             PropertyName="PAKET_HRK_ID" />
+				<dataGrid:DataGridTextColumn Header="Paket Adı"      PropertyName="PAKET_ADI" />
+				<dataGrid:DataGridTextColumn Header="Karekod"        PropertyName="KAREKOD" />
+				<dataGrid:DataGridTextColumn Header="Terminal"       PropertyName="TERMINAL" />
+				<dataGrid:DataGridTextColumn Header="Zr Karekod"     PropertyName="ZR_KAREKOD" />
+				<dataGrid:DataGridTextColumn Header="Karekod_ID"     PropertyName="KAREKOD_ID" />
+			</dataGrid:DataGrid.Columns>
+		</dataGrid:DataGrid>
+	</VerticalStackLayout>
+</ContentPage>
