@@ -37,7 +37,7 @@ namespace BarkodListem.ViewModels
                 IsBusy = true;
                 PaketHareketler.Clear();
 
-                var dt = await _webService.PaketHareketSorgula(_irsaliyeId);
+                var dt = await _webService.IrsaliyeDetaySorgula(_irsaliyeId);
                 foreach (DataRow row in dt.Rows)
                 {
                     PaketHareketler.Add(new PaketHrkModel

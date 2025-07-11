@@ -1,7 +1,9 @@
 ﻿using BarkodListem.Pages;
+using BarkodListem.Services;
 using BarkodListem.ViewModels;
 using Plugin.Maui.Audio;
 using ZXing.Net.Maui;
+using BarkodListem.Services;
 namespace BarkodListem.Views
 {
     public partial class ScannerPage : ContentPage
@@ -12,6 +14,12 @@ namespace BarkodListem.Views
         private bool isContinuousMode = false;
 
         static TaskCompletionSource<string> _tcs;
+
+        public ScannerPage()
+            : this(ServiceHelper.GetService<BarkodListViewModel>(),
+                   ServiceHelper.GetService<IAudioManager>())
+        {
+        }
         public ScannerPage(BarkodListViewModel viewModel, IAudioManager audioManager)
         {
             InitializeComponent();
