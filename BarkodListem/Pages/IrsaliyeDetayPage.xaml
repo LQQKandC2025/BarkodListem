@@ -23,13 +23,15 @@
         Keyboard="Text"
         ClearButtonVisibility="WhileEditing" />
             <Button
-        Grid.Column="1"
-        WidthRequest="48"
-        HeightRequest="48"
-        Margin="5,0,0,0"
-        VerticalOptions="Center"
-        Text="📷"
-        Clicked="OnCameraClicked" />
+    Grid.Column="1"
+    Text="📷"
+    FontSize="36"          
+    WidthRequest="80"
+    HeightRequest="64"
+    Margin="8,0,0,0"
+    VerticalOptions="Center"
+    BackgroundColor="Transparent"
+    Clicked="OnCameraClicked" />
         </Grid>
 
         <Frame

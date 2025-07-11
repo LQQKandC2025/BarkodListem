@@ -117,16 +117,31 @@ namespace BarkodListem.Views
         }
         private async void OnCloseClicked(object sender, EventArgs e)
         {
-            await Navigation.PopAsync(); // Sayfayı kapat
+            if (_tcs != null && !_tcs.Task.IsCompleted)
+                _tcs.TrySetResult(string.Empty);
         }
+        // ScannerPage.xaml.cs içinde
         public static async Task<string> ScanOnceAsync()
         {
+            // 1) Yeni TCS
             _tcs = new TaskCompletionSource<string>();
-            var page = new ScannerPage();
-            await Shell.Current.Navigation.PushModalAsync(page);
+
+            // 2) ScannerPage örneğini al (DI veya new ScannerPage())
+            var scanner = ServiceHelper.GetService<ScannerPage>() ?? new ScannerPage();
+
+            // 3) Modal olarak NavigationPage içinde aç
+            var modalNav = new NavigationPage(scanner);
+            await Application.Current.MainPage.Navigation.PushModalAsync(modalNav);
+
+            // 4) Sonuç gelene kadar bekle (ya barkod, ya close)
             var result = await _tcs.Task;
-            await Shell.Current.Navigation.PopModalAsync();
+
+            // 5) Modal stack hala doluysa kapat
+            if (Application.Current.MainPage.Navigation.ModalStack.Any())
+                await Application.Current.MainPage.Navigation.PopModalAsync();
+
             return result;
         }
+
     }
 }
