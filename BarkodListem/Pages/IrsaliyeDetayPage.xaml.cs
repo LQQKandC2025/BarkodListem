@@ -94,7 +94,7 @@ namespace BarkodListem.Pages
                 highlightedIds,
                 AppGlobals.mobil_id.ToString()
             );
-            await DisplayAlert("Bilgi", $"{updatedCount} satır güncellendi.", "Tamam");
+            await DisplayAlert("Bilgi", $"{updatedCount} satır işlendi.", "Tamam");
         }
 
     }

@@ -37,8 +37,15 @@ namespace BarkodListem.ViewModels
                 PaketHareketler.Clear();
 
                 var dt = await _webService.IrsaliyeDetaySorgula(_irsaliyeId);
+                if (dt.Rows.Count == 0)
+                {
+                    await App.Current.MainPage.DisplayAlert("Bilgi", "İrsaliye detayında kayıt bulunamadı.", "Tamam");
+                    return;
+                }
+
                 foreach (DataRow row in dt.Rows)
                 {
+                    var terminalText = row["TERMINAL"]?.ToString() ?? string.Empty;
                     PaketHareketler.Add(new PaketHrkModel
                     {
                         PAKET_HRK_ID = Convert.ToInt32(row["PAKET_HRK_ID"]),
@@ -46,7 +53,8 @@ namespace BarkodListem.ViewModels
                         KAREKOD = row["KAREKOD"].ToString(),
                         TERMINAL = row["TERMINAL"].ToString(),
                         ZR_KAREKOD = row["ZR_KAREKOD"].ToString(),
-                        KAREKOD_ID = Convert.ToInt32(row["KAREKOD_ID"])
+                        KAREKOD_ID = Convert.ToInt32(row["KAREKOD_ID"]),
+                        IsHighlighted = !string.IsNullOrWhiteSpace(terminalText)
                     });
                 }
             }

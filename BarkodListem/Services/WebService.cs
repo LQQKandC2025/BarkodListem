@@ -330,9 +330,24 @@ namespace BarkodListem.Services
             var response = await client.SendAsync(request);
             var xml = await response.Content.ReadAsStringAsync();
 
-            // DataTable dönüşü için SoapHelper kullanarak:
+            // Eğer diffgram var ama DocumentElement yoksa, boş tablo döndür:
+            if (xml.Contains("<diffgr:diffgram") && !xml.Contains("<DocumentElement"))
+            {
+                var empty = new DataTable("IrsaliyeDetayListesi");
+                empty.Columns.Add("PAKET_HRK_ID", typeof(int));
+                empty.Columns.Add("PAKET_ADI", typeof(string));
+                empty.Columns.Add("KAREKOD", typeof(string));
+                empty.Columns.Add("TERMINAL", typeof(string));
+                empty.Columns.Add("ZR_KAREKOD", typeof(string));
+                empty.Columns.Add("KAREKOD_ID", typeof(int));
+                empty.Columns.Add("IsHighlighted", typeof(bool));
+                return empty;
+            }
+
+            // Normal parse
             return SoapHelper.ParseDataTableFromXml(xml, "IrsaliyeDetaySorgulaResult");
         }
+
 
 
         public async Task<int> IrsaliyeDetayGuncelleAsync(
@@ -345,7 +360,6 @@ namespace BarkodListem.Services
             if (ayarlar == null || string.IsNullOrEmpty(ayarlar.WebServisURL))
                 throw new Exception("Web Servis ayarları alınamadı.");
 
-            // URL oluştur
             string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
 
             // <int>1</int><int>2</int>...
@@ -361,14 +375,14 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <IrsaliyeDetayTopluGuncelle xmlns=""http://barkodwebservice.com/"">
-      <username>{username}</username>
-      <password>{password}</password>
+    <IrsaliyeDetayGuncelle xmlns=""http://barkodwebservice.com/"">
+      <username>{ayarlar.KullaniciAdi}</username>
+      <password>{ayarlar.Sifre}</password>
       <paketHrkIds>
         {idsXml}
       </paketHrkIds>
       <userId>{userId}</userId>
-    </IrsaliyeDetayTopluGuncelle>
+    </IrsaliyeDetayGuncelle>
   </soap:Body>
 </soap:Envelope>";
 
@@ -380,7 +394,7 @@ namespace BarkodListem.Services
             var response = await client.SendAsync(request);
             var resultXml = await response.Content.ReadAsStringAsync();
 
-            // Sonucu <IrsaliyeDetayTopluGuncelleResult>…</…> içinden al
+            // Sonucu <IrsaliyeDetayGuncelleResult>…</…> içinden al
             var startTag = "<IrsaliyeDetayGuncelleResult>";
             var endTag = "</IrsaliyeDetayGuncelleResult>";
             int start = resultXml.IndexOf(startTag) + startTag.Length;
