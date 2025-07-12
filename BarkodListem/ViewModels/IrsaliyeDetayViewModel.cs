@@ -2,7 +2,6 @@
 using BarkodListem.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using IntelliJ.Lang.Annotations;
 using System;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -51,13 +50,21 @@ namespace BarkodListem.ViewModels
                     });
                 }
             }
-            catch (Exception ex)
-            {
-                await Application.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
-            }
             finally
             {
                 IsBusy = false;
+            }
+        }
+
+        // Gelen barkoda göre satırları vurgula
+        public void HighlightByBarcode(string barcode)
+        {
+            foreach (var item in PaketHareketler) {
+            item.IsHighlighted = item.KAREKOD == barcode;
+            if(item.KAREKOD == barcode)
+            {
+                    item.IsHighlighted = true;
+            }
             }
         }
     }

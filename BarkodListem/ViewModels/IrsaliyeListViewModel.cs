@@ -20,7 +20,7 @@ namespace BarkodListem.ViewModels
         }
 
         [ObservableProperty]
-        private DateTime startDate = DateTime.Today.AddDays(-7);
+        private DateTime startDate = DateTime.Today.AddDays(-3);
 
         [ObservableProperty]
         private DateTime endDate = DateTime.Today;

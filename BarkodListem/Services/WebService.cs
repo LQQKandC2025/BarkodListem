@@ -335,6 +335,66 @@ namespace BarkodListem.Services
         }
 
 
+        public async Task<int> IrsaliyeDetayGuncelleAsync(
+    string username,
+    string password,
+    int[] paketHrkIds,
+    string userId)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+            if (ayarlar == null || string.IsNullOrEmpty(ayarlar.WebServisURL))
+                throw new Exception("Web Servis ayarları alınamadı.");
+
+            // URL oluştur
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+
+            // <int>1</int><int>2</int>...
+            var idsXml = new StringBuilder();
+            foreach (var id in paketHrkIds)
+            {
+                idsXml.Append($"<int>{id}</int>");
+            }
+
+            // SOAP isteği
+            string soapBody = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <IrsaliyeDetayTopluGuncelle xmlns=""http://barkodwebservice.com/"">
+      <username>{username}</username>
+      <password>{password}</password>
+      <paketHrkIds>
+        {idsXml}
+      </paketHrkIds>
+      <userId>{userId}</userId>
+    </IrsaliyeDetayTopluGuncelle>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetayGuncelle");
+            request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            var resultXml = await response.Content.ReadAsStringAsync();
+
+            // Sonucu <IrsaliyeDetayTopluGuncelleResult>…</…> içinden al
+            var startTag = "<IrsaliyeDetayGuncelleResult>";
+            var endTag = "</IrsaliyeDetayGuncelleResult>";
+            int start = resultXml.IndexOf(startTag) + startTag.Length;
+            int end = resultXml.IndexOf(endTag);
+            if (start < 0 || end < 0 || end <= start)
+                throw new Exception("WebServis cevabı beklendiği gibi değil.");
+
+            var countText = resultXml.Substring(start, end - start);
+            if (int.TryParse(countText, out int updatedCount))
+                return updatedCount;
+
+            throw new Exception("Güncellenen satır sayısı okunamadı.");
+        }
+
 
         public async Task<string> ResimYukle(string username, string password, string dosyaAdi, byte[] resimData)
         {
