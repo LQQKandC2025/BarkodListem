@@ -43,7 +43,6 @@ namespace BarkodListem.ViewModels
             }
         }
 
-        [Obsolete]
         public BarkodListViewModel(DatabaseService databaseService, WebService webService)
         {
             _databaseService = databaseService;
@@ -118,14 +117,13 @@ namespace BarkodListem.ViewModels
             }
         }
 
-        [Obsolete]
         private async Task ListeyiGonder()
         {
             if (Barkodlar.Count == 0)
             {
-                if (Application.Current?.MainPage != null)
+                if (App.CurrentPage is { } alertPage)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Hata", "Gönderilecek barkod yok!", "Tamam");
+                    await alertPage.DisplayAlertAsync("Hata", "Gönderilecek barkod yok!", "Tamam");
                 }
                 else
                 {
@@ -137,9 +135,9 @@ namespace BarkodListem.ViewModels
             // 📌 Sadece ilk defa liste ismi sorulsun
             if (string.IsNullOrEmpty(_aktifListeAdi))
             {
-                if (Application.Current?.MainPage != null)
+                if (App.CurrentPage is { } promptPage)
                 {
-                    _aktifListeAdi = await Application.Current.MainPage.DisplayPromptAsync(
+                    _aktifListeAdi = await promptPage.DisplayPromptAsync(
                     "Liste İsmi", "Lütfen liste ismi giriniz:", "Tamam", "İptal", "Liste İsmi");
                 }
                 else
@@ -153,9 +151,9 @@ namespace BarkodListem.ViewModels
             bool success = await _webService.BarkodListesiGonder(Barkodlar.ToList(), _aktifListeAdi);
 
             string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
-            if (Application.Current?.MainPage != null)
+            if (App.CurrentPage is { } resultPage)
             {
-                await Application.Current.MainPage.DisplayAlert("Bilgi", mesaj, "Tamam");
+                await resultPage.DisplayAlertAsync("Bilgi", mesaj, "Tamam");
             }
             else
             {
@@ -188,7 +186,7 @@ namespace BarkodListem.ViewModels
                     var page = Application.Current.Windows[0].Page;
                     if (page != null)
                     {
-                        await page.DisplayAlert("Hata", "Kayıtlar silinemedi.", "Tamam"); // MainPage yerine page kullanıldı
+                        await page.DisplayAlertAsync("Hata", "Kayıtlar silinemedi.", "Tamam"); // MainPage yerine page kullanıldı
                     }
                 }
             }

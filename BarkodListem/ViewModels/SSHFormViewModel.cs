@@ -118,7 +118,7 @@ public partial class SSHFormViewModel : ObservableObject
             await db.InsertAsync(yeniDetay);
         }
 
-        await Application.Current.MainPage.DisplayAlert("Başarılı", "SSH kaydı işlendi.", "Tamam");
+        await App.CurrentPage!.DisplayAlertAsync("Başarılı", "SSH kaydı işlendi.", "Tamam");
     }
 
     [RelayCommand]
@@ -150,17 +150,17 @@ public partial class SSHFormViewModel : ObservableObject
             };
             await db.InsertAsync(model);
 
-            await Application.Current.MainPage.DisplayAlert("Resim", $"Resim kaydedildi:\n{fileName}", "Tamam");
+            await App.CurrentPage!.DisplayAlertAsync("Resim", $"Resim kaydedildi:\n{fileName}", "Tamam");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("HATA", ex.Message, "Tamam");
+            await App.CurrentPage!.DisplayAlertAsync("HATA", ex.Message, "Tamam");
         }
     }
 
     [RelayCommand]
     private async Task Galeri()
     {
-        await Application.Current.MainPage.Navigation.PushAsync(new GaleriPage(StokId, _sevkiyatNo));
+        await App.CurrentPage!.Navigation.PushAsync(new GaleriPage(StokId, _sevkiyatNo));
     }
 }

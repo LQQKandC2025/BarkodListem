@@ -35,24 +35,24 @@ namespace BarkodListem.Views
         // "Gönder" butonu: Seçili listeyi web servise gönder
         private async void Gonder_Clicked(object sender, EventArgs e)
         {
-            bool confirm = await DisplayAlert("Gönderim Onayı", $"{Liste.ListeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
+            bool confirm = await DisplayAlertAsync("Gönderim Onayı", $"{Liste.ListeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
             if (confirm)
             {
 
                 bool success = await _webService.BarkodListesiGonder(Liste.Barkodlar.ToList(), Liste.ListeAdi);
                 string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
-                await DisplayAlert("Bilgi", mesaj, "Tamam");
+                await DisplayAlertAsync("Bilgi", mesaj, "Tamam");
             }
         }
 
         // "Sil" butonu: Seçili listeyi ve içindeki barkodları sil
         private async void Sil_Clicked(object sender, EventArgs e)
         {
-            bool confirm = await DisplayAlert("Silme Onayı", $"{Liste.ListeAdi} listesini silmek istiyor musunuz?", "Evet", "Hayır");
+            bool confirm = await DisplayAlertAsync("Silme Onayı", $"{Liste.ListeAdi} listesini silmek istiyor musunuz?", "Evet", "Hayır");
             if (confirm)
             {
                 await _viewModel.ClearAllBarkodsAsync(); // Veritabanında o listeye ait barkodları silmek için _databaseService.ListeSil(liste) çağrılabilir
-                await DisplayAlert("Bilgi", "Liste silindi.", "Tamam");
+                await DisplayAlertAsync("Bilgi", "Liste silindi.", "Tamam");
                 await Navigation.PopAsync();
             }
         }

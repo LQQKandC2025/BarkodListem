@@ -14,7 +14,6 @@ public partial class LoginPage : ContentPage
         _databaseService = new DatabaseService(dbPath);
         CheckDatabaseForCredentials();
     }
-    [System.Obsolete]
     private async void OnLoginClicked(object sender, EventArgs e)
     {
         string username = usernameEntry.Text?.Trim();

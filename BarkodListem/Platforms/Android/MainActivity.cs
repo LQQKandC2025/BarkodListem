@@ -12,12 +12,15 @@ namespace BarkodListem
               ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
     public class MainActivity : MauiAppCompatActivity
     {
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle? savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
             // 🔹 Üst bar rengini ayarla (yarı şeffaf açık mavi)
-            Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#BB2196F3")); // Değiştirilebilir
+            if (!OperatingSystem.IsAndroidVersionAtLeast(35))
+            {
+                Window?.SetStatusBarColor(Android.Graphics.Color.ParseColor("#BB2196F3"));
+            }
         }
     }
 }

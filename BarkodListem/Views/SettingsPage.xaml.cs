@@ -46,7 +46,7 @@ namespace BarkodListem.Views
             };
 
             await _databaseService.AyarKaydet(ayarlar);  // 📌 Yeni metod eklendi, SQLite'a kaydedecek
-            await DisplayAlert("Başarılı", "Ayarlar kaydedildi!", "Tamam");
+            await DisplayAlertAsync("Başarılı", "Ayarlar kaydedildi!", "Tamam");
         }
 
         private void ThemePicker_SelectedIndexChanged(object sender, EventArgs e)

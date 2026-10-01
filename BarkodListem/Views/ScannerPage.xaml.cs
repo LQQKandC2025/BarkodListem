@@ -21,13 +21,13 @@ namespace BarkodListem.Views
                                               // scanBarcodeReaderView.BarcodesDetected += OnBarcodesDetected;
         }
 
-        protected override void OnAppearing()
+        protected override async void OnAppearing()
         {
             base.OnAppearing();
 
             if (scanBarcodeReaderView == null)
             {
-                DisplayAlert("Hata", "Kamera başlatılamadı. Uygulamanın kamera erişimine izin verdiğinizden emin olun.", "Tamam");
+                await DisplayAlertAsync("Hata", "Kamera başlatılamadı. Uygulamanın kamera erişimine izin verdiğinizden emin olun.", "Tamam");
                 return;
             }
 

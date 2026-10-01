@@ -62,7 +62,7 @@ namespace BarkodListem.ViewModels
         {
             if (!MediaPicker.Default.IsCaptureSupported)
             {
-                await Application.Current.MainPage.DisplayAlert("Hata", "Cihaz kamera desteği vermiyor.", "Tamam");
+                await App.CurrentPage!.DisplayAlertAsync("Hata", "Cihaz kamera desteği vermiyor.", "Tamam");
                 return;
             }
 
@@ -84,11 +84,11 @@ namespace BarkodListem.ViewModels
                 using var fileStream = File.OpenWrite(fullPath);
                 await stream.CopyToAsync(fileStream);
 
-                await Application.Current.MainPage.DisplayAlert("Başarılı", $"Fotoğraf kaydedildi:\n{fileName}", "Tamam");
+                await App.CurrentPage!.DisplayAlertAsync("Başarılı", $"Fotoğraf kaydedildi:\n{fileName}", "Tamam");
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
+                await App.CurrentPage!.DisplayAlertAsync("Hata", ex.Message, "Tamam");
             }
         }
 

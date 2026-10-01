@@ -2,6 +2,7 @@
 using BarkodListem.Helpers;
 using BarkodListem.Services;
 using BarkodListem.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 
 
@@ -10,11 +11,11 @@ namespace BarkodListem
     public partial class App : Application
     {
         public static bool IsLoggedIn { get; private set; } = false;
-        public static IServiceProvider Services { get; private set; }
-        private static DatabaseService _databaseService;
-        private static WebService _webService;
+        public static IServiceProvider Services { get; private set; } = null!;
+        public static Page? CurrentPage => Current?.Windows.FirstOrDefault()?.Page;
+        private static DatabaseService _databaseService = null!;
+        private static WebService _webService = null!;
 
-        [System.Obsolete]
         public App(IServiceProvider services, WebService webService, DatabaseService databaseService)
         {
             InitializeComponent();
@@ -22,22 +23,34 @@ namespace BarkodListem
             Services = services;
             _webService=webService;
             _databaseService=databaseService;
-            MainPage = new LoginPage();
             Task.Run(async () => await CopyDbWithDebugInfoAsync());
-            //MainPage = new NavigationPage(new MainPage(Services.GetService<BarkodListViewModel>(),_webService,_databaseService)); // ✅ NavigationPage kullan
         }
-        [System.Obsolete]
+
+        protected override Window CreateWindow(IActivationState? activationState)
+        {
+            return new Window(new LoginPage());
+        }
+
         public static void LoginSuccessful()
         {
             IsLoggedIn = true;
-
-            Application.Current.MainPage = new NavigationPage(new MainPage(Services.GetService<BarkodListViewModel>(), _webService, _databaseService));
+            SetRootPage(new NavigationPage(new MainPage(
+                Services.GetRequiredService<BarkodListViewModel>(), _webService, _databaseService)));
         }
-        [System.Obsolete]
+
         public static void Logout()
         {
             IsLoggedIn = false;
-            Application.Current.MainPage = new LoginPage();
+            SetRootPage(new LoginPage());
+        }
+
+        private static void SetRootPage(Page page)
+        {
+            var window = Current?.Windows.FirstOrDefault();
+            if (window != null)
+            {
+                window.Page = page;
+            }
         }
      
         private async Task CopyDbWithDebugInfoAsync()
@@ -63,7 +76,7 @@ namespace BarkodListem
                    // await Application.Current.MainPage.DisplayAlert("Başarılı", "Veritabanı debug konumuna kopyalandı.", "Tamam");
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 await MainThread.InvokeOnMainThreadAsync(async () =>
                 {
@@ -71,10 +84,5 @@ namespace BarkodListem
                 });
             }
         }
-
-        //protected override Window CreateWindow(IActivationState? activationState)
-        //{
-        //    return new Window(new AppShell());
-        //}
     }
 }

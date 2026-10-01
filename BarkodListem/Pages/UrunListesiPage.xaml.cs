@@ -13,7 +13,7 @@ namespace BarkodListem.Pages
             _viewModel = new UrunListesiViewModel();
             BindingContext = _viewModel;
 
-            // Sevkiyat no ile ürünleri yükle
+            // Sevkiyat no ile Ã¼rÃ¼nleri yÃ¼kle
             _ = _viewModel.YukleAsync(sevkiyatNo);
         }
 
@@ -24,7 +24,7 @@ namespace BarkodListem.Pages
 
         private async void OnGaleriClicked(object sender, EventArgs e)
         {
-            await Application.Current.MainPage.DisplayAlert("GALERÝ", "Burada galeri açýlacak (devamýnda yapýlacak)", "Tamam");
+            await DisplayAlertAsync("GALERÄ°", "Burada galeri aÃ§Ä±lacak (devamÄ±nda yapÄ±lacak)", "Tamam");
         }
         private async void OnSSHButtonClicked(object sender, EventArgs e)
         {

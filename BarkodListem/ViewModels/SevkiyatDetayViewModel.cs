@@ -66,7 +66,7 @@ namespace BarkodListem.ViewModels
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
+                await App.CurrentPage!.DisplayAlertAsync("Hata", ex.Message, "Tamam");
             }
         }
 
@@ -89,7 +89,7 @@ namespace BarkodListem.ViewModels
                 {
                     // Web servise gönder
                     var sonuc1 = await _webService.SevkiyatKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, sevkiyat);
-                    await Application.Current.MainPage.DisplayAlert("Sevkiyat", sonuc1, "Tamam");
+                    await App.CurrentPage!.DisplayAlertAsync("Sevkiyat", sonuc1, "Tamam");
                 }
 
                 // 2️⃣ SSH_ANA
@@ -105,7 +105,7 @@ namespace BarkodListem.ViewModels
                 if (sshAna != null || sshDetaylar.Any())
                 {
                     var sonuc2 = await _webService.SSHKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, sshAna, sshDetaylar);
-                    await Application.Current.MainPage.DisplayAlert("SSH", sonuc2, "Tamam");
+                    await App.CurrentPage!.DisplayAlertAsync("SSH", sonuc2, "Tamam");
                 }
 
                 // 4️⃣ RESIMLER
@@ -116,27 +116,27 @@ namespace BarkodListem.ViewModels
                 if (resimler.Any())
                 {
                     var sonuc3 = await _webService.ResimleriKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, resimler);
-                    await Application.Current.MainPage.DisplayAlert("Resimler", sonuc3, "Tamam");
+                    await App.CurrentPage!.DisplayAlertAsync("Resimler", sonuc3, "Tamam");
                 }
 
-                await Application.Current.MainPage.DisplayAlert("Kayıt", "Tüm bilgiler başarıyla gönderildi.", "Tamam");
+                await App.CurrentPage!.DisplayAlertAsync("Kayıt", "Tüm bilgiler başarıyla gönderildi.", "Tamam");
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Hata", ex.Message, "Tamam");
+                await App.CurrentPage!.DisplayAlertAsync("Hata", ex.Message, "Tamam");
             }
         }
 
-        private void OnUrunListesi()
+        private async void OnUrunListesi()
         {
             // Ürün listesi sayfasına yönlendirme yapılabilir.
-            Application.Current.MainPage.DisplayAlert("Bilgi", "Ürün listesi butonuna basıldı.", "Tamam");
+            await App.CurrentPage!.DisplayAlertAsync("Bilgi", "Ürün listesi butonuna basıldı.", "Tamam");
         }
 
-        private void OnKodGonder()
+        private async void OnKodGonder()
         {
             // Kod gönderme işlemi daha sonra eklenecek.
-            Application.Current.MainPage.DisplayAlert("Bilgi", "Kod gönderme işlemi burada yapılacak.", "Tamam");
+            await App.CurrentPage!.DisplayAlertAsync("Bilgi", "Kod gönderme işlemi burada yapılacak.", "Tamam");
         }
 
         private void NotifyAll()

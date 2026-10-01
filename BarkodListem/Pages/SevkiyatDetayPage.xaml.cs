@@ -16,7 +16,7 @@ namespace BarkodListem.Pages
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await viewModel.LoadSevkiyatAsync(); // Web servisten verileri çekecek
+            await viewModel.LoadSevkiyatAsync(); // Web servisten verileri Ã§ekecek
         }
         private async void OnUrunListesiClicked(object sender, EventArgs e)
         {
@@ -26,7 +26,7 @@ namespace BarkodListem.Pages
             }
             else
             {
-                await DisplayAlert("Hata", "Sevkiyat numarasý boþ!", "Tamam");
+                await DisplayAlertAsync("Hata", "Sevkiyat numarasÄ± boÅŸ!", "Tamam");
             }
         }
     }

@@ -56,11 +56,11 @@ public partial class GaleriViewModel : ObservableObject
             // 🗑️ Listeden çıkar
             Resimler.Remove(galeriResim);
 
-            await Application.Current.MainPage.DisplayAlert("Silindi", "Resim başarıyla silindi.", "Tamam");
+            await App.CurrentPage!.DisplayAlertAsync("Silindi", "Resim başarıyla silindi.", "Tamam");
         }
         catch (Exception ex)
         {
-            await Application.Current.MainPage.DisplayAlert("HATA", $"Silinemedi: {ex.Message}", "Tamam");
+            await App.CurrentPage!.DisplayAlertAsync("HATA", $"Silinemedi: {ex.Message}", "Tamam");
         }
     }
 }

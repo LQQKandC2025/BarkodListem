@@ -36,7 +36,6 @@ namespace BarkodListem
         // 📌 QR Kodu Okuma İşlemi
         private bool isScanning = false;
 
-        [Obsolete]
         private async void QRKodTara_Clicked(object sender, EventArgs e)
         {
 
@@ -74,7 +73,7 @@ namespace BarkodListem
             if (!string.IsNullOrWhiteSpace(yeniListeAdi))
             {
                 await _viewModel.YeniListeOlustur(yeniListeAdi);
-                await DisplayAlert("Başarılı", $"Yeni liste oluşturuldu: {yeniListeAdi}", "Tamam");
+                await DisplayAlertAsync("Başarılı", $"Yeni liste oluşturuldu: {yeniListeAdi}", "Tamam");
             }
         }
         private void ResimGonder_Clicked(object sender, EventArgs e)
@@ -86,7 +85,7 @@ namespace BarkodListem
         {
             if (sender is Button button && button.CommandParameter is BarkodModel selectedBarkod)
             {
-                bool confirm = await DisplayAlert("Silme Onayı", "Seçili barkodu silmek istiyor musunuz?", "Evet", "Hayır");
+                bool confirm = await DisplayAlertAsync("Silme Onayı", "Seçili barkodu silmek istiyor musunuz?", "Evet", "Hayır");
                 if (confirm)
                 {
                     _viewModel.BarkodSilCommand.Execute(selectedBarkod);
@@ -121,12 +120,12 @@ namespace BarkodListem
                 listeAdi = _viewModel.AktifListeAdi;
             }
 
-            bool confirm = await DisplayAlert("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
+            bool confirm = await DisplayAlertAsync("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
             if (confirm)
             {
                 bool success = await _webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
                 string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
-                await DisplayAlert("Bilgi", mesaj, "Tamam");
+                await DisplayAlertAsync("Bilgi", mesaj, "Tamam");
             }
 
         }
@@ -137,7 +136,7 @@ namespace BarkodListem
 
         private async void ClearListButton_Clicked(object sender, EventArgs e)
         {
-            bool confirm = await DisplayAlert("Listeyi Temizle", "Tüm kayıtları silmek istediğinizden emin misiniz?", "Evet", "Hayır");
+            bool confirm = await DisplayAlertAsync("Listeyi Temizle", "Tüm kayıtları silmek istediğinizden emin misiniz?", "Evet", "Hayır");
             if (confirm)
             {
                 // ViewModel üzerinden hem veritabanını temizle hem de in-memory listeden kayıtları sil
@@ -183,7 +182,6 @@ namespace BarkodListem
                 await _viewModel.SetAktifListe(_viewModel.AktifListeAdi); ;
             }
         }
-        [Obsolete]
         private void LogoutButton_Clicked(object sender, EventArgs e)
         {
             App.Logout(); // Kullanıcıyı çıkış yaptır

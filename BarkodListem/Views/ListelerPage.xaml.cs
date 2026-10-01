@@ -77,12 +77,12 @@ namespace BarkodListem.Views
                 {
                     listeAdi = _viewModel.AktifListeAdi;
                 }
-                bool confirm = await DisplayAlert("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
+                bool confirm = await DisplayAlertAsync("Gönderim Onayı", $"{listeAdi} listesini web servise göndermek istiyor musunuz?", "Evet", "Hayır");
                 if (confirm)
                 {
                     bool success = await _webService.BarkodListesiGonder(_viewModel.Barkodlar.ToList(), listeAdi);
                     string mesaj = success ? "Liste başarıyla gönderildi!" : "Gönderme başarısız!";
-                    await DisplayAlert("Bilgi", mesaj, "Tamam");
+                    await DisplayAlertAsync("Bilgi", mesaj, "Tamam");
                 }
 
             }
@@ -91,7 +91,7 @@ namespace BarkodListem.Views
         {
             if (sender is Button button && button.CommandParameter is ListeModel liste)
             {
-                bool confirm = await DisplayAlert("Silme Onayı", $"{liste.ListeAdi} listesini silmek istiyor musunuz?", "Evet", "Hayır");
+                bool confirm = await DisplayAlertAsync("Silme Onayı", $"{liste.ListeAdi} listesini silmek istiyor musunuz?", "Evet", "Hayır");
                 if (confirm)
                 {
                     await _databaseService.ListeSil(liste);
