@@ -7,7 +7,7 @@
              BackgroundColor="#071C2E">
     <Grid RowDefinitions="Auto,*">
         <Grid Padding="18,18,18,16" ColumnDefinitions="*,Auto" BackgroundColor="#071C2E">
-            <VerticalStackLayout Spacing="1"><Label Text="BARKOD TARAYICI" TextColor="White" FontSize="20" FontAttributes="Bold" CharacterSpacing="1.1"/><Label Text="Kodu çerçevenin içine hizalayın" TextColor="#9FC9D2" FontSize="11"/></VerticalStackLayout>
+            <VerticalStackLayout Spacing="1"><Label x:Name="scannerTitle" Text="BARKOD TARAYICI" TextColor="White" FontSize="20" FontAttributes="Bold" CharacterSpacing="1.1"/><Label x:Name="scannerSubtitle" Text="Kodu çerçevenin içine hizalayın" TextColor="#9FC9D2" FontSize="11"/></VerticalStackLayout>
             <Button Grid.Column="1" Text="KAPAT" Clicked="OnCloseClicked" HeightRequest="42" Padding="15,0" CornerRadius="13" BackgroundColor="#D94A55" TextColor="White" FontSize="10" FontAttributes="Bold"/>
         </Grid>
         <Grid Grid.Row="1">

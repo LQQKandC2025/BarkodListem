@@ -117,7 +117,7 @@ namespace BarkodListem
         private async void QRKodTara_Clicked(object sender, EventArgs e)
         {
             var audioManager = ServiceHelper.GetService<IAudioManager>(); // 📌 Get AudioManager
-            await Navigation.PushAsync(new ScannerPage(_viewModel, audioManager)); // Pass it to ScannerPage
+            await Navigation.PushAsync(new ScannerPage(_viewModel, audioManager, ScannerMode.SevkiyatTekOkuma));
         }
         private void BarkodEkle_Clicked(object sender, EventArgs e)
         {

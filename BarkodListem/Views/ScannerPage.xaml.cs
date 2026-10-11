@@ -3,15 +3,21 @@ using BarkodListem.Services;
 using BarkodListem.ViewModels;
 using Plugin.Maui.Audio;
 using ZXing.Net.Maui;
-using BarkodListem.Services;
 namespace BarkodListem.Views
 {
+    public enum ScannerMode
+    {
+        Sayim,
+        SevkiyatTekOkuma
+    }
+
     public partial class ScannerPage : ContentPage
     {
         public readonly BarkodListViewModel _viewModel;
         private IAudioManager audioManager;
         private bool isProcessing = false;
         private bool isContinuousMode = false;
+        private readonly ScannerMode _scannerMode;
 
         static TaskCompletionSource<string> _tcs;
 
@@ -21,10 +27,22 @@ namespace BarkodListem.Views
         {
         }
         public ScannerPage(BarkodListViewModel viewModel, IAudioManager audioManager)
+            : this(viewModel, audioManager, ScannerMode.Sayim)
+        {
+        }
+        public ScannerPage(BarkodListViewModel viewModel, IAudioManager audioManager, ScannerMode scannerMode)
         {
             InitializeComponent();
             _viewModel = viewModel;
             this.audioManager = audioManager; // Inject AudioManager
+            _scannerMode = scannerMode;
+
+            bool sayimModu = scannerMode == ScannerMode.Sayim;
+            toggleContinuousScan.IsVisible = sayimModu;
+            scannerTitle.Text = sayimModu ? "BARKOD TARAYICI" : "SEVKİYAT TARAYICI";
+            scannerSubtitle.Text = sayimModu
+                ? "Kodu çerçevenin içine hizalayın"
+                : "Tek bir SVK sevkiyat barkodu okutun";
         }
         protected override void OnAppearing()
         {
@@ -76,6 +94,24 @@ namespace BarkodListem.Views
                     }
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
+                        if (_scannerMode == ScannerMode.SevkiyatTekOkuma)
+                        {
+                            scanBarcodeReaderView.IsDetecting = false;
+                            if (!barkod.StartsWith("SVK-", StringComparison.OrdinalIgnoreCase))
+                            {
+                                await DisplayAlert(
+                                    "Geçersiz Barkod",
+                                    "Ana menüde yalnızca SVK ile başlayan sevkiyat barkodları okutulabilir.",
+                                    "Tamam");
+                                await Navigation.PopAsync();
+                                return;
+                            }
+
+                            await Navigation.PushAsync(new SevkiyatDetayPage(barkod));
+                            Navigation.RemovePage(this);
+                            return;
+                        }
+
                         if (barkod.ToUpper().StartsWith("SVK-"))
                         {
                             scanBarcodeReaderView.IsDetecting = false;

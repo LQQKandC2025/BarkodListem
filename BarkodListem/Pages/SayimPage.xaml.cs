@@ -33,7 +33,7 @@ public partial class SayimPage : ContentPage
     private async void QRKodTara_Clicked(object sender, EventArgs e)
     {
         var audioManager = ServiceHelper.GetService<IAudioManager>();
-        await Navigation.PushAsync(new ScannerPage(_viewModel, audioManager));
+        await Navigation.PushAsync(new ScannerPage(_viewModel, audioManager, ScannerMode.Sayim));
     }
 
     private async void BarkodEkle_Clicked(object sender, EventArgs e)
