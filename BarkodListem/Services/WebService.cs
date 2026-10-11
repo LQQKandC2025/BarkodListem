@@ -5,6 +5,14 @@ using System.Data;
 using System.Text;
 namespace BarkodListem.Services
 {
+    public enum ServisBaglantiDurumu
+    {
+        Bagli,
+        KimlikDogrulanamadi,
+        ServisHatasi,
+        Ulasilamiyor
+    }
+
     public class WebService
     {
         private readonly DatabaseService _databaseService;
@@ -32,25 +40,47 @@ namespace BarkodListem.Services
             }
         }
 
-        public async Task<bool> ServisBaglantisiniKontrolEtAsync(CancellationToken cancellationToken = default)
+        public async Task<ServisBaglantiDurumu> ServisBaglantisiniKontrolEtAsync(CancellationToken cancellationToken = default)
         {
             try
             {
                 var ayarlar = await _databaseService.AyarlarGetir();
-                if (ayarlar == null || string.IsNullOrWhiteSpace(ayarlar.WebServisURL))
-                    return false;
+                if (ayarlar == null || string.IsNullOrWhiteSpace(ayarlar.WebServisURL) ||
+                    string.IsNullOrWhiteSpace(ayarlar.KullaniciAdi) || string.IsNullOrWhiteSpace(ayarlar.Sifre))
+                    return ServisBaglantiDurumu.KimlikDogrulanamadi;
 
                 string serviceUrl = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
-                using var request = new HttpRequestMessage(HttpMethod.Get, $"{serviceUrl}?WSDL");
+                string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <BarkodlariGetir xmlns=""http://barkodwebservice.com/"">
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
+      <listeAdi>__MOBIL_SERVIS_BAGLANTI_KONTROLU__</listeAdi>
+    </BarkodlariGetir>
+  </soap:Body>
+</soap:Envelope>";
+
+                using var request = new HttpRequestMessage(HttpMethod.Post, serviceUrl);
+                request.Headers.Add("SOAPAction", "http://barkodwebservice.com/BarkodlariGetir");
+                request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
                 using var response = await _connectionStatusClient.SendAsync(
                     request,
-                    HttpCompletionOption.ResponseHeadersRead,
                     cancellationToken);
+                string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
-                // Burada servisin veri üretmesini değil, HTTP seviyesinde erişilebilir
-                // olmasını denetliyoruz. 401/403/405 gibi bir HTTP cevabı da sunucuya
-                // ulaşıldığını gösterir; yalnızca ağ/timeout hatası bağlantı yok sayılır.
-                return true;
+                if (response.IsSuccessStatusCode &&
+                    responseContent.Contains("BarkodlariGetirResponse", StringComparison.Ordinal) &&
+                    !responseContent.Contains("Fault", StringComparison.OrdinalIgnoreCase))
+                    return ServisBaglantiDurumu.Bagli;
+
+                if (responseContent.Contains("Geçersiz kullanıcı", StringComparison.OrdinalIgnoreCase) ||
+                    responseContent.Contains("Ge&#231;ersiz kullanıcı", StringComparison.OrdinalIgnoreCase))
+                    return ServisBaglantiDurumu.KimlikDogrulanamadi;
+
+                return ServisBaglantiDurumu.ServisHatasi;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -59,7 +89,7 @@ namespace BarkodListem.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Servis bağlantı kontrolü başarısız: {ex.Message}");
-                return false;
+                return ServisBaglantiDurumu.Ulasilamiyor;
             }
         }
 

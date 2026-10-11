@@ -59,10 +59,10 @@ namespace BarkodListem
         }
         private async Task ServisDurumunuGuncelleAsync(CancellationToken cancellationToken)
         {
-            bool bagli;
+            ServisBaglantiDurumu durum;
             try
             {
-                bagli = await _webService.ServisBaglantisiniKontrolEtAsync(cancellationToken);
+                durum = await _webService.ServisBaglantisiniKontrolEtAsync(cancellationToken);
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
@@ -74,13 +74,29 @@ namespace BarkodListem
 
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                if (bagli)
+                if (durum == ServisBaglantiDurumu.Bagli)
                 {
-                    serviceStatusLabel.Text = "Servise bağlı";
+                    serviceStatusLabel.Text = "Çevrimiçi oturum açık";
                     serviceStatusLabel.TextColor = Color.FromArgb("#176B56");
-                    serviceStatusDetailLabel.Text = $"Sunucu yanıt verdi · {DateTime.Now:HH:mm:ss}";
+                    serviceStatusDetailLabel.Text = $"Kullanıcı doğrulandı · {DateTime.Now:HH:mm:ss}";
                     serviceStatusIcon.TextColor = Color.FromArgb("#20A47A");
                     serviceStatusIconBorder.BackgroundColor = Color.FromArgb("#E4F6EF");
+                }
+                else if (durum == ServisBaglantiDurumu.KimlikDogrulanamadi)
+                {
+                    serviceStatusLabel.Text = "Online giriş reddedildi";
+                    serviceStatusLabel.TextColor = Color.FromArgb("#B36B20");
+                    serviceStatusDetailLabel.Text = "Kullanıcı adı veya şifreyi kontrol edin";
+                    serviceStatusIcon.TextColor = Color.FromArgb("#D68A2D");
+                    serviceStatusIconBorder.BackgroundColor = Color.FromArgb("#FFF3DF");
+                }
+                else if (durum == ServisBaglantiDurumu.ServisHatasi)
+                {
+                    serviceStatusLabel.Text = "Servis yanıtında hata";
+                    serviceStatusLabel.TextColor = Color.FromArgb("#B36B20");
+                    serviceStatusDetailLabel.Text = $"Sunucuya ulaşıldı · {DateTime.Now:HH:mm:ss}";
+                    serviceStatusIcon.TextColor = Color.FromArgb("#D68A2D");
+                    serviceStatusIconBorder.BackgroundColor = Color.FromArgb("#FFF3DF");
                 }
                 else
                 {
