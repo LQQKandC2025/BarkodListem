@@ -26,7 +26,7 @@
 
     <ScrollView>
         <VerticalStackLayout Spacing="0">
-            <Grid Padding="22,26,22,30" RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+            <Grid Padding="22,26,22,30" ColumnDefinitions="*,Auto">
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#071C2E" Offset="0.0" />
@@ -44,30 +44,6 @@
                         Clicked="LogoutButton_Clicked" HeightRequest="42" Padding="16,0"
                         CornerRadius="13" FontSize="12" FontAttributes="Bold"
                         CharacterSpacing="0.8" TextColor="White" BackgroundColor="#D94A55" />
-
-                <Border Grid.Row="1" Grid.ColumnSpan="2" Margin="0,22,0,0"
-                        Padding="14,10" Stroke="#30FFFFFF" StrokeThickness="1"
-                        BackgroundColor="#18FFFFFF">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="14" />
-                    </Border.StrokeShape>
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <Border WidthRequest="9" HeightRequest="9" StrokeThickness="0"
-                                BackgroundColor="#40D69C" VerticalOptions="Center">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="5" /></Border.StrokeShape>
-                        </Border>
-                        <VerticalStackLayout Grid.Column="1" Spacing="0">
-                            <Label Text="AKTİF LİSTE" TextColor="#9FC9D2"
-                                   FontSize="9" FontAttributes="Bold" CharacterSpacing="1.1" />
-                            <Label Text="{Binding AktifListeAdi}" TextColor="White"
-                                   FontSize="16" FontAttributes="Bold">
-                                <Label.GestureRecognizers>
-                                    <TapGestureRecognizer Tapped="ListeAdiniDegistir_Tapped" />
-                                </Label.GestureRecognizers>
-                            </Label>
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
             </Grid>
 
             <VerticalStackLayout Padding="18,20,18,34" Spacing="22">
