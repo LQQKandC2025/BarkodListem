@@ -11,14 +11,19 @@ public partial class TFGaleriPage : ContentPage
         InitializeComponent();
         var viewModel = new GaleriViewModel();
         BindingContext = viewModel;
-        viewModel.Yukle(stokId, AppGlobals.AktifSevkiyat, "TESLÝMAT");
+        StokId = stokId.ToString();
+        SevkiyatNo = sevkiyatNo;
     }
     protected override void OnAppearing()
     {
         base.OnAppearing();
         if (int.TryParse(StokId, out int stokId))
         {
-            ((GaleriViewModel)BindingContext).Yukle(stokId, SevkiyatNo, "TESLÝMAT");
+            ((GaleriViewModel)BindingContext).Yukle(stokId, SevkiyatNo, "TESLÄ°MAT");
         }
+    }
+    private async void Back_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 }

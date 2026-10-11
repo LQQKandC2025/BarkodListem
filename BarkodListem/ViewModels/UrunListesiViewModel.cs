@@ -1,4 +1,5 @@
 ﻿using BarkodListem.Data;
+using BarkodListem.Helpers;
 using BarkodListem.Models;
 using BarkodListem.Services;
 using System.Collections.ObjectModel;
@@ -64,34 +65,41 @@ namespace BarkodListem.ViewModels
         }
         public async Task FotografCekAsync(UrunModel urun, string tip)
         {
+            string? fullPath = null;
+            var localRecordInserted = false;
             try
             {
+                if (!int.TryParse(urun.STOK_ID, out var stokId) ||
+                    !int.TryParse(urun.SIP_STR_ID, out var sipStrId))
+                    throw new InvalidOperationException("Ürün kimlik bilgileri geçersiz; fotoğraf kaydedilemedi.");
+
                 var result = await MediaPicker.CapturePhotoAsync();
                 if (result == null) return;
-                var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler", _sevkiyatNo);
+                var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler", urun.SEVKIYAT_NO);
                 Directory.CreateDirectory(klasorYolu);
-                int sira = Directory.GetFiles(klasorYolu, $"TF_{urun.SEVK_FIS_ID}_{urun.STOK_ID}_{urun.SIP_STR_ID}_*.jpg").Length + 1;
-                var fileName = $"TF_{urun.SEVK_FIS_ID}_{urun.STOK_ID}_{urun.SIP_STR_ID}_{sira}.jpg";
-                var fullPath = Path.Combine(klasorYolu, fileName);
-                using var stream = await result.OpenReadAsync();
-                using var fileStream = File.OpenWrite(fullPath);
-                await stream.CopyToAsync(fileStream);
+                var dosyaOnEki = string.Equals(tip, "SSH", StringComparison.OrdinalIgnoreCase) ? "SSH" : "TF";
+                var fileName = $"{dosyaOnEki}_{urun.SEVK_FIS_ID}_{urun.STOK_ID}_{urun.SIP_STR_ID}_{Guid.NewGuid():N}.jpg";
+                fullPath = Path.Combine(klasorYolu, fileName);
+                await PhotoStorageService.SaveOptimizedJpegAsync(result, fullPath);
                 var db = await DatabaseService.GetConnectionAsync();
                 var model = new ResimModel
                 {
                     SEVKIYAT_NO = urun.SEVKIYAT_NO,
-                    STOK_ID= int.Parse(urun.STOK_ID),
-                    SIPSTR_ID= int.Parse(urun.SIP_STR_ID),
+                    STOK_ID = stokId,
+                    SIPSTR_ID = sipStrId,
                     DOSYA_ADI = fileName,
                     YOL="",
                     TARIH = DateTime.Now,
-                    TIPI = "TESLİMAT"
+                    TIPI = dosyaOnEki == "SSH" ? "SSH" : "TESLİMAT"
                 };
                 await db.InsertAsync(model);
+                localRecordInserted = true;
                 await Application.Current.MainPage.DisplayAlert("Resim", $"Resim kaydedildi:\n{fileName}", "Tamam");
             }
             catch (Exception ex)
             {
+                if (!localRecordInserted && fullPath != null && File.Exists(fullPath))
+                    File.Delete(fullPath);
                 await Application.Current.MainPage.DisplayAlert("HATA", ex.Message, "Tamam");
             }
         }
@@ -105,64 +113,62 @@ namespace BarkodListem.ViewModels
                 $"Seçilen ürün ({urun.STOK_ADI}) için SSH kayıtlarını silmek istiyor musunuz?",
                 "Evet", "Hayır");
             if (!cevap)
-                return; // Hayır'a basarsa çık.
-            var db = await DatabaseService.GetConnectionAsync();
-            // 1. SSH_DETAY kaydını sil
-            int stokId = int.Parse(urun.STOK_ID);
-            int sevkFisId = int.Parse(urun.SEVK_FIS_ID);
+                return;
 
-            // Sonra Where içinde kullan
-            var silinecekKayitlar = await db.Table<SSHDetayModel>()
-                .Where(x => x.SEVKIYAT_NO == urun.SEVKIYAT_NO
-                         && x.STOK_ID == stokId
-                         && x.SEVK_FIS_ID == sevkFisId)
-                .ToListAsync();
-            foreach (var kayit in silinecekKayitlar)
+            try
             {
-                await db.DeleteAsync(kayit);
-            }
-            // 2. SSH tipi resimleri sil
-            var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler", urun.SEVKIYAT_NO);
-            if (Directory.Exists(klasorYolu))
-            {
-                var sshResimler = Directory.GetFiles(klasorYolu);
-                foreach (var dosya in sshResimler)
+                if (!int.TryParse(urun.STOK_ID, out var stokId) ||
+                    !int.TryParse(urun.SEVK_FIS_ID, out var sevkFisId) ||
+                    !int.TryParse(urun.SIP_STR_ID, out var sipStrId))
+                    throw new InvalidOperationException("Ürün kimlik bilgileri geçersiz.");
+
+                var db = await DatabaseService.GetConnectionAsync();
+                var sshResimKayitlari = await db.Table<ResimModel>()
+                    .Where(x => x.SEVKIYAT_NO == urun.SEVKIYAT_NO &&
+                                x.STOK_ID == stokId &&
+                                x.SIPSTR_ID == sipStrId &&
+                                x.TIPI == "SSH")
+                    .ToListAsync();
+
+                // Önce sunucuyu temizle. Bir hata olursa yerel kayıtları koruyarak tekrar denemeye izin ver.
+                foreach (var resim in sshResimKayitlari.Where(x => x.GONDERIM == 1))
                 {
-                    var dosyaAdi = Path.GetFileName(dosya);
-                    if (dosyaAdi.StartsWith($"SSH_{urun.SEVK_FIS_ID}_{urun.STOK_ID}_{urun.SIP_STR_ID}_"))
-                    {
-                        try
-                        {
-                            File.Delete(dosya);
-
-                            // 🔥 RESIMLER tablosundan da sil
-                            try { await db.ExecuteAsync("DELETE FROM RESIMLER WHERE DOSYA_ADI = ?", dosyaAdi); } catch { /* hata olursa boşver */ }
-                        }
-                        catch (Exception ex)
-                        {
-                            await Application.Current.MainPage.DisplayAlert("HATA", $"Resim silinirken hata oluştu: {ex.Message}", "Tamam");
-                        }
-                    }
+                    var response = await _webService.ResimSil(resim);
+                    if (!SoapHelper.soap_json_basarili(response, "ResimSilResult", out var mesaj))
+                        throw new InvalidOperationException(string.IsNullOrWhiteSpace(mesaj) ? "Sunucudaki SSH resmi silinemedi." : mesaj);
                 }
+
+                foreach (var resim in sshResimKayitlari)
+                {
+                    var path = Path.Combine(FileSystem.AppDataDirectory, "Resimler", urun.SEVKIYAT_NO, resim.DOSYA_ADI);
+                    if (File.Exists(path))
+                        File.Delete(path);
+                    await db.DeleteAsync(resim);
+                }
+
+                var silinecekKayitlar = await db.Table<SSHDetayModel>()
+                    .Where(x => x.SEVKIYAT_NO == urun.SEVKIYAT_NO &&
+                                x.STOK_ID == stokId &&
+                                x.SEVK_FIS_ID == sevkFisId)
+                    .ToListAsync();
+                foreach (var kayit in silinecekKayitlar)
+                    await db.DeleteAsync(kayit);
+
+                urun.SORUNVAR = false;
+                Notify(nameof(Urunler));
+
+                if (Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault() is Pages.UrunListesiPage urunListesiPage &&
+                    urunListesiPage.BindingContext is ViewModels.UrunListesiViewModel viewModel)
+                {
+                    viewModel.Notify(nameof(viewModel.Urunler));
+                    urunListesiPage.RefreshCollectionView();
+                }
+                await Application.Current.MainPage.DisplayAlert("Başarılı", "SSH kayıtları ve ilgili resimler telefondan ve sunucudan silindi.", "Tamam");
             }
-
-
-            urun.SORUNVAR = false;
-
-
-            Notify(nameof(Urunler));
-
-            if (Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault() is Pages.UrunListesiPage urunListesiPage
-    && urunListesiPage.BindingContext is ViewModels.UrunListesiViewModel viewModel)
+            catch (Exception ex)
             {
-                viewModel.Notify(nameof(viewModel.Urunler));
-                urunListesiPage.RefreshCollectionView(); // 🔥 Buraya RefreshCollectionView çağıracağız
+                await Application.Current.MainPage.DisplayAlert("HATA", "SSH kayıtları silinemedi: " + ex.Message, "Tamam");
             }
-            await Application.Current.MainPage.DisplayAlert("Başarılı", "SSH kayıtları ve ilgili resimler silindi.", "Tamam");
-
-            // İstersen Urunler listesini yenileyebilirsin burada.
-
-
         }
         public void Notify([CallerMemberName] string propertyName = null)
         {

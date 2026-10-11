@@ -27,6 +27,11 @@ public partial class IrsaliyeListPage : ContentPage
         BindingContext = _viewModel = new IrsaliyeListViewModel(webService);
     }
 
+    private async void Back_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
+
     private async void OnIrsaliyeSelected(object sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection.FirstOrDefault() is IrsaliyeModel selected)

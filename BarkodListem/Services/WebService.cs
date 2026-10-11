@@ -8,6 +8,7 @@ namespace BarkodListem.Services
     public class WebService
     {
         private readonly DatabaseService _databaseService;
+        private static string XmlText(string? value) => System.Security.SecurityElement.Escape(value) ?? string.Empty;
         public WebService(DatabaseService databaseService)
         {
             _databaseService = databaseService;
@@ -177,6 +178,7 @@ namespace BarkodListem.Services
             request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatKaydet");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
         public async Task<string> SSHKaydet(string username, string password, SSHAnaModel ana, List<SSHDetayModel> detaylar)
@@ -231,6 +233,7 @@ namespace BarkodListem.Services
             request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SSHKaydet");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
         public async Task<string> ResimleriKaydet(string username, string password, List<ResimModel> resimler)
@@ -241,13 +244,13 @@ namespace BarkodListem.Services
             foreach (var r in resimler)
             {
                 xml.Append($"<ResimModel>" +
-    $"<SEVKIYAT_NO>{r.SEVKIYAT_NO}</SEVKIYAT_NO>" +
+    $"<SEVKIYAT_NO>{XmlText(r.SEVKIYAT_NO)}</SEVKIYAT_NO>" +
     $"<STOK_ID>{r.STOK_ID}</STOK_ID>" +
     $"<SIPSTR_ID>{r.SIPSTR_ID}</SIPSTR_ID>" +
-    $"<DOSYA_ADI>{r.DOSYA_ADI}</DOSYA_ADI>" +
-    $"<YOL>{r.YOL}</YOL>" +
+    $"<DOSYA_ADI>{XmlText(r.DOSYA_ADI)}</DOSYA_ADI>" +
+    $"<YOL>{XmlText(r.YOL)}</YOL>" +
     $"<TARIH>{(r.TARIH.HasValue ? r.TARIH.Value.ToString("yyyy-MM-ddTHH:mm:ss") : "")}</TARIH>" +
-    $"<TIPI>{r.TIPI}</TIPI>" +
+    $"<TIPI>{XmlText(r.TIPI)}</TIPI>" +
     $"</ResimModel>");
             }
             string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -256,8 +259,8 @@ namespace BarkodListem.Services
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
     <ResimleriKaydet xmlns=""http://barkodwebservice.com/"">
-      <username>{ayarlar.KullaniciAdi}</username>
-      <password>{ayarlar.Sifre}</password>
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
       <resimler>
         {xml}
       </resimler>
@@ -269,6 +272,7 @@ namespace BarkodListem.Services
             request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimleriKaydet");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
             return await response.Content.ReadAsStringAsync();
         }
 
@@ -299,6 +303,13 @@ namespace BarkodListem.Services
 
             var response = await client.SendAsync(request);
             var resultXml = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException(
+                    $"İrsaliye servisi HTTP {(int)response.StatusCode} ({response.ReasonPhrase}) hatası döndürdü.");
+
+            if (string.IsNullOrWhiteSpace(resultXml))
+                throw new InvalidOperationException("İrsaliye servisi boş cevap döndürdü.");
 
             return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeSorgulaResult");
         }
@@ -420,9 +431,9 @@ namespace BarkodListem.Services
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
     <ResimYukle xmlns=""http://barkodwebservice.com/"">
-      <username>{username}</username>
-      <password>{password}</password>
-      <dosyaAdi>{dosyaAdi}</dosyaAdi>
+      <username>{XmlText(username)}</username>
+      <password>{XmlText(password)}</password>
+      <dosyaAdi>{XmlText(dosyaAdi)}</dosyaAdi>
       <resimData>{Convert.ToBase64String(resimData)}</resimData>
     </ResimYukle>
   </soap:Body>
@@ -432,8 +443,68 @@ namespace BarkodListem.Services
             request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimYukle");
             request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadAsStringAsync();
             return result;
+        }
+
+        public async Task<string> ResimSil(ResimModel resim)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir()
+                          ?? throw new InvalidOperationException("Uygulama ayarları bulunamadı.");
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+            string soapBody = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <ResimSil xmlns=""http://barkodwebservice.com/"">
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
+      <sevkiyatNo>{XmlText(resim.SEVKIYAT_NO)}</sevkiyatNo>
+      <stokId>{resim.STOK_ID ?? 0}</stokId>
+      <dosyaAdi>{XmlText(resim.DOSYA_ADI)}</dosyaAdi>
+    </ResimSil>
+  </soap:Body>
+</soap:Envelope>";
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimSil");
+            request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task<byte[]> ResimIndir(string dosyaAdi)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir()
+                          ?? throw new InvalidOperationException("Uygulama ayarları bulunamadı.");
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+            string soapBody = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <ResimIndir xmlns=""http://barkodwebservice.com/"">
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
+      <dosyaAdi>{XmlText(dosyaAdi)}</dosyaAdi>
+    </ResimIndir>
+  </soap:Body>
+</soap:Envelope>";
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimIndir");
+            request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var responseXml = await response.Content.ReadAsStringAsync();
+            var document = new System.Xml.XmlDocument();
+            document.LoadXml(responseXml);
+            var node = document.GetElementsByTagName("ResimIndirResult").Cast<System.Xml.XmlNode>().FirstOrDefault()
+                       ?? throw new InvalidOperationException("Servis resim verisi döndürmedi.");
+            return Convert.FromBase64String(node.InnerText);
         }
     }
 }

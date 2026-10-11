@@ -1,25 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:BarkodListem.ViewModels"
-             x:Class="BarkodListem.Pages.TFGaleriPage"
-             x:Name="TFGaleriPageRef"
-             Title="Galeri">
-    <ScrollView>
-        <VerticalStackLayout Padding="10">
-            <CollectionView ItemsSource="{Binding Resimler}" ItemsLayout="VerticalGrid, 2">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <StackLayout Margin="5">
-                            <Image Source="{Binding ResimPath}" Aspect="AspectFill" HeightRequest="150"/>
-                            <!-- 🆕 Resim adını gösteriyoruz -->
-                            <Label Text="{Binding ResimAdi}" FontSize="12" TextColor="Gray" HorizontalTextAlignment="Center"/>
-                            <Button Text="SİL"
-                                    Command="{Binding BindingContext.SilCommand, Source={x:Reference TFGaleriPageRef}}"
-                                    CommandParameter="{Binding .}" />
-                        </StackLayout>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </VerticalStackLayout>
-    </ScrollView>
+             x:Class="BarkodListem.Pages.TFGaleriPage" x:Name="TFGaleriPageRef"
+             NavigationPage.HasNavigationBar="False" Shell.NavBarIsVisible="False"
+             BackgroundColor="#F3F6F9">
+    <Grid RowDefinitions="Auto,*">
+        <Grid Padding="18,22,18,24" ColumnDefinitions="Auto,*">
+            <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#071C2E" Offset="0"/><GradientStop Color="#0C3D5B" Offset="0.62"/><GradientStop Color="#087E84" Offset="1"/></LinearGradientBrush></Grid.Background>
+            <Button Text="‹" Clicked="Back_Clicked" WidthRequest="44" HeightRequest="44" Padding="0,-4,0,0" CornerRadius="13" FontSize="34" TextColor="White" BackgroundColor="#22FFFFFF" />
+            <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0" Spacing="1" VerticalOptions="Center"><Label Text="TESLİMAT GALERİSİ" TextColor="White" FontSize="23" FontAttributes="Bold" CharacterSpacing="1.1"/><Label Text="Kurulum ve teslimat fotoğrafları" TextColor="#CBE5EB" FontSize="12"/></VerticalStackLayout>
+        </Grid>
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Resimler}" ItemsLayout="VerticalGrid,2" Margin="13,16,13,20" SelectionMode="None">
+            <CollectionView.EmptyView><VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="6"><Label Text="Fotoğraf bulunamadı" TextColor="#294654" FontSize="16" FontAttributes="Bold"/><Label Text="Bu sevkiyat için henüz fotoğraf çekilmemiş." TextColor="#8797A1" FontSize="11"/></VerticalStackLayout></CollectionView.EmptyView>
+            <CollectionView.ItemTemplate><DataTemplate><Border Margin="5" Padding="7" Stroke="#DDE6EB" StrokeThickness="1" BackgroundColor="White"><Border.StrokeShape><RoundRectangle CornerRadius="17"/></Border.StrokeShape><Grid RowDefinitions="150,Auto,Auto" RowSpacing="7"><Image Source="{Binding ResimPath}" Aspect="AspectFill"><Image.Clip><RoundRectangleGeometry CornerRadius="12" Rect="0,0,500,500"/></Image.Clip></Image><Label Grid.Row="1" Text="{Binding ResimAdi}" FontSize="9" TextColor="#657B87" LineBreakMode="MiddleTruncation"/><Button Grid.Row="2" Text="FOTOĞRAFI SİL" Command="{Binding BindingContext.SilCommand, Source={x:Reference TFGaleriPageRef}}" CommandParameter="{Binding .}" HeightRequest="38" CornerRadius="11" BackgroundColor="#FFF0F1" TextColor="#C93C48" FontSize="10" FontAttributes="Bold"/></Grid></Border></DataTemplate></CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
 </ContentPage>

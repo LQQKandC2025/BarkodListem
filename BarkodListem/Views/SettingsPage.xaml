@@ -1,70 +1,197 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BarkodListem.Views.SettingsPage"
-             Title="Ayarlar">
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#F3F6F9">
 
-    <VerticalStackLayout Padding="20">
+    <ContentPage.Resources>
+        <Style x:Key="FieldLabel" TargetType="Label">
+            <Setter Property="TextColor" Value="#506A77" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="FontAttributes" Value="Bold" />
+        </Style>
+        <Style x:Key="SettingsEntry" TargetType="Entry">
+            <Setter Property="TextColor" Value="#173442" />
+            <Setter Property="PlaceholderColor" Value="#9AABB4" />
+            <Setter Property="BackgroundColor" Value="Transparent" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="HeightRequest" Value="48" />
+        </Style>
+        <Style x:Key="FieldBorder" TargetType="Border">
+            <Setter Property="Stroke" Value="#D8E2E8" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="#F8FAFB" />
+            <Setter Property="Padding" Value="13,0" />
+            <Setter Property="StrokeShape">
+                <RoundRectangle CornerRadius="13" />
+            </Setter>
+        </Style>
+        <Style x:Key="SectionCard" TargetType="Border">
+            <Setter Property="Stroke" Value="#DDE6EB" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="BackgroundColor" Value="White" />
+            <Setter Property="Padding" Value="17" />
+            <Setter Property="StrokeShape">
+                <RoundRectangle CornerRadius="20" />
+            </Setter>
+            <Setter Property="Shadow">
+                <Shadow Brush="#20263849" Opacity="0.12" Radius="11" Offset="0,4" />
+            </Setter>
+        </Style>
+    </ContentPage.Resources>
 
-        <Label Text="Web Servis Adresi:"/>
-        <Entry x:Name="entryUrl" Completed="Entry_Completed" Placeholder="http://example.com"/>
+    <ScrollView>
+        <VerticalStackLayout Spacing="0">
+            <Grid Padding="18,22,18,24" ColumnDefinitions="Auto,*">
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#071C2E" Offset="0.0" />
+                        <GradientStop Color="#0C3D5B" Offset="0.62" />
+                        <GradientStop Color="#087E84" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Grid.Background>
+                <Button Text="‹" Clicked="Back_Clicked"
+                        WidthRequest="44" HeightRequest="44" Padding="0,-4,0,0"
+                        CornerRadius="13" FontSize="34" TextColor="White"
+                        BackgroundColor="#22FFFFFF" />
+                <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0"
+                                     Spacing="1" VerticalOptions="Center">
+                    <Label Text="AYARLAR" TextColor="White" FontSize="24"
+                           FontAttributes="Bold" CharacterSpacing="1.5" />
+                    <Label Text="Bağlantı ve uygulama tercihleri"
+                           TextColor="#CBE5EB" FontSize="12" />
+                </VerticalStackLayout>
+            </Grid>
 
-        <Label Text="Port:"/>
-        <Entry x:Name="entryPort" Completed="Entry_Completed" Placeholder="8080" Keyboard="Numeric"/>
+            <VerticalStackLayout Padding="18,18,18,30" Spacing="14">
+                <Border Style="{StaticResource SectionCard}">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Border WidthRequest="44" HeightRequest="44" StrokeThickness="0"
+                                    BackgroundColor="#E7F5F5" VerticalOptions="Center">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <Label Text="⌁" TextColor="#087E84" FontSize="25"
+                                       HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                <Label Text="WEB SERVİSİ" TextColor="#087E84" FontSize="10"
+                                       FontAttributes="Bold" CharacterSpacing="1.2" />
+                                <Label Text="Bağlantı bilgileri" TextColor="#102A3A"
+                                       FontSize="19" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Grid>
 
-        <Label Text="User ID:"/>
-        <Entry x:Name="entryUserId" Completed="Entry_Completed" Placeholder="Empty" Keyboard="Numeric"/>
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Web servis adresi" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry x:Name="entryUrl" Completed="Entry_Completed"
+                                       Placeholder="http://sunucu-adresi"
+                                       Keyboard="Url" Style="{StaticResource SettingsEntry}" />
+                            </Border>
+                        </VerticalStackLayout>
 
-        <Label Text="Kullanıcı Adı:"/>
-        <Entry x:Name="entryUser" Completed="Entry_Completed" Placeholder="admin"/>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <VerticalStackLayout Spacing="5">
+                                <Label Text="Port" Style="{StaticResource FieldLabel}" />
+                                <Border Style="{StaticResource FieldBorder}">
+                                    <Entry x:Name="entryPort" Completed="Entry_Completed"
+                                           Placeholder="8080" Keyboard="Numeric"
+                                           Style="{StaticResource SettingsEntry}" />
+                                </Border>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="5">
+                                <Label Text="Kullanıcı ID" Style="{StaticResource FieldLabel}" />
+                                <Border Style="{StaticResource FieldBorder}">
+                                    <Entry x:Name="entryUserId" Completed="Entry_Completed"
+                                           Placeholder="1" Keyboard="Numeric"
+                                           Style="{StaticResource SettingsEntry}" />
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
 
-        <Label Text="Şifre:"/>
-        <Entry x:Name="entryPassword" Completed="Entry_Completed" Placeholder="******" IsPassword="True"/>
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Kullanıcı adı" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry x:Name="entryUser" Completed="Entry_Completed"
+                                       Placeholder="Kullanıcı adını yazın"
+                                       Style="{StaticResource SettingsEntry}" />
+                            </Border>
+                        </VerticalStackLayout>
 
-        <Button Text="Kaydet" Clicked="Kaydet_Clicked" BackgroundColor="Green" TextColor="White"/>
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="Şifre" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry x:Name="entryPassword" Completed="Entry_Completed"
+                                       Placeholder="••••••" IsPassword="True"
+                                       Style="{StaticResource SettingsEntry}" />
+                            </Border>
+                        </VerticalStackLayout>
 
-        <Label Text="Tema Seçimi:"/>
-        <Picker x:Name="themePicker" SelectedIndexChanged="ThemePicker_SelectedIndexChanged">
-			<Picker.Items>
-				<x:String>Açık</x:String>
-				<x:String>Karanlık</x:String>
-			</Picker.Items>
-		</Picker>
+                        <Button Text="BAĞLANTI AYARLARINI KAYDET" Clicked="Kaydet_Clicked"
+                                HeightRequest="52" CornerRadius="14" BackgroundColor="#087E84"
+                                TextColor="White" FontSize="13" FontAttributes="Bold"
+                                CharacterSpacing="0.6" />
+                    </VerticalStackLayout>
+                </Border>
 
-        <!-- Versiyon + Çöp Butonu Yan Yana -->
-        <Grid ColumnDefinitions="*,*,*" Margin="0,30,0,0" Padding="10,0">
+                <Border Style="{StaticResource SectionCard}">
+                    <Grid ColumnDefinitions="*,150" ColumnSpacing="14">
+                        <VerticalStackLayout Spacing="3" VerticalOptions="Center">
+                            <Label Text="GÖRÜNÜM" TextColor="#087E84" FontSize="10"
+                                   FontAttributes="Bold" CharacterSpacing="1.2" />
+                            <Label Text="Uygulama teması" TextColor="#102A3A"
+                                   FontSize="17" FontAttributes="Bold" />
+                            <Label Text="Açık veya karanlık görünümü seçin."
+                                   TextColor="#7B8D98" FontSize="10" />
+                        </VerticalStackLayout>
+                        <Border Grid.Column="1" Style="{StaticResource FieldBorder}">
+                            <Picker x:Name="themePicker" Title="Tema"
+                                    TextColor="#173442" BackgroundColor="Transparent"
+                                    SelectedIndexChanged="ThemePicker_SelectedIndexChanged">
+                                <Picker.Items>
+                                    <x:String>Açık</x:String>
+                                    <x:String>Karanlık</x:String>
+                                </Picker.Items>
+                            </Picker>
+                        </Border>
+                    </Grid>
+                </Border>
 
-            <!-- Sol boş kolon -->
-            <Label Text=""
-           Grid.Column="0" />
+                <Border Style="{StaticResource SectionCard}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="3" VerticalOptions="Center">
+                            <Label Text="BAKIM" TextColor="#087E84" FontSize="10"
+                                   FontAttributes="Bold" CharacterSpacing="1.2" />
+                            <Label Text="Fotoğraf önbelleği" TextColor="#102A3A"
+                                   FontSize="17" FontAttributes="Bold" />
+                            <Label Text="Sahipsiz ve eski yüklenmiş dosyaları temizler."
+                                   TextColor="#7B8D98" FontSize="10" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="1" Text="TEMİZLE" Clicked="OnTemizlikClicked"
+                                Pressed="Button_Pressed" Released="Button_Released"
+                                HeightRequest="44" Padding="16,0" CornerRadius="13"
+                                BackgroundColor="#FFF0F1" TextColor="#C93C48"
+                                BorderColor="#F5CDD1" BorderWidth="1"
+                                FontSize="11" FontAttributes="Bold" />
+                    </Grid>
+                </Border>
 
-            <!-- Ortada Versiyon yazısı -->
-            <Label x:Name="versionLabel"
-           TextColor="Gray"
-           FontAttributes="Italic"
-           FontSize="12"
-           VerticalOptions="Center"
-           HorizontalOptions="Center"
-           Grid.Column="1" />
-
-            <!-- Sağda Çöp butonu -->
-            <Button Text="🗑️"
-        BackgroundColor="Transparent"
-        TextColor="Gray"
-        FontSize="22"
-        Padding="0"
-        Opacity="0.7"
-        Pressed="Button_Pressed"
-        Released="Button_Released"
-        Clicked="OnTemizlikClicked"
-        HorizontalOptions="End"
-        VerticalOptions="Center"
-        Grid.Column="2" />
-        </Grid>
-
-    </VerticalStackLayout>
-
+                <Border Padding="15,11" Stroke="#DDE6EB" StrokeThickness="1"
+                        BackgroundColor="#EDF2F5">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="15" /></Border.StrokeShape>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Border WidthRequest="9" HeightRequest="9" StrokeThickness="0"
+                                BackgroundColor="#2AB17E" VerticalOptions="Center">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="5" /></Border.StrokeShape>
+                        </Border>
+                        <Label x:Name="versionLabel" Grid.Column="1" TextColor="#607783"
+                               FontSize="11" FontAttributes="Bold"
+                               VerticalTextAlignment="Center" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
-
-
-

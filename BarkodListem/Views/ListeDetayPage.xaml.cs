@@ -16,6 +16,10 @@ namespace BarkodListem.Views
             BindingContext = this;
             _webService=webService;
         }
+        private async void Back_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
         private async void Duzenle_Clicked(object sender, EventArgs e)
         {
             if (_viewModel != null && Liste != null)

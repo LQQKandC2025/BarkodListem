@@ -28,6 +28,10 @@ namespace BarkodListem.Pages
                 navigation.RemovePage(scannerPage);
             }
         }
+        private async void Back_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
         private async void OnUrunListesiClicked(object sender, EventArgs e)
         {
             if (!string.IsNullOrWhiteSpace(viewModel.SEVKIYAT_NO))

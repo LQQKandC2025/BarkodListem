@@ -36,7 +36,7 @@ namespace BarkodListem.Views
             }
             scanBarcodeReaderView.Options = new BarcodeReaderOptions
             {
-                Formats = BarcodeFormat.QrCode,
+                Formats = BarcodeFormats.OneDimensional | BarcodeFormat.QrCode,
                 AutoRotate = true,
                 Multiple = false,
                 TryHarder = true,
@@ -118,7 +118,13 @@ namespace BarkodListem.Views
         private async void OnCloseClicked(object sender, EventArgs e)
         {
             if (_tcs != null && !_tcs.Task.IsCompleted)
+            {
                 _tcs.TrySetResult(string.Empty);
+                return;
+            }
+
+            if (Navigation.NavigationStack.Count > 1)
+                await Navigation.PopAsync();
         }
         // ScannerPage.xaml.cs içinde
         public static async Task<string> ScanOnceAsync()

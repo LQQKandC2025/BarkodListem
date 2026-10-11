@@ -19,8 +19,8 @@
 		<!-- App Identifier -->
 		<ApplicationId>com.erhanyazilim.barkodlistem</ApplicationId>
 		<!-- Versions -->
-		<ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
-		<ApplicationVersion>2.0</ApplicationVersion>
+		<ApplicationDisplayVersion>3.0</ApplicationDisplayVersion>
+		<ApplicationVersion>3</ApplicationVersion>
 		<!-- To develop, package, and publish an app to the Microsoft Store, see: https://aka.ms/MauiTemplateUnpackaged -->
 		<WindowsPackageType>None</WindowsPackageType>
 		<AndroidUseLegacyAapt>true</AndroidUseLegacyAapt>
@@ -59,6 +59,12 @@
 		<MauiXaml Remove="Platforms\Android\Resources\Images\**" />
 		<None Remove="Platforms\Android\Resources\Images\**" />
 		<!--<MauiImage Include="Resources\AppIcon\app_icon.png" />-->
+		<MauiImage Include="Resources\Images\brand_logo.png" />
+		<!-- Tam ekran acilis gorselini yogunluk basina buyutup cogaltma; tek kaynak olarak paketle. -->
+		<MauiImage Include="Resources\Images\launch_furniture.png" Resize="False" />
+		<MauiImage Include="Resources\Images\finance_placeholder.svg" BaseSize="48,48" />
+		<MauiImage Include="Resources\Images\stock_placeholder.svg" BaseSize="48,48" />
+		<MauiImage Include="Resources\Images\report_placeholder.svg" BaseSize="48,48" />
 		<MauiImage Include="Resources\Images\ayarlar.png"></MauiImage>
 		<MauiImage Include="Resources\Images\irsaliye.png" />
 		<MauiImage Include="Resources\Images\listesil.png"></MauiImage>
@@ -71,7 +77,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#512BD4" BaseSize="512,512" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#071C2E" BaseSize="1,1" />
 		<!-- Images -->
 		<!--<MauiImage Include="Resources\Images\*" />-->
 		<!-- Custom Fonts -->
@@ -133,7 +139,13 @@
 		<MauiXaml Update="LoginPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
+		<MauiXaml Update="LaunchPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
 		<MauiXaml Update="Pages\GaleriPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Pages\SayimPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</MauiXaml>
 		<MauiXaml Update="Pages\IrsaliyeDetayPage.xaml">

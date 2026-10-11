@@ -30,6 +30,10 @@ namespace BarkodListem.Views
                 Listeler.Add(liste);
             }
         }
+        private async void Back_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
         private async void ListeSecildi(object sender, SelectionChangedEventArgs e)
         {
             if (e.CurrentSelection.FirstOrDefault() is ListeModel seciliListe)

@@ -72,15 +72,6 @@ namespace BarkodListem.ViewModels
                {
                    Barkodlar.Insert(0, yeniBarkod); // 📌 **Başa ekle**
                });
-                await Task.Delay(500);
-                MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    int index = Barkodlar.IndexOf(yeniBarkod);
-                    if (index != -1)
-                    {
-                        MainPage.Instance.BarkodListesi.ScrollTo(index, position: ScrollToPosition.Start, animate: true);
-                    }
-                });
             }
         }
         private async Task BarkodSil(BarkodModel barkod)

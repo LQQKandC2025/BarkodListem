@@ -20,8 +20,12 @@ namespace BarkodListem
             Services = services;
             _webService=webService;
             _databaseService=databaseService;
-            MainPage = new LoginPage();
-            Task.Run(async () => await CopyDbWithDebugInfoAsync());
+            MainPage = new LaunchPage();
+            Task.Run(async () =>
+            {
+                await CopyDbWithDebugInfoAsync();
+                await PhotoCacheService.TrimUploadedCacheAsync();
+            });
         }
         [System.Obsolete]
         public static void LoginSuccessful()
@@ -127,7 +131,6 @@ namespace BarkodListem
 
         public void CopyDirectory(string sourceDir, string targetDir)
         {
-            OnTemizlikClicked();
             foreach (string dirPath in Directory.GetDirectories(sourceDir, "*", SearchOption.AllDirectories))
             {
                 Directory.CreateDirectory(dirPath.Replace(sourceDir, targetDir));
@@ -139,37 +142,5 @@ namespace BarkodListem
                 File.Copy(filePath, destFilePath, true);
             }
         }
-        private async void OnTemizlikClicked()
-        {
-            var db = await DatabaseService.GetConnectionAsync();
-            var kayitliResimler = await db.Table<ResimModel>().ToListAsync();
-
-            var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler");
-            if (!Directory.Exists(klasorYolu))
-                return;
-
-            var tumDosyalar = Directory.GetFiles(klasorYolu, "*.*", SearchOption.AllDirectories);
-            int silinenSayisi = 0;
-
-            foreach (var dosya in tumDosyalar)
-            {
-                var dosyaAdi = Path.GetFileName(dosya);
-                if (!kayitliResimler.Any(x => x.DOSYA_ADI == dosyaAdi))
-                {
-                    try
-                    {
-                        File.Delete(dosya);
-                        silinenSayisi++;
-                    }
-                    catch
-                    {
-                        // hata olursa sessiz geç
-                    }
-                }
-            }
-
-            //await DisplayAlert("Temizlik Tamam", $"{silinenSayisi} adet sahipsiz resim silindi.", "Tamam");
-        }
-
     }
 }

@@ -1,38 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-    <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:BarkodListem.Models"
              x:Class="BarkodListem.Views.ListeDetayPage"
-             Title="{Binding Liste.ListeAdi}">
-	<VerticalStackLayout Padding="20" Spacing="10">
-		<!-- Üst Menü: Düzenle, Gönder, Sil -->
-		<Grid ColumnDefinitions="*,*,*" Margin="0,0,0,10">
-			<Button Text="Düzenle"
-                    Grid.Column="0"
-                    BackgroundColor="Blue"
-                    TextColor="White"
-                    Clicked="Duzenle_Clicked"/>
-			<Button Text="Gönder"
-                    Grid.Column="1"
-                    BackgroundColor="Orange"
-                    TextColor="White"
-                    Clicked="Gonder_Clicked"/>
-			<Button Text="Sil"
-                    Grid.Column="2"
-                    BackgroundColor="Red"
-                    TextColor="White"
-                    Clicked="Sil_Clicked"/>
-		</Grid>
-		<!-- Barkodların listelendiği bölüm -->
-		<Frame BorderColor="Gray" CornerRadius="5" Padding="5">
-			<CollectionView x:Name="BarkodDetayListesi"
-                            ItemsSource="{Binding Liste.Barkodlar}">
-				<CollectionView.ItemTemplate>
-					<DataTemplate x:DataType="models:BarkodModel">
-						<Label Text="{Binding Barkod}" FontSize="16" Padding="5"/>
-					</DataTemplate>
-				</CollectionView.ItemTemplate>
-			</CollectionView>
-		</Frame>
-	</VerticalStackLayout>
+             NavigationPage.HasNavigationBar="False" Shell.NavBarIsVisible="False"
+             BackgroundColor="#F3F6F9">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+        <Grid Padding="18,22,18,24" ColumnDefinitions="Auto,*">
+            <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#071C2E" Offset="0"/><GradientStop Color="#0C3D5B" Offset="0.62"/><GradientStop Color="#087E84" Offset="1"/></LinearGradientBrush></Grid.Background>
+            <Button Text="‹" Clicked="Back_Clicked" WidthRequest="44" HeightRequest="44" Padding="0,-4,0,0" CornerRadius="13" FontSize="34" TextColor="White" BackgroundColor="#22FFFFFF"/>
+            <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0" Spacing="1" VerticalOptions="Center"><Label Text="{Binding Liste.ListeAdi}" TextColor="White" FontSize="23" FontAttributes="Bold" LineBreakMode="TailTruncation"/><Label Text="Liste detayı ve barkodlar" TextColor="#CBE5EB" FontSize="12"/></VerticalStackLayout>
+        </Grid>
+        <Grid Grid.Row="1" Padding="18,18,18,12" ColumnDefinitions="*,*,*" ColumnSpacing="9"><Button Text="AKTİF YAP" Clicked="Duzenle_Clicked" HeightRequest="46" CornerRadius="13" BackgroundColor="#E7F5F5" TextColor="#087E84" FontSize="10" FontAttributes="Bold"/><Button Grid.Column="1" Text="GÖNDER" Clicked="Gonder_Clicked" HeightRequest="46" CornerRadius="13" BackgroundColor="#087E84" TextColor="White" FontSize="10" FontAttributes="Bold"/><Button Grid.Column="2" Text="SİL" Clicked="Sil_Clicked" HeightRequest="46" CornerRadius="13" BackgroundColor="#FFF0F1" TextColor="#C93C48" FontSize="10" FontAttributes="Bold"/></Grid>
+        <Grid Grid.Row="2" Padding="18,0,18,8" ColumnDefinitions="*,Auto"><Label Text="Barkodlar" TextColor="#102A3A" FontSize="20" FontAttributes="Bold"/><Label Grid.Column="1" Text="{Binding Liste.Barkodlar.Count, StringFormat='{}{0} kayıt'}" TextColor="#7B8D98" FontSize="11" VerticalTextAlignment="Center"/></Grid>
+        <CollectionView Grid.Row="3" x:Name="BarkodDetayListesi" ItemsSource="{Binding Liste.Barkodlar}" SelectionMode="None" Margin="18,0,18,20">
+            <CollectionView.EmptyView><VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"><Label Text="Bu listede barkod bulunmuyor" TextColor="#657B87" FontSize="14"/></VerticalStackLayout></CollectionView.EmptyView>
+            <CollectionView.ItemTemplate><DataTemplate x:DataType="models:BarkodModel"><Border Margin="0,0,0,8" Padding="14,10" Stroke="#DDE6EB" StrokeThickness="1" BackgroundColor="White"><Border.StrokeShape><RoundRectangle CornerRadius="15"/></Border.StrokeShape><Grid ColumnDefinitions="Auto,*" ColumnSpacing="11"><Border WidthRequest="36" HeightRequest="36" StrokeThickness="0" BackgroundColor="#E7F5F5"><Border.StrokeShape><RoundRectangle CornerRadius="10"/></Border.StrokeShape><Label Text="▥" TextColor="#087E84" FontSize="20" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/></Border><Label Grid.Column="1" Text="{Binding Barkod}" TextColor="#173442" FontSize="15" FontAttributes="Bold" VerticalTextAlignment="Center"/></Grid></Border></DataTemplate></CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
 </ContentPage>

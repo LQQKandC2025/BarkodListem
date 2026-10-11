@@ -59,6 +59,11 @@ namespace BarkodListem.Pages
             barkodEntry.CursorPosition = barkodEntry.Text?.Length ?? 0;
         }
 
+        private async void Back_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
+
         private async void OnGonderClicked(object sender, EventArgs e)
         {
             var allItems = _vm.PaketHareketler;

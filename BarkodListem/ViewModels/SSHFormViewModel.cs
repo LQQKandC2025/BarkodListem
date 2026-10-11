@@ -1,6 +1,7 @@
 ﻿using BarkodListem.Data;
 using BarkodListem.Models;
 using BarkodListem.Pages;
+using BarkodListem.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 namespace BarkodListem.ViewModels;
@@ -109,40 +110,50 @@ public partial class SSHFormViewModel : ObservableObject
     [RelayCommand]
     private async Task ResimCek()
     {
+        string? fullPath = null;
+        var localRecordInserted = false;
         try
         {
+            if (!int.TryParse(_urun.SIP_STR_ID, out var sipStrId))
+                throw new InvalidOperationException("Ürün satır kimliği geçersiz; fotoğraf kaydedilemedi.");
+
             var result = await MediaPicker.CapturePhotoAsync();
             if (result == null) return;
             var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler", _sevkiyatNo);
             Directory.CreateDirectory(klasorYolu);
-            int sira = Directory.GetFiles(klasorYolu, $"SSH_{SevkFisId}_{StokId}_{_urun.SIP_STR_ID}_*.jpg").Length + 1;
-            var fileName = $"SSH_{SevkFisId}_{StokId}_{_urun.SIP_STR_ID}_{sira}.jpg";
-            var fullPath = Path.Combine(klasorYolu, fileName);
-            using var stream = await result.OpenReadAsync();
-            using var fileStream = File.OpenWrite(fullPath);
-            await stream.CopyToAsync(fileStream);
+            var fileName = $"SSH_{SevkFisId}_{StokId}_{_urun.SIP_STR_ID}_{Guid.NewGuid():N}.jpg";
+            fullPath = Path.Combine(klasorYolu, fileName);
+            await PhotoStorageService.SaveOptimizedJpegAsync(result, fullPath);
             var db = await DatabaseService.GetConnectionAsync();
             var model = new ResimModel
             {
-                SEVKIYAT_NO = UrunBilgi.SEVKIYAT_NO,
+                SEVKIYAT_NO = _sevkiyatNo,
                 STOK_ID= StokId,
-                SIPSTR_ID= int.Parse(UrunBilgi.SIP_STR_ID),
+                SIPSTR_ID = sipStrId,
                 DOSYA_ADI = fileName,
                 YOL="",
                 TARIH = DateTime.Now,
                 TIPI = "SSH"
             };
             await db.InsertAsync(model);
+            localRecordInserted = true;
             await Application.Current.MainPage.DisplayAlert("Resim", $"Resim kaydedildi:\n{fileName}", "Tamam");
         }
         catch (Exception ex)
         {
+            if (!localRecordInserted && fullPath != null && File.Exists(fullPath))
+                File.Delete(fullPath);
             await Application.Current.MainPage.DisplayAlert("HATA", ex.Message, "Tamam");
         }
     }
     [RelayCommand]
     private async Task Galeri()
     {
-        await Application.Current.MainPage.Navigation.PushAsync(new GaleriPage(StokId, _sevkiyatNo));
+        if (!int.TryParse(_urun.SIP_STR_ID, out var sipStrId))
+        {
+            await Application.Current.MainPage.DisplayAlert("HATA", "Ürün satır kimliği geçersiz.", "Tamam");
+            return;
+        }
+        await Application.Current.MainPage.Navigation.PushAsync(new GaleriPage(StokId, _sevkiyatNo, sipStrId));
     }
 }

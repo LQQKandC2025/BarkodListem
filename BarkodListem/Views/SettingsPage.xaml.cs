@@ -1,6 +1,7 @@
 ﻿using BarkodListem.Data;
 using BarkodListem.Helpers;
 using BarkodListem.Models;
+using BarkodListem.Services;
 namespace BarkodListem.Views
 {
     public partial class SettingsPage : ContentPage
@@ -27,6 +28,10 @@ namespace BarkodListem.Views
             themePicker.SelectedIndex = (ThemeHelper.SelectedTheme == AppTheme.Dark) ? 1 : 0;
             _databaseService=databaseService;
         }
+        private async void Back_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
         private async void Kaydet_Clicked(object sender, EventArgs e)
         {
             var ayarlar = new AyarlarModel
@@ -49,34 +54,9 @@ namespace BarkodListem.Views
         }
         private async void OnTemizlikClicked(object sender, EventArgs e)
         {
-            var db = await DatabaseService.GetConnectionAsync();
-            var kayitliResimler = await db.Table<ResimModel>().ToListAsync();
-
-            var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler");
-            if (!Directory.Exists(klasorYolu))
-                return;
-
-            var tumDosyalar = Directory.GetFiles(klasorYolu, "*.*", SearchOption.AllDirectories);
-            int silinenSayisi = 0;
-
-            foreach (var dosya in tumDosyalar)
-            {
-                var dosyaAdi = Path.GetFileName(dosya);
-                if (!kayitliResimler.Any(x => x.DOSYA_ADI == dosyaAdi))
-                {
-                    try
-                    {
-                        File.Delete(dosya);
-                        silinenSayisi++;
-                    }
-                    catch
-                    {
-                        // hata olursa sessiz geç
-                    }
-                }
-            }
-
-            await DisplayAlert("Temizlik Tamam", $"{silinenSayisi} adet sahipsiz resim silindi.", "Tamam");
+            await PhotoCacheService.RemoveOrphanFilesAsync();
+            await PhotoCacheService.TrimUploadedCacheAsync();
+            await DisplayAlert("Temizlik Tamam", "Sahipsiz dosyalar temizlendi ve fotoğraf önbelleği sınırlandı.", "Tamam");
         }
         private void Button_Pressed(object sender, EventArgs e)
         {

@@ -26,7 +26,10 @@ namespace BarkodListem
             base.OnAppearing();
             await _viewModel.LoadData();
         }
-        public CollectionView BarkodListesi => barkodListesi;
+        private async void Sayim_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new SayimPage(_viewModel, _webService, _databaseService));
+        }
         //private bool isScanning = false;
         [Obsolete]
         private async void QRKodTara_Clicked(object sender, EventArgs e)

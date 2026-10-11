@@ -2,78 +2,129 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="BarkodListem.Pages.SSHFormPage"
-             Title="SSH Formu">
-    <ScrollView>
-        <Grid Padding="20" ColumnSpacing="10" RowSpacing="12" HorizontalOptions="FillAndExpand">
-            <Grid.RowDefinitions>
-                <!-- Her alan için ayrı satır -->
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <!-- Alanlar -->
-            <Label Grid.Row="0" Grid.Column="0" Text="Miktar:" FontAttributes="Bold" />
-            <Frame Grid.Row="0" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding Miktar}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="1" Grid.Column="0" Text="Stok ID:" FontAttributes="Bold" />
-            <Frame Grid.Row="1" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding StokId}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="2" Grid.Column="0" Text="Spec ID:" FontAttributes="Bold" />
-            <Frame Grid.Row="2" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding SpecId}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="3" Grid.Column="0" Text="Sevk Fiş ID:" FontAttributes="Bold" />
-            <Frame Grid.Row="3" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding SevkFisId}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="4" Grid.Column="0" Text="Sevkiyat No:" FontAttributes="Bold" />
-            <Frame Grid.Row="4" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding SevkiyatNo}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="5" Grid.Column="0" Text="Tarih:" FontAttributes="Bold" />
-            <Frame Grid.Row="5" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding Tarih, StringFormat='{}{0:dd.MM.yyyy}'}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="6" Grid.Column="0" Text="SSH Türü:" FontAttributes="Bold" />
-            <Frame Grid.Row="6" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding SshTuru}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="7" Grid.Column="0" Text="Sorun Durumu:" FontAttributes="Bold" />
-            <Frame Grid.Row="7" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding SorunDurum}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="8" Grid.Column="0" Text="SSH Süre:" FontAttributes="Bold" />
-            <Frame Grid.Row="8" Grid.Column="1" CornerRadius="10" HasShadow="True" Padding="0">
-                <Entry Text="{Binding SshSure, StringFormat='{}{0:HH\\:mm}'}" IsReadOnly="True" BackgroundColor="Transparent" />
-            </Frame>
-            <Label Grid.Row="9" Grid.Column="0" Text="Sorun Açıklaması:" FontAttributes="Bold" />
-            <Frame Grid.Row="9" Grid.Column="1" CornerRadius="10" HasShadow="True">
-                <Editor Text="{Binding SorunAciklama}" Placeholder="Lütfen açıklama girin..." AutoSize="TextChanges" HeightRequest="80" BackgroundColor="Transparent"/>
-            </Frame>
-            <!-- Butonlar -->
-            <HorizontalStackLayout Grid.Row="10" Grid.ColumnSpan="2" Spacing="10" Margin="0,10,0,0" HorizontalOptions="Center">
-                <Button Text="Kaydet" Command="{Binding KaydetCommand}" WidthRequest="100"/>
-                <Button Text="Resim Çek" Command="{Binding ResimCekCommand}" WidthRequest="100"/>
-                <Button Text="Galeri" Command="{Binding GaleriCommand}" WidthRequest="100"/>
-            </HorizontalStackLayout>
+             NavigationPage.HasNavigationBar="False"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#FFF8E8">
+    <ContentPage.Resources>
+        <Style x:Key="InfoLabel" TargetType="Label">
+            <Setter Property="TextColor" Value="#173442" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="VerticalTextAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="Caption" TargetType="Label">
+            <Setter Property="TextColor" Value="#7B8D98" />
+            <Setter Property="FontSize" Value="9" />
+            <Setter Property="FontAttributes" Value="Bold" />
+            <Setter Property="CharacterSpacing" Value="0.7" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <Grid Padding="18,22,18,24" ColumnDefinitions="Auto,*,Auto">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#6B4700" Offset="0" />
+                    <GradientStop Color="#A86600" Offset="0.65" />
+                    <GradientStop Color="#D38A00" Offset="1" />
+                </LinearGradientBrush>
+            </Grid.Background>
+            <Button Text="‹" Clicked="Back_Clicked" WidthRequest="44" HeightRequest="44"
+                    Padding="0,-4,0,0" CornerRadius="13" FontSize="34"
+                    TextColor="White" BackgroundColor="#22FFFFFF" />
+            <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0" Spacing="1" VerticalOptions="Center">
+                <Label Text="SSH FORMU" TextColor="White" FontSize="23"
+                       FontAttributes="Bold" CharacterSpacing="1.2" />
+                <Label Text="Ürün servis ve sorun kaydı" TextColor="#FFE7B0" FontSize="12" />
+            </VerticalStackLayout>
+            <Border Grid.Column="2" Padding="10,7" Stroke="#50FFFFFF" StrokeThickness="1"
+                    BackgroundColor="#25FFFFFF">
+                <Border.StrokeShape><RoundRectangle CornerRadius="11" /></Border.StrokeShape>
+                <Label Text="SERVİS" TextColor="White" FontSize="10" FontAttributes="Bold" />
+            </Border>
         </Grid>
-    </ScrollView>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="18,18,18,30" Spacing="14">
+                <Border Padding="17" Stroke="#EDD9AC" StrokeThickness="1" BackgroundColor="White">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <Border.Shadow><Shadow Brush="#40302010" Opacity="0.12" Radius="11" Offset="0,4" /></Border.Shadow>
+                    <VerticalStackLayout Spacing="14">
+                        <Label Text="ÜRÜN VE SEVKİYAT" TextColor="#A86600" FontSize="10"
+                               FontAttributes="Bold" CharacterSpacing="1.1" />
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <Border Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="MİKTAR" Style="{StaticResource Caption}"/><Label Text="{Binding Miktar}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="STOK ID" Style="{StaticResource Caption}"/><Label Text="{Binding StokId}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="1" Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="SPEC ID" Style="{StaticResource Caption}"/><Label Text="{Binding SpecId}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="1" Grid.Column="1" Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="SEVK FİŞ ID" Style="{StaticResource Caption}"/><Label Text="{Binding SevkFisId}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Row="2" Grid.ColumnSpan="2" Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="SEVKİYAT NO" Style="{StaticResource Caption}"/><Label Text="{Binding SevkiyatNo}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Padding="17" Stroke="#EDD9AC" StrokeThickness="1" BackgroundColor="White">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="20" /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="13">
+                        <Label Text="SERVİS BİLGİLERİ" TextColor="#A86600" FontSize="10"
+                               FontAttributes="Bold" CharacterSpacing="1.1" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Border Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="SSH TÜRÜ" Style="{StaticResource Caption}"/><Label Text="{Binding SshTuru}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="DURUM" Style="{StaticResource Caption}"/><Label Text="{Binding SorunDurum}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Border Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="TARİH" Style="{StaticResource Caption}"/><Label Text="{Binding Tarih, StringFormat='{}{0:dd.MM.yyyy}'}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                            <Border Grid.Column="1" Padding="13,10" Stroke="#E6E9EB" BackgroundColor="#F8FAFB">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                                <VerticalStackLayout Spacing="2"><Label Text="SÜRE" Style="{StaticResource Caption}"/><Label Text="{Binding SshSure, StringFormat='{}{0:HH\\:mm}'}" Style="{StaticResource InfoLabel}"/></VerticalStackLayout>
+                            </Border>
+                        </Grid>
+                        <VerticalStackLayout Spacing="5">
+                            <Label Text="SORUN AÇIKLAMASI" Style="{StaticResource Caption}" />
+                            <Border Padding="13,8" Stroke="#E0D3B7" StrokeThickness="1" BackgroundColor="#FFFCF4">
+                                <Border.StrokeShape><RoundRectangle CornerRadius="14" /></Border.StrokeShape>
+                                <Editor Text="{Binding SorunAciklama}" Placeholder="Sorunu ve yapılan işlemi açıklayın..."
+                                        PlaceholderColor="#A99B7D" TextColor="#173442" AutoSize="TextChanges"
+                                        MinimumHeightRequest="100" BackgroundColor="Transparent" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Button Text="RESİM ÇEK" Command="{Binding ResimCekCommand}" HeightRequest="52"
+                            CornerRadius="15" BackgroundColor="#FFF1D6" TextColor="#A86600"
+                            BorderColor="#EAC77A" BorderWidth="1" FontAttributes="Bold" />
+                    <Button Grid.Column="1" Text="GALERİ" Command="{Binding GaleriCommand}" HeightRequest="52"
+                            CornerRadius="15" BackgroundColor="White" TextColor="#A86600"
+                            BorderColor="#EAC77A" BorderWidth="1" FontAttributes="Bold" />
+                </Grid>
+                <Button Text="SSH KAYDINI KAYDET" Command="{Binding KaydetCommand}" HeightRequest="54"
+                        CornerRadius="15" BackgroundColor="#A86600" TextColor="White" FontAttributes="Bold" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
 </ContentPage>

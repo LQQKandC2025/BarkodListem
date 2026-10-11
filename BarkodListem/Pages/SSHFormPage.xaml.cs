@@ -9,4 +9,8 @@ public partial class SSHFormPage : ContentPage
         seciliUrun.Sirano = sirano; // 🔥 Burada modele yazıyoruz
         BindingContext = new SSHFormViewModel(seciliUrun, sevkiyatNo, subeKodu, sirano);
     }
+    private async void Back_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
+    }
 }

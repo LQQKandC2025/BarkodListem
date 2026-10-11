@@ -30,7 +30,10 @@ namespace BarkodListem.ViewModels
         public string TESLIM_ONAY_KODU { get; set; }
         public string ARAC_PLAKA { get; set; }
         public string MOBIL_PERSONEL { get; set; }
-        public ICommand KaydetCommand => new Command(async () => await KaydetAsync());
+        public bool IsSshSevkiyat { get; private set; }
+        public Color FormBackgroundColor { get; private set; } = Colors.Transparent;
+        private bool _isSaving;
+        public Command KaydetCommand { get; }
         public ICommand UrunListesiCommand => new Command(OnUrunListesi);
         public ICommand KodGonderCommand => new Command(OnKodGonder);
         public DataTable dt { get; set; } = new DataTable();
@@ -42,6 +45,7 @@ namespace BarkodListem.ViewModels
             this.sevkiyatNo = sevkiyatNo;
             var databaseService = new DatabaseService(dbPath);
             _webService = new WebService(databaseService);
+            KaydetCommand = new Command(async () => await KaydetAsync(), () => !_isSaving);
         }
         public async Task LoadSevkiyatAsync()
         {
@@ -51,16 +55,19 @@ namespace BarkodListem.ViewModels
                 if (dt.Rows.Count > 0)
                 {
                     var row = dt.Rows[0];
-                    string? ADI_SOYADI = row["ADI_SOYADI"]?.ToString();
-                    string? SEVK_TARIH = row["SEVK_TARIH"]?.ToString();
-                    string? SEVKIYAT_NO = row["SEVKIYAT_NO"]?.ToString();
-                    string? ISLEM_TURU = row["ISLEM_TURU"]?.ToString();
-                    string? TESLIM_NOTU = row["TESLIM_NOTU"]?.ToString();
-                    string? TESLIM_ALAN = row["ADI_SOYADI"]?.ToString();
-                    string? TEL1 = row["TEL_1"]?.ToString();
-                    string? TESLIM_ONAY_KODU = row["TESLIM_ONAY_KODU"]?.ToString();
-                    string? ARAC_PLAKA = row["ARAC_PLAKA"]?.ToString();
-                    string? MOBIL_PERSONEL = AppGlobals.mobil_id.ToString();
+                    SEVK_FIS_ID = row["SEVK_FIS_ID"]?.ToString();
+                    ADI_SOYADI = row["ADI_SOYADI"]?.ToString();
+                    SEVK_TARIH = row["SEVK_TARIH"]?.ToString();
+                    SEVKIYAT_NO = row["SEVKIYAT_NO"]?.ToString();
+                    ISLEM_TURU = row["ISLEM_TURU"]?.ToString();
+                    TESLIM_NOTU = row["TESLIM_NOTU"]?.ToString();
+                    TESLIM_ALAN = row["ADI_SOYADI"]?.ToString();
+                    TEL1 = row["TEL_1"]?.ToString();
+                    TESLIM_ONAY_KODU = row["TESLIM_ONAY_KODU"]?.ToString();
+                    ARAC_PLAKA = row["ARAC_PLAKA"]?.ToString();
+                    MOBIL_PERSONEL = AppGlobals.mobil_id.ToString();
+                    IsSshSevkiyat = string.Equals(ISLEM_TURU?.Trim(), "SSH", StringComparison.OrdinalIgnoreCase);
+                    FormBackgroundColor = IsSshSevkiyat ? Color.FromArgb("#FFF4BF") : Colors.Transparent;
                     NotifyAll();
                 } else
                 {
@@ -79,13 +86,18 @@ namespace BarkodListem.ViewModels
         }
         private async Task KaydetAsync()
         {
-            
+            if (_isSaving)
+                return;
+
+            _isSaving = true;
+            KaydetCommand.ChangeCanExecute();
             var progressPopup = new ProgressPopup();
             Application.Current.MainPage.ShowPopup(progressPopup);
-            _databaseService = new DatabaseService(dbPath);
-            var ayarlar = await _databaseService.AyarlarGetir();
             try
             {
+                _databaseService = new DatabaseService(dbPath);
+                var ayarlar = await _databaseService.AyarlarGetir()
+                              ?? throw new InvalidOperationException("Uygulama ayarları bulunamadı.");
                 progressPopup.AddStep("Sevkiyat kaydediliyor...");
                 var db = await DatabaseService.GetConnectionAsync();
                 string aktifNo = SEVKIYAT_NO;
@@ -123,7 +135,8 @@ namespace BarkodListem.ViewModels
                     sonuc1 = await _webService.SevkiyatKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, sevkiyat);
                 }
                 
-                sonuc1=SoapHelper.soap_mesaj(sonuc1, "SevkiyatKaydetResult");
+                sonuc1 = SoapHelper.soap_mesaj(sonuc1, "SevkiyatKaydetResult");
+                ServisHatasiniKontrolEt(sonuc1, "Sevkiyat");
                 progressPopup.CompleteStep("Sevkiyat kaydediliyor...");
                 progressPopup.AddStep("SSH kaydediliyor...");
                 var sshAna = await db.Table<SSHAnaModel>()
@@ -134,23 +147,16 @@ namespace BarkodListem.ViewModels
                                          .ToListAsync();
                 if (sshAna != null || sshDetaylar.Any())
                 {
+                    if (sshAna == null)
+                        throw new InvalidOperationException("SSH detayları var ancak SSH üst bilgisi bulunamadı.");
                     var sonuc2 = await _webService.SSHKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, sshAna, sshDetaylar);
-                    sonuc2= SoapHelper.soap_mesaj(sonuc2, "SSHKaydetResult");
+                    sonuc2 = SoapHelper.soap_mesaj(sonuc2, "SSHKaydetResult");
+                    ServisHatasiniKontrolEt(sonuc2, "SSH");
                 }
                 progressPopup.CompleteStep("SSH kaydediliyor...");
-                progressPopup.AddStep("Resimler tablosu kaydediliyor...");
-                var resimler = await db.Table<ResimModel>()
-                                      .Where(x => x.SEVKIYAT_NO == aktifNo)
-                                      .ToListAsync();
-                if (resimler.Any())
-                {
-                    var sonuc3 = await _webService.ResimleriKaydet(ayarlar.KullaniciAdi, ayarlar.Sifre, resimler);
-                    sonuc3= SoapHelper.soap_mesaj(sonuc3, "ResimleriKaydetResult");
-                }
-                progressPopup.CompleteStep("Resimler tablosu kaydediliyor...");
                 progressPopup.AddStep("Fotoğraflar gönderiliyor...");
                 var gonderilecekResimler = await db.Table<ResimModel>()
-                  .Where(x => x.SEVKIYAT_NO == AppGlobals.AktifSevkiyat && x.GONDERIM == 0)
+                  .Where(x => x.SEVKIYAT_NO == aktifNo && x.GONDERIM == 0)
                   .ToListAsync();
                 int gonderilen = 0;
                 int atlanan = 0;
@@ -158,7 +164,7 @@ namespace BarkodListem.ViewModels
                 {
                     try
                     {
-                        var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler", AppGlobals.AktifSevkiyat);
+                        var klasorYolu = Path.Combine(FileSystem.AppDataDirectory, "Resimler", aktifNo);
                         var tamYol = Path.Combine(klasorYolu, r.DOSYA_ADI);
                         if (!File.Exists(tamYol))
                         {
@@ -168,7 +174,7 @@ namespace BarkodListem.ViewModels
                         }
                         byte[] resimBytes = File.ReadAllBytes(tamYol);
                         var sonuc = await _webService.ResimYukle(ayarlar.KullaniciAdi, ayarlar.Sifre, r.DOSYA_ADI, resimBytes);
-                        if (sonuc.Contains("\"durum\":\"basarili\""))
+                        if (SoapHelper.soap_json_basarili(sonuc, "ResimYukleResult", out var yuklemeMesaji))
                         {
                             r.GONDERIM = 1;
                             await db.UpdateAsync(r);
@@ -176,7 +182,7 @@ namespace BarkodListem.ViewModels
                         }
                         else
                         {
-                            Console.WriteLine($"❌ Gönderim hatası: {r.DOSYA_ADI} => {sonuc}");
+                            Console.WriteLine($"❌ Gönderim hatası: {r.DOSYA_ADI} => {yuklemeMesaji}");
                             atlanan++;
                         }
                     }
@@ -187,12 +193,62 @@ namespace BarkodListem.ViewModels
                     }
                 }
                 progressPopup.CompleteStep("Fotoğraflar gönderiliyor...");
+
+                progressPopup.AddStep("Resim bilgileri kaydediliyor...");
+                var yuklenmisResimler = await db.Table<ResimModel>()
+                                               .Where(x => x.SEVKIYAT_NO == aktifNo && x.GONDERIM == 1)
+                                               .ToListAsync();
+                if (yuklenmisResimler.Any())
+                {
+                    var sonuc3 = await _webService.ResimleriKaydet(
+                        ayarlar.KullaniciAdi,
+                        ayarlar.Sifre,
+                        yuklenmisResimler);
+                    var metadataMesaji = SoapHelper.soap_mesaj(sonuc3, "ResimleriKaydetResult");
+                    ServisHatasiniKontrolEt(metadataMesaji, "Resim bilgileri");
+                }
+                progressPopup.CompleteStep("Resim bilgileri kaydediliyor...");
+                await PhotoCacheService.TrimUploadedCacheAsync();
+
+                var ozet = gonderilecekResimler.Count == 0
+                    ? "Gönderilecek yeni fotoğraf yok."
+                    : $"{gonderilen} fotoğraf sunucuya gönderildi.";
+                if (atlanan > 0)
+                    ozet += $"\n{atlanan} fotoğraf gönderilemedi; telefonda tutuldu ve sonraki Kaydet işleminde yeniden denenecek.";
+
+                await progressPopup.CloseAsync();
+                await Application.Current.MainPage.DisplayAlert(
+                    atlanan == 0 ? "İşlem tamamlandı" : "Eksik gönderim",
+                    ozet,
+                    "Tamam");
             }
             catch (Exception ex)
             {
+                try
+                {
+                    await progressPopup.CloseAsync();
+                }
+                catch
+                {
+                    // Açılır pencere kullanıcı tarafından kapatılmış olabilir.
+                }
                 await Application.Current.MainPage.DisplayAlert("Hata", "Bir hata oluştu.\n\n Hata Mesajı:\n" + ex.Message, "Tamam");
             }
-            sonuc1=string.Empty;
+            finally
+            {
+                sonuc1 = string.Empty;
+                _isSaving = false;
+                KaydetCommand.ChangeCanExecute();
+            }
+        }
+
+        private static void ServisHatasiniKontrolEt(string mesaj, string islem)
+        {
+            if (string.IsNullOrWhiteSpace(mesaj) ||
+                mesaj.StartsWith("Hata:", StringComparison.OrdinalIgnoreCase) ||
+                mesaj.StartsWith("Cevap ayrıştırılamadı", StringComparison.OrdinalIgnoreCase) ||
+                mesaj.StartsWith("Servis boş cevap verdi", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"{islem} kaydedilemedi: {mesaj}");
         }
         private void OnUrunListesi()
         {

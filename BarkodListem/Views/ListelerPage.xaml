@@ -1,58 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-			 xmlns:models="clr-namespace:BarkodListem.Models"
+             xmlns:models="clr-namespace:BarkodListem.Models"
              x:Class="BarkodListem.Views.ListelerPage"
-             Title="Kayıtlı Listeler">
-    <VerticalStackLayout Padding="20">
-        <Label Text="Kayıtlı Barkod Listeleri" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
-        <CollectionView x:Name="listeTablosu"
-                ItemsSource="{Binding Listeler}"
-                SelectionMode="Single"
-                SelectionChanged="ListeSecildi">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:ListeModel">
-                    <Border Padding="10"
-                    BackgroundColor="LightGray"
-                    Margin="5">
-                        <Grid ColumnDefinitions="*, Auto, Auto">
-                            <Label Text="{Binding ListeAdi}"
-                           FontSize="16"
-                           VerticalOptions="Center"
-                           Grid.Column="0" />
-                            <Button Text="Gönder"
-                            FontSize="14"
-                            BackgroundColor="Orange"
-                            TextColor="White"
-                            Clicked="ListeGonder_Clicked"
-                            CommandParameter="{Binding}" 
-                            Grid.Column="1" />
-                            <Button Text="Sil"
-                            FontSize="14"
-                            BackgroundColor="Red"
-                            TextColor="White"
-                            Clicked="ListeSil_Clicked"
-                            CommandParameter="{Binding}" 
-                            Grid.Column="2" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
+             NavigationPage.HasNavigationBar="False" Shell.NavBarIsVisible="False"
+             BackgroundColor="#F3F6F9">
+    <Grid RowDefinitions="Auto,Auto,*">
+        <Grid Padding="18,22,18,24" ColumnDefinitions="Auto,*">
+            <Grid.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1"><GradientStop Color="#071C2E" Offset="0"/><GradientStop Color="#0C3D5B" Offset="0.62"/><GradientStop Color="#087E84" Offset="1"/></LinearGradientBrush></Grid.Background>
+            <Button Text="‹" Clicked="Back_Clicked" WidthRequest="44" HeightRequest="44" Padding="0,-4,0,0" CornerRadius="13" FontSize="34" TextColor="White" BackgroundColor="#22FFFFFF"/>
+            <VerticalStackLayout Grid.Column="1" Margin="12,0,0,0" Spacing="1" VerticalOptions="Center"><Label Text="KAYITLI LİSTELER" TextColor="White" FontSize="23" FontAttributes="Bold" CharacterSpacing="1.1"/><Label Text="Sayım listelerinizi yönetin" TextColor="#CBE5EB" FontSize="12"/></VerticalStackLayout>
+        </Grid>
+        <Grid Grid.Row="1" Padding="18,17,18,9" ColumnDefinitions="*,Auto"><Label Text="Listeler" TextColor="#102A3A" FontSize="20" FontAttributes="Bold"/><Label Grid.Column="1" Text="Bir listeye dokunarak açın" TextColor="#7B8D98" FontSize="10" VerticalTextAlignment="Center"/></Grid>
+        <CollectionView Grid.Row="2" x:Name="listeTablosu" ItemsSource="{Binding Listeler}" SelectionMode="Single" SelectionChanged="ListeSecildi" Margin="18,0,18,20">
+            <CollectionView.EmptyView><Border Padding="24" Stroke="#DDE6EB" BackgroundColor="White"><Border.StrokeShape><RoundRectangle CornerRadius="20"/></Border.StrokeShape><VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="6"><Label Text="Kayıtlı liste yok" TextColor="#294654" FontSize="16" FontAttributes="Bold"/><Label Text="Sayım ekranından yeni bir liste oluşturabilirsiniz." TextColor="#8797A1" FontSize="11"/></VerticalStackLayout></Border></CollectionView.EmptyView>
+            <CollectionView.ItemTemplate><DataTemplate x:DataType="models:ListeModel"><Border Margin="0,0,0,10" Padding="14" Stroke="#DDE6EB" StrokeThickness="1" BackgroundColor="White"><Border.StrokeShape><RoundRectangle CornerRadius="18"/></Border.StrokeShape><Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="9"><Border WidthRequest="42" HeightRequest="42" StrokeThickness="0" BackgroundColor="#E7F5F5"><Border.StrokeShape><RoundRectangle CornerRadius="12"/></Border.StrokeShape><Label Text="▤" TextColor="#087E84" FontSize="23" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/></Border><Label Grid.Column="1" Text="{Binding ListeAdi}" TextColor="#173442" FontSize="15" FontAttributes="Bold" VerticalTextAlignment="Center" LineBreakMode="TailTruncation"/><Button Grid.Column="2" Text="GÖNDER" Clicked="ListeGonder_Clicked" CommandParameter="{Binding}" HeightRequest="38" Padding="11,0" CornerRadius="11" BackgroundColor="#E7F5F5" TextColor="#087E84" FontSize="9" FontAttributes="Bold"/><Button Grid.Column="3" Text="SİL" Clicked="ListeSil_Clicked" CommandParameter="{Binding}" HeightRequest="38" WidthRequest="48" Padding="5,0" CornerRadius="11" BackgroundColor="#FFF0F1" TextColor="#C93C48" FontSize="9" FontAttributes="Bold"/></Grid></Border></DataTemplate></CollectionView.ItemTemplate>
         </CollectionView>
-        <CollectionView x:Name="barkodTablosu"
-                ItemsSource="{Binding SeciliListeBarkodlar}"
-                Margin="0,10,0,0">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:BarkodModel">
-                    <Border Padding="10"
-							BackgroundColor="LightGray"
-							Margin="5">
-                        <Label Text="{Binding Barkod}"
-							   FontSize="16"
-							   VerticalOptions="Center"/>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </VerticalStackLayout>
+    </Grid>
 </ContentPage>

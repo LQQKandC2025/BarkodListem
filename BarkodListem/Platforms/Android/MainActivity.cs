@@ -3,7 +3,7 @@ using Android.Content.PM;
 using Android.OS;
 namespace BarkodListem
 {
-    [Activity(Label = "BarkodListem",
+    [Activity(Label = "Mobil Servis",
               Theme = "@style/Maui.SplashTheme",
               MainLauncher = true,
               LaunchMode = LaunchMode.SingleTop,
@@ -13,7 +13,8 @@ namespace BarkodListem
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#BB2196F3")); // Değiştirilebilir
+            Window.SetStatusBarColor(Android.Graphics.Color.ParseColor("#071C2E"));
+            Window.SetNavigationBarColor(Android.Graphics.Color.ParseColor("#F3F6F9"));
         }
     }
 }

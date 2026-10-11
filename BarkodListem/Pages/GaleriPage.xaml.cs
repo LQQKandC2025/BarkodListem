@@ -6,19 +6,26 @@ public partial class GaleriPage : ContentPage
 {
     public string StokId { get; set; }
     public string SevkiyatNo { get; set; }
-    public GaleriPage(int stokId, string sevkiyatNo)
+    public string SipStrId { get; set; }
+    public GaleriPage(int stokId, string sevkiyatNo, int sipStrId)
     {
         InitializeComponent();
         var viewModel = new GaleriViewModel();
         BindingContext = viewModel;
-        viewModel.Yukle(stokId, sevkiyatNo, "SSH");
+        StokId = stokId.ToString();
+        SevkiyatNo = sevkiyatNo;
+        SipStrId = sipStrId.ToString();
     }
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        if (int.TryParse(StokId, out int stokId))
+        if (int.TryParse(StokId, out int stokId) && int.TryParse(SipStrId, out int sipStrId))
         {
-            ((GaleriViewModel)BindingContext).Yukle(stokId, SevkiyatNo, "SSH");
+            ((GaleriViewModel)BindingContext).Yukle(stokId, SevkiyatNo, "SSH", sipStrId);
         }
+    }
+    private async void Back_Clicked(object sender, EventArgs e)
+    {
+        await Navigation.PopAsync();
     }
 }
