@@ -8,6 +8,10 @@ namespace BarkodListem.Services
     public class WebService
     {
         private readonly DatabaseService _databaseService;
+        private readonly HttpClient _connectionStatusClient = new()
+        {
+            Timeout = TimeSpan.FromSeconds(6)
+        };
         private static string XmlText(string? value) => System.Security.SecurityElement.Escape(value) ?? string.Empty;
         public WebService(DatabaseService databaseService)
         {
@@ -27,6 +31,34 @@ namespace BarkodListem.Services
                 return $"http://{baseUrl}:{port}/BarkodService.asmx";
             }
         }
+
+        public async Task<bool> ServisBaglantisiniKontrolEtAsync(CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var ayarlar = await _databaseService.AyarlarGetir();
+                if (ayarlar == null || string.IsNullOrWhiteSpace(ayarlar.WebServisURL))
+                    return false;
+
+                string serviceUrl = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+                using var request = new HttpRequestMessage(HttpMethod.Get, serviceUrl);
+                using var response = await _connectionStatusClient.SendAsync(
+                    request,
+                    HttpCompletionOption.ResponseHeadersRead,
+                    cancellationToken);
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> BarkodListesiGonder(List<BarkodModel> barkodlar, string listeAdi)
         {
             try

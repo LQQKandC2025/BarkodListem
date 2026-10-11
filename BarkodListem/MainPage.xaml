@@ -123,17 +123,21 @@
                         BackgroundColor="White">
                     <Border.StrokeShape><RoundRectangle CornerRadius="18" /></Border.StrokeShape>
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <Border WidthRequest="44" HeightRequest="44" StrokeThickness="0"
-                                BackgroundColor="#E7F5F5" VerticalOptions="Center">
+                        <Border x:Name="serviceStatusIconBorder"
+                                WidthRequest="44" HeightRequest="44" StrokeThickness="0"
+                                BackgroundColor="#EEF2F4" VerticalOptions="Center">
                             <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
-                            <Label Text="i" TextColor="#087E84" FontSize="22"
-                                   FontAttributes="Bold" HorizontalTextAlignment="Center"
+                            <Label x:Name="serviceStatusIcon" Text="●" TextColor="#7B8D98" FontSize="21"
+                                   HorizontalTextAlignment="Center"
                                    VerticalTextAlignment="Center" />
                         </Border>
                         <VerticalStackLayout Grid.Column="1" Spacing="3">
-                            <Label Text="Sayım işlemleri tek ekranda"
+                            <Label Text="SERVİS BAĞLANTISI"
+                                   TextColor="#087E84" FontSize="10" FontAttributes="Bold"
+                                   CharacterSpacing="1.1" />
+                            <Label x:Name="serviceStatusLabel" Text="Bağlantı kontrol ediliyor..."
                                    TextColor="#294654" FontSize="14" FontAttributes="Bold" />
-                            <Label Text="Barkod okutma, kayıt, liste gönderme ve liste yönetimi için Sayım menüsünü açın."
+                            <Label x:Name="serviceStatusDetailLabel" Text="Lütfen bekleyin"
                                    TextColor="#7B8D98" FontSize="11" />
                         </VerticalStackLayout>
                     </Grid>

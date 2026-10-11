@@ -13,6 +13,7 @@ namespace BarkodListem
         public readonly BarkodListViewModel _viewModel;
         private readonly WebService _webService;
         private readonly DatabaseService _databaseService;
+        private CancellationTokenSource? _serviceStatusCancellation;
         public MainPage(BarkodListViewModel viewModel, WebService webService, DatabaseService databaseService)
         {
             InitializeComponent();
@@ -25,6 +26,71 @@ namespace BarkodListem
         {
             base.OnAppearing();
             await _viewModel.LoadData();
+            ServisDurumKontrolunuBaslat();
+        }
+        protected override void OnDisappearing()
+        {
+            _serviceStatusCancellation?.Cancel();
+            _serviceStatusCancellation?.Dispose();
+            _serviceStatusCancellation = null;
+            base.OnDisappearing();
+        }
+        private void ServisDurumKontrolunuBaslat()
+        {
+            _serviceStatusCancellation?.Cancel();
+            _serviceStatusCancellation?.Dispose();
+            _serviceStatusCancellation = new CancellationTokenSource();
+            _ = ServisDurumunuPeriyodikKontrolEtAsync(_serviceStatusCancellation.Token);
+        }
+        private async Task ServisDurumunuPeriyodikKontrolEtAsync(CancellationToken cancellationToken)
+        {
+            await ServisDurumunuGuncelleAsync(cancellationToken);
+
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+            try
+            {
+                while (await timer.WaitForNextTickAsync(cancellationToken))
+                    await ServisDurumunuGuncelleAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                // Sayfadan ayrılınca periyodik kontrol normal olarak sonlanır.
+            }
+        }
+        private async Task ServisDurumunuGuncelleAsync(CancellationToken cancellationToken)
+        {
+            bool bagli;
+            try
+            {
+                bagli = await _webService.ServisBaglantisiniKontrolEtAsync(cancellationToken);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (bagli)
+                {
+                    serviceStatusLabel.Text = "Servise bağlı";
+                    serviceStatusLabel.TextColor = Color.FromArgb("#176B56");
+                    serviceStatusDetailLabel.Text = $"Son kontrol: {DateTime.Now:HH:mm:ss}";
+                    serviceStatusIcon.TextColor = Color.FromArgb("#20A47A");
+                    serviceStatusIconBorder.BackgroundColor = Color.FromArgb("#E4F6EF");
+                }
+                else
+                {
+                    serviceStatusLabel.Text = "Servise bağlantı yok";
+                    serviceStatusLabel.TextColor = Color.FromArgb("#B33A46");
+                    serviceStatusDetailLabel.Text = $"Son deneme: {DateTime.Now:HH:mm:ss} · Ayarları kontrol edin";
+                    serviceStatusIcon.TextColor = Color.FromArgb("#D94A55");
+                    serviceStatusIconBorder.BackgroundColor = Color.FromArgb("#FBEAEC");
+                }
+            });
         }
         private async void Sayim_Clicked(object sender, EventArgs e)
         {
