@@ -10,7 +10,7 @@ namespace BarkodListem.Services
         private readonly DatabaseService _databaseService;
         private readonly HttpClient _connectionStatusClient = new()
         {
-            Timeout = TimeSpan.FromSeconds(6)
+            Timeout = TimeSpan.FromSeconds(15)
         };
         private static string XmlText(string? value) => System.Security.SecurityElement.Escape(value) ?? string.Empty;
         public WebService(DatabaseService databaseService)
@@ -41,20 +41,24 @@ namespace BarkodListem.Services
                     return false;
 
                 string serviceUrl = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
-                using var request = new HttpRequestMessage(HttpMethod.Get, serviceUrl);
+                using var request = new HttpRequestMessage(HttpMethod.Get, $"{serviceUrl}?WSDL");
                 using var response = await _connectionStatusClient.SendAsync(
                     request,
                     HttpCompletionOption.ResponseHeadersRead,
                     cancellationToken);
 
-                return response.IsSuccessStatusCode;
+                // Burada servisin veri üretmesini değil, HTTP seviyesinde erişilebilir
+                // olmasını denetliyoruz. 401/403/405 gibi bir HTTP cevabı da sunucuya
+                // ulaşıldığını gösterir; yalnızca ağ/timeout hatası bağlantı yok sayılır.
+                return true;
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
                 throw;
             }
-            catch
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Servis bağlantı kontrolü başarısız: {ex.Message}");
                 return false;
             }
         }

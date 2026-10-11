@@ -46,7 +46,7 @@ namespace BarkodListem
         {
             await ServisDurumunuGuncelleAsync(cancellationToken);
 
-            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+            using var timer = new PeriodicTimer(TimeSpan.FromSeconds(15));
             try
             {
                 while (await timer.WaitForNextTickAsync(cancellationToken))
@@ -78,7 +78,7 @@ namespace BarkodListem
                 {
                     serviceStatusLabel.Text = "Servise bağlı";
                     serviceStatusLabel.TextColor = Color.FromArgb("#176B56");
-                    serviceStatusDetailLabel.Text = $"Son kontrol: {DateTime.Now:HH:mm:ss}";
+                    serviceStatusDetailLabel.Text = $"Sunucu yanıt verdi · {DateTime.Now:HH:mm:ss}";
                     serviceStatusIcon.TextColor = Color.FromArgb("#20A47A");
                     serviceStatusIconBorder.BackgroundColor = Color.FromArgb("#E4F6EF");
                 }
@@ -86,7 +86,7 @@ namespace BarkodListem
                 {
                     serviceStatusLabel.Text = "Servise bağlantı yok";
                     serviceStatusLabel.TextColor = Color.FromArgb("#B33A46");
-                    serviceStatusDetailLabel.Text = $"Son deneme: {DateTime.Now:HH:mm:ss} · Ayarları kontrol edin";
+                    serviceStatusDetailLabel.Text = $"Sunucuya ulaşılamadı · {DateTime.Now:HH:mm:ss}";
                     serviceStatusIcon.TextColor = Color.FromArgb("#D94A55");
                     serviceStatusIconBorder.BackgroundColor = Color.FromArgb("#FBEAEC");
                 }
