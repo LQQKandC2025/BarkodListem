@@ -42,11 +42,11 @@ public partial class IrsaliyeListPage : ContentPage
     }
     private async void OnIrsaliyeTapped(object sender, TappedEventArgs e)
     {
-        // sender Frame olduğu için onun BindingContext’inden modeli alıyoruz
-        if (sender is Frame frame && frame.BindingContext is IrsaliyeModel secilen)
+        if (sender is BindableObject element &&
+            element.BindingContext is IrsaliyeModel secilen)
         {
-            //await DisplayAlert("İrsaliye", $"İrsaliye ID: {secilen.IRSALIYE_ID}", "Tamam");
-            await Navigation.PushAsync(new IrsaliyeDetayPage(secilen.IRSALIYE_ID));
+            await Navigation.PushAsync(
+                new IrsaliyeDetayPage(secilen.IRSALIYE_ID));
         }
     }
 }
