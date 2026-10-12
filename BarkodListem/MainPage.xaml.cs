@@ -14,6 +14,7 @@ namespace BarkodListem
         private readonly WebService _webService;
         private readonly DatabaseService _databaseService;
         private CancellationTokenSource? _serviceStatusCancellation;
+        private bool _sevkiyatPrefixDuzenleniyor;
         public MainPage(BarkodListViewModel viewModel, WebService webService, DatabaseService databaseService)
         {
             InitializeComponent();
@@ -119,24 +120,56 @@ namespace BarkodListem
             var audioManager = ServiceHelper.GetService<IAudioManager>(); // 📌 Get AudioManager
             await Navigation.PushAsync(new ScannerPage(_viewModel, audioManager, ScannerMode.SevkiyatTekOkuma));
         }
-        private void BarkodEkle_Clicked(object sender, EventArgs e)
+        private void SevkiyatEntry_Focused(object sender, FocusEventArgs e)
         {
-            if (!string.IsNullOrEmpty(barkodEntry.Text))
+            SevkiyatPrefixiniUygula();
+        }
+
+        private void SevkiyatEntry_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (barkodEntry.IsFocused)
+                SevkiyatPrefixiniUygula();
+        }
+
+        private void SevkiyatPrefixiniUygula()
+        {
+            if (_sevkiyatPrefixDuzenleniyor)
+                return;
+
+            const string prefix = "SVK-";
+            string mevcut = barkodEntry.Text ?? string.Empty;
+            string duzeltilmis = PrefixiUygula(mevcut, prefix);
+            if (mevcut == duzeltilmis)
+                return;
+
+            _sevkiyatPrefixDuzenleniyor = true;
+            barkodEntry.Text = duzeltilmis;
+            barkodEntry.CursorPosition = duzeltilmis.Length;
+            _sevkiyatPrefixDuzenleniyor = false;
+        }
+
+        private static string PrefixiUygula(string value, string prefix)
+        {
+            string code = value.Trim().ToUpperInvariant();
+            if (string.IsNullOrEmpty(code) || prefix.StartsWith(code, StringComparison.OrdinalIgnoreCase))
+                return prefix;
+            if (code.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                return prefix + code[prefix.Length..];
+            return prefix + code.TrimStart('-');
+        }
+
+        private async void BarkodEkle_Clicked(object sender, EventArgs e)
+        {
+            string sevkiyatNo = PrefixiUygula(barkodEntry.Text ?? string.Empty, "SVK-");
+            if (sevkiyatNo.Length <= "SVK-".Length)
             {
-                barkodEntry.Text= barkodEntry.Text.Trim().ToUpper();
-                if (barkodEntry.Text.StartsWith("SVK-"))
-                {
-                    Navigation.PushAsync(new SevkiyatDetayPage(barkodEntry.Text));
-                    barkodEntry.Text = string.Empty; // Giriş kutusunu temizle
-                    barkodEntry.Focus(); // 📌 İmleci tekrar giriş kutusuna getir
-                }
-                else
-                {
-                    _viewModel.BarkodEkleCommand.Execute(barkodEntry.Text);
-                    barkodEntry.Text = string.Empty; // Giriş kutusunu temizle
-                    barkodEntry.Focus(); // 📌 İmleci tekrar giriş kutusuna getir
-                }
+                await DisplayAlert("Sevkiyat kodu", "SVK- önekinden sonra sevkiyat numarasını girin.", "Tamam");
+                barkodEntry.Focus();
+                return;
             }
+
+            await Navigation.PushAsync(new SevkiyatDetayPage(sevkiyatNo));
+            barkodEntry.Text = string.Empty;
         }
         private async void YeniListeOlustur_Clicked(object sender, EventArgs e)
         {

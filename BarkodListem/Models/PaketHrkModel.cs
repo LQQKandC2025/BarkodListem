@@ -14,5 +14,8 @@ namespace BarkodListem.Models
         
         [ObservableProperty]
         private bool isHighlighted;
+
+        [ObservableProperty]
+        private bool isScannedThisSession;
     }
 }

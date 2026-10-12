@@ -26,6 +26,12 @@ namespace BarkodListem.ViewModels
         private DateTime endDate = DateTime.Today;
 
         [ObservableProperty]
+        private string irsaliyeNo = string.Empty;
+
+        [ObservableProperty]
+        private bool irsaliyeNoTarihleSinirla;
+
+        [ObservableProperty]
         private bool isBusy;
 
         public ObservableCollection<IrsaliyeModel> Irsaliyeler { get; } = new();
@@ -41,8 +47,21 @@ namespace BarkodListem.ViewModels
                 IsBusy = true;
                 Irsaliyeler.Clear();
 
-                // 1️⃣ gerçek servis çağrısı
-                var dt = await _webService.IrsaliyeSorgula(StartDate, EndDate);
+                // Arama alanlarına göre tarih, numara veya ikisini birlikte kullan.
+                string arananIrsaliyeNo = (IrsaliyeNo ?? string.Empty).Trim().ToUpperInvariant();
+                bool tarihFiltresiKullan = string.IsNullOrWhiteSpace(arananIrsaliyeNo) ||
+                                           IrsaliyeNoTarihleSinirla;
+
+                if (tarihFiltresiKullan && StartDate.Date > EndDate.Date)
+                    throw new InvalidOperationException("Başlangıç tarihi bitiş tarihinden sonra olamaz.");
+
+                var dt = string.IsNullOrWhiteSpace(arananIrsaliyeNo)
+                    ? await _webService.IrsaliyeSorgula(StartDate, EndDate)
+                    : await _webService.IrsaliyeNoSorgula(
+                        arananIrsaliyeNo,
+                        StartDate,
+                        EndDate,
+                        IrsaliyeNoTarihleSinirla);
 
                 // 2️⃣ DataTable → ObservableCollection map’leme
                 foreach (DataRow row in dt.Rows)

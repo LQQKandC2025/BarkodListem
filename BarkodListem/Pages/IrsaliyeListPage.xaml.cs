@@ -14,6 +14,7 @@ public partial class IrsaliyeListPage : ContentPage
 {
    
     private readonly IrsaliyeListViewModel _viewModel;
+    private bool _irsaliyePrefixDuzenleniyor;
     public IrsaliyeListPage()
     {
         InitializeComponent();
@@ -30,6 +31,54 @@ public partial class IrsaliyeListPage : ContentPage
     private async void Back_Clicked(object sender, EventArgs e)
     {
         await Navigation.PopAsync();
+    }
+
+    private async void IrsaliyeSorgula_Clicked(object sender, EventArgs e)
+    {
+        // Liste, yazılım klavyesinin altında kalmasın: sorgu başlamadan odağı bırak.
+        irsaliyeNoEntry.Unfocus();
+        await Task.Yield();
+
+        if (_viewModel.SorgulaCommand.CanExecute(null))
+            await _viewModel.SorgulaCommand.ExecuteAsync(null);
+    }
+
+    private void IrsaliyeNoEntry_Focused(object sender, FocusEventArgs e)
+    {
+        IrsaliyePrefixiniUygula();
+    }
+
+    private void IrsaliyeNoEntry_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (irsaliyeNoEntry.IsFocused)
+            IrsaliyePrefixiniUygula();
+    }
+
+    private void IrsaliyePrefixiniUygula()
+    {
+        if (_irsaliyePrefixDuzenleniyor)
+            return;
+
+        const string prefix = "IRS-";
+        string mevcut = irsaliyeNoEntry.Text ?? string.Empty;
+        string duzeltilmis = PrefixiUygula(mevcut, prefix);
+        if (mevcut == duzeltilmis)
+            return;
+
+        _irsaliyePrefixDuzenleniyor = true;
+        irsaliyeNoEntry.Text = duzeltilmis;
+        irsaliyeNoEntry.CursorPosition = duzeltilmis.Length;
+        _irsaliyePrefixDuzenleniyor = false;
+    }
+
+    private static string PrefixiUygula(string value, string prefix)
+    {
+        string code = value.Trim().ToUpperInvariant();
+        if (string.IsNullOrEmpty(code) || prefix.StartsWith(code, StringComparison.OrdinalIgnoreCase))
+            return prefix;
+        if (code.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            return prefix + code[prefix.Length..];
+        return prefix + code.TrimStart('-');
     }
 
     private async void OnIrsaliyeSelected(object sender, SelectionChangedEventArgs e)

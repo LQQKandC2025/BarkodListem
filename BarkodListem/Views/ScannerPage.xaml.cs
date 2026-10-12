@@ -8,7 +8,8 @@ namespace BarkodListem.Views
     public enum ScannerMode
     {
         Sayim,
-        SevkiyatTekOkuma
+        SevkiyatTekOkuma,
+        IrsaliyeTekOkuma
     }
 
     public partial class ScannerPage : ContentPage
@@ -19,7 +20,7 @@ namespace BarkodListem.Views
         private bool isContinuousMode = false;
         private readonly ScannerMode _scannerMode;
 
-        static TaskCompletionSource<string> _tcs;
+        private TaskCompletionSource<string>? _scanOnceCompletionSource;
 
         public ScannerPage()
             : this(ServiceHelper.GetService<BarkodListViewModel>(),
@@ -39,10 +40,18 @@ namespace BarkodListem.Views
 
             bool sayimModu = scannerMode == ScannerMode.Sayim;
             toggleContinuousScan.IsVisible = sayimModu;
-            scannerTitle.Text = sayimModu ? "BARKOD TARAYICI" : "SEVKİYAT TARAYICI";
-            scannerSubtitle.Text = sayimModu
-                ? "Kodu çerçevenin içine hizalayın"
-                : "Tek bir SVK sevkiyat barkodu okutun";
+            scannerTitle.Text = scannerMode switch
+            {
+                ScannerMode.Sayim => "BARKOD TARAYICI",
+                ScannerMode.SevkiyatTekOkuma => "SEVKİYAT TARAYICI",
+                _ => "PAKET TARAYICI"
+            };
+            scannerSubtitle.Text = scannerMode switch
+            {
+                ScannerMode.Sayim => "Kodu çerçevenin içine hizalayın",
+                ScannerMode.SevkiyatTekOkuma => "Tek bir SVK sevkiyat barkodu okutun",
+                _ => "Tek bir paket barkodu okutun"
+            };
         }
         protected override void OnAppearing()
         {
@@ -76,9 +85,12 @@ namespace BarkodListem.Views
         {
             if (isProcessing) return;
             isProcessing = true;
-            if (e.Results.Any())
+            try
             {
-                var barkod = e.Results.FirstOrDefault()?.Value.ToUpper();
+                if (!e.Results.Any())
+                    return;
+
+                var barkod = e.Results.FirstOrDefault()?.Value?.Trim().ToUpperInvariant();
                 if (!string.IsNullOrEmpty(barkod))
                 {
                     try
@@ -94,6 +106,13 @@ namespace BarkodListem.Views
                     }
                     await MainThread.InvokeOnMainThreadAsync(async () =>
                     {
+                        if (_scannerMode == ScannerMode.IrsaliyeTekOkuma)
+                        {
+                            scanBarcodeReaderView.IsDetecting = false;
+                            _scanOnceCompletionSource?.TrySetResult(barkod);
+                            return;
+                        }
+
                         if (_scannerMode == ScannerMode.SevkiyatTekOkuma)
                         {
                             scanBarcodeReaderView.IsDetecting = false;
@@ -137,7 +156,10 @@ namespace BarkodListem.Views
                     });
                 }
             }
-            isProcessing = false;
+            finally
+            {
+                isProcessing = false;
+            }
         }
         private async Task PlayBeepSound() // Kullanılmıyor. İleride lazım olabilir diye bıraktım.
         {
@@ -153,9 +175,10 @@ namespace BarkodListem.Views
         }
         private async void OnCloseClicked(object sender, EventArgs e)
         {
-            if (_tcs != null && !_tcs.Task.IsCompleted)
+            if (_scanOnceCompletionSource != null && !_scanOnceCompletionSource.Task.IsCompleted)
             {
-                _tcs.TrySetResult(string.Empty);
+                scanBarcodeReaderView.IsDetecting = false;
+                _scanOnceCompletionSource.TrySetResult(string.Empty);
                 return;
             }
 
@@ -165,20 +188,20 @@ namespace BarkodListem.Views
         // ScannerPage.xaml.cs içinde
         public static async Task<string> ScanOnceAsync()
         {
-            // 1) Yeni TCS
-            _tcs = new TaskCompletionSource<string>();
+            var scanner = new ScannerPage(
+                ServiceHelper.GetService<BarkodListViewModel>(),
+                ServiceHelper.GetService<IAudioManager>(),
+                ScannerMode.IrsaliyeTekOkuma)
+            {
+                _scanOnceCompletionSource = new TaskCompletionSource<string>(
+                    TaskCreationOptions.RunContinuationsAsynchronously)
+            };
 
-            // 2) ScannerPage örneğini al (DI veya new ScannerPage())
-            var scanner = ServiceHelper.GetService<ScannerPage>() ?? new ScannerPage();
-
-            // 3) Modal olarak NavigationPage içinde aç
             var modalNav = new NavigationPage(scanner);
             await Application.Current.MainPage.Navigation.PushModalAsync(modalNav);
 
-            // 4) Sonuç gelene kadar bekle (ya barkod, ya close)
-            var result = await _tcs.Task;
+            var result = await scanner._scanOnceCompletionSource.Task;
 
-            // 5) Modal stack hala doluysa kapat
             if (Application.Current.MainPage.Navigation.ModalStack.Any())
                 await Application.Current.MainPage.Navigation.PopModalAsync();
 

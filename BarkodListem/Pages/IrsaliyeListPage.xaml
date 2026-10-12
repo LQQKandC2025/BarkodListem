@@ -82,7 +82,36 @@
                     </VerticalStackLayout>
                 </Grid>
 
-                <Button Text="İRSALİYELERİ SORGULA" Command="{Binding SorgulaCommand}"
+                <VerticalStackLayout Spacing="5">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Label Text="İrsaliye numarası (isteğe bağlı)"
+                               TextColor="#6C818D" FontSize="11"
+                               VerticalTextAlignment="Center" />
+                        <HorizontalStackLayout Grid.Column="1" Spacing="2">
+                            <CheckBox IsChecked="{Binding IrsaliyeNoTarihleSinirla}"
+                                      Color="#087E84" Scale="0.78"
+                                      VerticalOptions="Center" />
+                            <Label Text="Tarihle sınırla" TextColor="#5F7582"
+                                   FontSize="10" VerticalTextAlignment="Center" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                    <Border Padding="12,0" Stroke="#D8E2E8" StrokeThickness="1"
+                            BackgroundColor="#F8FAFB">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="13" /></Border.StrokeShape>
+                        <Entry x:Name="irsaliyeNoEntry" Text="{Binding IrsaliyeNo}"
+                               Placeholder="Örn. IRS-014360"
+                               ClearButtonVisibility="WhileEditing"
+                               ReturnType="Search"
+                               TextColor="#173442"
+                               PlaceholderColor="#93A3AC"
+                               FontAttributes="Bold"
+                               HeightRequest="48"
+                               Focused="IrsaliyeNoEntry_Focused"
+                               TextChanged="IrsaliyeNoEntry_TextChanged" />
+                    </Border>
+                </VerticalStackLayout>
+
+                <Button Text="İRSALİYELERİ SORGULA" Clicked="IrsaliyeSorgula_Clicked"
                         HeightRequest="50" CornerRadius="14" BackgroundColor="#087E84"
                         TextColor="White" FontSize="13" FontAttributes="Bold"
                         CharacterSpacing="0.7" />

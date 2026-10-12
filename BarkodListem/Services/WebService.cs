@@ -380,6 +380,49 @@ namespace BarkodListem.Services
             return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeSorgulaResult");
         }
 
+        public async Task<DataTable> IrsaliyeNoSorgula(
+            string irsaliyeNo,
+            DateTime baslangic,
+            DateTime bitis,
+            bool tarihleSinirla)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <IrsaliyeNoSorgula xmlns=""http://barkodwebservice.com/"">
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
+      <irsaliyeNo>{XmlText(irsaliyeNo)}</irsaliyeNo>
+      <baslangic>{baslangic:yyyy-MM-dd}</baslangic>
+      <bitis>{bitis:yyyy-MM-dd}</bitis>
+      <tarihleSinirla>{tarihleSinirla.ToString().ToLowerInvariant()}</tarihleSinirla>
+    </IrsaliyeNoSorgula>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeNoSorgula");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            var resultXml = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException(
+                    $"İrsaliye servisi HTTP {(int)response.StatusCode} ({response.ReasonPhrase}) hatası döndürdü.");
+
+            if (string.IsNullOrWhiteSpace(resultXml))
+                throw new InvalidOperationException("İrsaliye servisi boş cevap döndürdü.");
+
+            return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeNoSorgulaResult");
+        }
+
 
         public async Task<DataTable> IrsaliyeDetaySorgula(int irsaliyeId)
         {
@@ -484,6 +527,117 @@ namespace BarkodListem.Services
                 return updatedCount;
 
             throw new Exception("Güncellenen satır sayısı okunamadı.");
+        }
+
+        public async Task<int> IrsaliyeDetayGuncelleGuvenliAsync(
+            string username,
+            string password,
+            int irsaliyeId,
+            int[] paketHrkIds,
+            string userId)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+            if (ayarlar == null || string.IsNullOrEmpty(ayarlar.WebServisURL))
+                throw new Exception("Web Servis ayarları alınamadı.");
+
+            if (paketHrkIds == null || paketHrkIds.Length == 0)
+                return 0;
+
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+            var idsXml = new StringBuilder();
+            foreach (var id in paketHrkIds.Distinct())
+                idsXml.Append($"<int>{id}</int>");
+
+            string soapBody = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <IrsaliyeDetayGuncelleGuvenli xmlns=""http://barkodwebservice.com/"">
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
+      <irsaliyeId>{irsaliyeId}</irsaliyeId>
+      <paketHrkIds>{idsXml}</paketHrkIds>
+      <userId>{XmlText(userId)}</userId>
+    </IrsaliyeDetayGuncelleGuvenli>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetayGuncelleGuvenli");
+            request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
+
+            var response = await client.SendAsync(request);
+            var resultXml = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException(
+                    $"İrsaliye kayıt servisi HTTP {(int)response.StatusCode} hatası döndürdü.");
+
+            const string startTag = "<IrsaliyeDetayGuncelleGuvenliResult>";
+            const string endTag = "</IrsaliyeDetayGuncelleGuvenliResult>";
+            int start = resultXml.IndexOf(startTag, StringComparison.Ordinal) + startTag.Length;
+            int end = resultXml.IndexOf(endTag, StringComparison.Ordinal);
+            if (start < startTag.Length || end <= start)
+                throw new Exception("Web Servis cevabı beklendiği gibi değil.");
+
+            if (int.TryParse(resultXml.Substring(start, end - start), out int updatedCount))
+                return updatedCount;
+
+            throw new Exception("Güncellenen satır sayısı okunamadı.");
+        }
+
+        public async Task<int> IrsaliyeDetayOkutmaIptalGuvenliAsync(
+            int irsaliyeId,
+            int[] paketHrkIds,
+            string userId)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+            if (ayarlar == null || string.IsNullOrEmpty(ayarlar.WebServisURL))
+                throw new Exception("Web Servis ayarları alınamadı.");
+
+            var ids = paketHrkIds?.Distinct().ToArray() ?? Array.Empty<int>();
+            if (irsaliyeId <= 0 || ids.Length == 0)
+                return 0;
+
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+            var idsXml = new StringBuilder();
+            foreach (var id in ids)
+                idsXml.Append($"<int>{id}</int>");
+
+            string soapBody = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <IrsaliyeDetayOkutmaIptalGuvenli xmlns=""http://barkodwebservice.com/"">
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
+      <irsaliyeId>{irsaliyeId}</irsaliyeId>
+      <paketHrkIds>{idsXml}</paketHrkIds>
+      <userId>{XmlText(userId)}</userId>
+    </IrsaliyeDetayOkutmaIptalGuvenli>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetayOkutmaIptalGuvenli");
+            request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
+            var response = await client.SendAsync(request);
+            var resultXml = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+                throw new InvalidOperationException($"İrsaliye sıfırlama servisi HTTP {(int)response.StatusCode} hatası döndürdü.");
+
+            const string startTag = "<IrsaliyeDetayOkutmaIptalGuvenliResult>";
+            const string endTag = "</IrsaliyeDetayOkutmaIptalGuvenliResult>";
+            int start = resultXml.IndexOf(startTag, StringComparison.Ordinal) + startTag.Length;
+            int end = resultXml.IndexOf(endTag, StringComparison.Ordinal);
+            if (start < startTag.Length || end <= start ||
+                !int.TryParse(resultXml.Substring(start, end - start), out int updatedCount))
+                throw new Exception("Web Servis cevabı beklendiği gibi değil.");
+
+            return updatedCount;
         }
 
 

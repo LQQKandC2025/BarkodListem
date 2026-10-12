@@ -60,7 +60,9 @@
                             <Entry x:Name="barkodEntry" Placeholder="Örn. SVK-047070"
                                    PlaceholderColor="#98A7B1" TextColor="#102A3A"
                                    FontSize="16" BackgroundColor="Transparent"
-                                   ReturnType="Go" Completed="BarkodEkle_Clicked" />
+                                   ReturnType="Go" Completed="BarkodEkle_Clicked"
+                                   Focused="SevkiyatEntry_Focused"
+                                   TextChanged="SevkiyatEntry_TextChanged" />
                             <Button Grid.Column="1" Text="TAMAM" Clicked="BarkodEkle_Clicked"
                                     WidthRequest="76" HeightRequest="44" CornerRadius="13"
                                     FontSize="12" FontAttributes="Bold"

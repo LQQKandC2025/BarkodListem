@@ -9,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace BarkodListem.ViewModels
 {
+    public enum BarkodOkutmaSonucu
+    {
+        Bulunamadi,
+        ZatenOkutulmus,
+        Okutuldu
+    }
+
     public partial class IrsaliyeDetayViewModel : ObservableObject
     {
         private readonly WebService _webService;
@@ -18,6 +25,8 @@ namespace BarkodListem.ViewModels
         private bool isBusy;
 
         public ObservableCollection<PaketHrkModel> PaketHareketler { get; } = new();
+
+        public int IrsaliyeId => _irsaliyeId;
 
         public IAsyncRelayCommand SorgulaCommand { get; }
 
@@ -64,16 +73,32 @@ namespace BarkodListem.ViewModels
             }
         }
 
-        // Gelen barkoda göre satırları vurgula
-        public void HighlightByBarcode(string barcode)
+        // Gelen barkoda göre yalnızca eşleşen satırı vurgular; önceki okutmalar korunur.
+        public BarkodOkutmaSonucu HighlightByBarcode(string barcode)
         {
-            foreach (var item in PaketHareketler) {
-            item.IsHighlighted = item.KAREKOD == barcode;
-            if(item.KAREKOD == barcode)
+            string normalizedBarcode = (barcode ?? string.Empty).Trim();
+            var matches = PaketHareketler
+                .Where(item => string.Equals(item.KAREKOD?.Trim(), normalizedBarcode,
+                                             StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            if (matches.Count == 0)
+                return BarkodOkutmaSonucu.Bulunamadi;
+
+            bool yeniOkutmaVar = false;
+            foreach (var item in matches)
             {
+                if (!item.IsHighlighted)
+                {
                     item.IsHighlighted = true;
+                    item.IsScannedThisSession = true;
+                    yeniOkutmaVar = true;
+                }
             }
+
+            return yeniOkutmaVar
+                ? BarkodOkutmaSonucu.Okutuldu
+                : BarkodOkutmaSonucu.ZatenOkutulmus;
             }
         }
     }
-}
