@@ -10,5 +10,6 @@ namespace BarkodListem.Models
         public int user_id { get; set; }
         public string KullaniciAdi { get; set; } = String.Empty;
         public string Sifre { get; set; } = String.Empty;
+        public string FirmaKodu { get; set; } = String.Empty;
     }
 }

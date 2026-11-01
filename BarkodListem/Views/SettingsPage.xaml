@@ -112,6 +112,15 @@
                         </Grid>
 
                         <VerticalStackLayout Spacing="5">
+                            <Label Text="Firma ID No" Style="{StaticResource FieldLabel}" />
+                            <Border Style="{StaticResource FieldBorder}">
+                                <Entry x:Name="entryFirmaKodu" Completed="Entry_Completed"
+                                       Placeholder="6 haneli firma kodu" Keyboard="Numeric"
+                                       MaxLength="6" Style="{StaticResource SettingsEntry}" />
+                            </Border>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="5">
                             <Label Text="Kullanıcı adı" Style="{StaticResource FieldLabel}" />
                             <Border Style="{StaticResource FieldBorder}">
                                 <Entry x:Name="entryUser" Completed="Entry_Completed"

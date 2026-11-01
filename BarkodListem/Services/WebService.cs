@@ -21,6 +21,13 @@ namespace BarkodListem.Services
             Timeout = TimeSpan.FromSeconds(15)
         };
         private static string XmlText(string? value) => System.Security.SecurityElement.Escape(value) ?? string.Empty;
+        private static string FirmaKodu(AyarlarModel ayarlar)
+        {
+            var value = ayarlar?.FirmaKodu?.Trim() ?? string.Empty;
+            if (!System.Text.RegularExpressions.Regex.IsMatch(value, "^\\d{6}$"))
+                throw new InvalidOperationException("Firma ID No 6 haneli sayısal olmalıdır.");
+            return value;
+        }
         public WebService(DatabaseService databaseService)
         {
             _databaseService = databaseService;
@@ -46,7 +53,8 @@ namespace BarkodListem.Services
             {
                 var ayarlar = await _databaseService.AyarlarGetir();
                 if (ayarlar == null || string.IsNullOrWhiteSpace(ayarlar.WebServisURL) ||
-                    string.IsNullOrWhiteSpace(ayarlar.KullaniciAdi) || string.IsNullOrWhiteSpace(ayarlar.Sifre))
+                    string.IsNullOrWhiteSpace(ayarlar.KullaniciAdi) || string.IsNullOrWhiteSpace(ayarlar.Sifre) ||
+                    !System.Text.RegularExpressions.Regex.IsMatch(ayarlar.FirmaKodu?.Trim() ?? string.Empty, "^\\d{6}$"))
                     return ServisBaglantiDurumu.KimlikDogrulanamadi;
 
                 string serviceUrl = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
@@ -55,16 +63,16 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <BarkodlariGetir xmlns=""http://barkodwebservice.com/"">
+    <FirmaGiris xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{XmlText(ayarlar.FirmaKodu)}</firmaKodu>
       <username>{XmlText(ayarlar.KullaniciAdi)}</username>
       <password>{XmlText(ayarlar.Sifre)}</password>
-      <listeAdi>__MOBIL_SERVIS_BAGLANTI_KONTROLU__</listeAdi>
-    </BarkodlariGetir>
+    </FirmaGiris>
   </soap:Body>
 </soap:Envelope>";
 
                 using var request = new HttpRequestMessage(HttpMethod.Post, serviceUrl);
-                request.Headers.Add("SOAPAction", "http://barkodwebservice.com/BarkodlariGetir");
+                request.Headers.Add("SOAPAction", "http://barkodwebservice.com/FirmaGiris");
                 request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
                 using var response = await _connectionStatusClient.SendAsync(
                     request,
@@ -72,12 +80,11 @@ namespace BarkodListem.Services
                 string responseContent = await response.Content.ReadAsStringAsync(cancellationToken);
 
                 if (response.IsSuccessStatusCode &&
-                    responseContent.Contains("BarkodlariGetirResponse", StringComparison.Ordinal) &&
+                    System.Text.RegularExpressions.Regex.IsMatch(responseContent, "<FirmaGirisResult(?:\\s[^>]*)?>\\s*true\\s*</FirmaGirisResult>", System.Text.RegularExpressions.RegexOptions.IgnoreCase) &&
                     !responseContent.Contains("Fault", StringComparison.OrdinalIgnoreCase))
                     return ServisBaglantiDurumu.Bagli;
 
-                if (responseContent.Contains("Geçersiz kullanıcı", StringComparison.OrdinalIgnoreCase) ||
-                    responseContent.Contains("Ge&#231;ersiz kullanıcı", StringComparison.OrdinalIgnoreCase))
+                if (response.IsSuccessStatusCode && responseContent.Contains("FirmaGirisResult", StringComparison.OrdinalIgnoreCase))
                     return ServisBaglantiDurumu.KimlikDogrulanamadi;
 
                 return ServisBaglantiDurumu.ServisHatasi;
@@ -91,6 +98,43 @@ namespace BarkodListem.Services
                 System.Diagnostics.Debug.WriteLine($"Servis bağlantı kontrolü başarısız: {ex.Message}");
                 return ServisBaglantiDurumu.Ulasilamiyor;
             }
+        }
+
+        public async Task<bool> FirmaGirisAsync(string firmaKodu, string username, string password)
+        {
+            var ayarlar = await _databaseService.AyarlarGetir();
+            if (ayarlar == null || string.IsNullOrWhiteSpace(ayarlar.WebServisURL))
+                throw new InvalidOperationException("Web servis bağlantı ayarları bulunamadı.");
+            if (!System.Text.RegularExpressions.Regex.IsMatch(firmaKodu ?? string.Empty, "^\\d{6}$"))
+                throw new InvalidOperationException("Firma ID No 6 haneli sayısal olmalıdır.");
+
+            string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
+            string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""
+               xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
+               xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
+  <soap:Body>
+    <FirmaGiris xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{XmlText(firmaKodu)}</firmaKodu>
+      <username>{XmlText(username)}</username>
+      <password>{XmlText(password)}</password>
+    </FirmaGiris>
+  </soap:Body>
+</soap:Envelope>";
+
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            using var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/FirmaGiris");
+            request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
+            using var response = await client.SendAsync(request);
+            var responseXml = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+                return false;
+
+            return System.Text.RegularExpressions.Regex.IsMatch(
+                responseXml,
+                "<FirmaGirisResult(?:\\s[^>]*)?>\\s*true\\s*</FirmaGirisResult>",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
 
         public async Task<bool> BarkodListesiGonder(List<BarkodModel> barkodlar, string listeAdi)
@@ -110,26 +154,27 @@ namespace BarkodListem.Services
                 StringBuilder barkodXml = new StringBuilder();
                 foreach (var barkod in barkodlar)
                 {
-                    barkodXml.Append($"<string>{barkod.Barkod}</string>");
+                    barkodXml.Append($"<string>{XmlText(barkod.Barkod)}</string>");
                 }
                 string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
         <soap:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" 
                        xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" 
                        xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
           <soap:Body>
-            <BarkodEkle xmlns=""http://barkodwebservice.com/"">
-              <username>{ayarlar.KullaniciAdi}</username>
-              <password>{ayarlar.Sifre}</password>
-              <listeAdi>{listeAdi}</listeAdi>
+            <BarkodEkleFirma xmlns=""http://barkodwebservice.com/"">
+              <firmaKodu>{FirmaKodu(ayarlar)}</firmaKodu>
+              <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+              <password>{XmlText(ayarlar.Sifre)}</password>
+              <listeAdi>{XmlText(listeAdi)}</listeAdi>
               <barkodlar>{barkodXml}</barkodlar>
-            </BarkodEkle>
+            </BarkodEkleFirma>
           </soap:Body>
         </soap:Envelope>";
                 using (var client = new HttpClient())
                 {
                     client.Timeout = TimeSpan.FromMinutes(2);
                     HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, webServiceUrl);
-                    request.Headers.Add("SOAPAction", "http://barkodwebservice.com/BarkodEkle");
+                    request.Headers.Add("SOAPAction", "http://barkodwebservice.com/BarkodEkleFirma");
                     request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
                     HttpResponseMessage response = await client.SendAsync(request);
                     string responseContent = await response.Content.ReadAsStringAsync();
@@ -157,22 +202,23 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <SevkiyatSorgula xmlns=""http://barkodwebservice.com/"">
+    <SevkiyatSorgulaFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{FirmaKodu(ayarlar)}</firmaKodu>
       <username>{ayarlar.KullaniciAdi}</username>
       <password>{ayarlar.Sifre}</password>
       <sevkiyatNo>{sevkiyatNo}</sevkiyatNo>
-    </SevkiyatSorgula>
+    </SevkiyatSorgulaFirma>
   </soap:Body>
 </soap:Envelope>";
             using (var client = new HttpClient())
             {
                 client.Timeout = TimeSpan.FromSeconds(60);
                 var request = new HttpRequestMessage(HttpMethod.Post, webServiceUrl);
-                request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatSorgula");
+                request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatSorgulaFirma");
                 request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
                 var response = await client.SendAsync(request);
                 string resultXml = await response.Content.ReadAsStringAsync();
-                string cleanedXml = ExtractDataTableXml(resultXml, "SevkiyatSorgulaResult");
+                string cleanedXml = ExtractDataTableXml(resultXml, "SevkiyatSorgulaFirmaResult");
                 var ds = new DataSet();
                 ds.ReadXml(new StringReader(cleanedXml));
                 return ds.Tables.Count > 0 ? ds.Tables[0] : new DataTable();
@@ -197,21 +243,22 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <SevkiyatUrunListesi xmlns=""http://barkodwebservice.com/"">
+    <SevkiyatUrunListesiFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{FirmaKodu(ayarlar)}</firmaKodu>
       <username>{ayarlar.KullaniciAdi}</username>
       <password>{ayarlar.Sifre}</password>
       <sevkiyatNo>{sevkiyatNo}</sevkiyatNo>
-    </SevkiyatUrunListesi>
+    </SevkiyatUrunListesiFirma>
   </soap:Body>
 </soap:Envelope>";
             string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatUrunListesi");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SevkiyatUrunListesiFirma");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
             var resultXml = await response.Content.ReadAsStringAsync();
-            return SoapHelper.ParseDataTableFromXml(resultXml, "SevkiyatUrunListesiResult");
+            return SoapHelper.ParseDataTableFromXml(resultXml, "SevkiyatUrunListesiFirmaResult");
         }
         public async Task<string> SevkiyatKaydet(string username, string password, SevkiyatFisModel model)
         {
@@ -277,9 +324,10 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <SSHKaydet xmlns=""http://barkodwebservice.com/"">
-      <username>{ayarlar.KullaniciAdi}</username>
-      <password>{ayarlar.Sifre}</password>
+    <SSHKaydetFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{FirmaKodu(ayarlar)}</firmaKodu>
+      <username>{XmlText(ayarlar.KullaniciAdi)}</username>
+      <password>{XmlText(ayarlar.Sifre)}</password>
       <ana>
         <SEVKIYAT_NO>{ana.SEVKIYAT_NO}</SEVKIYAT_NO>
         <SUBE_KODU>{ana.SUBE_KODU}</SUBE_KODU>
@@ -291,12 +339,12 @@ namespace BarkodListem.Services
       <detaylar>
         {detayXml}
       </detaylar>
-    </SSHKaydet>
+    </SSHKaydetFirma>
   </soap:Body>
 </soap:Envelope>";
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SSHKaydet");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/SSHKaydetFirma");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -324,18 +372,19 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <ResimleriKaydet xmlns=""http://barkodwebservice.com/"">
+    <ResimleriKaydetFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{FirmaKodu(ayarlar)}</firmaKodu>
       <username>{XmlText(ayarlar.KullaniciAdi)}</username>
       <password>{XmlText(ayarlar.Sifre)}</password>
       <resimler>
         {xml}
       </resimler>
-    </ResimleriKaydet>
+    </ResimleriKaydetFirma>
   </soap:Body>
 </soap:Envelope>";
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimleriKaydet");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimleriKaydetFirma");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();
@@ -345,18 +394,20 @@ namespace BarkodListem.Services
         public async Task<DataTable> IrsaliyeSorgula(DateTime baslangic, DateTime bitis)
         {
             var ayarlar = await _databaseService.AyarlarGetir();
+            var firmaKodu = FirmaKodu(ayarlar);
 
             string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
 <soap:Envelope xmlns:xsi =""http://www.w3.org/2001/XMLSchema-instance""
                xmlns:xsd =""http://www.w3.org/2001/XMLSchema""
                xmlns:soap =""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <IrsaliyeSorgula xmlns =""http://barkodwebservice.com/"">
+    <IrsaliyeSorgulaFirma xmlns =""http://barkodwebservice.com/"">
+      <firmaKodu>{XmlText(firmaKodu)}</firmaKodu>
       <username>{ayarlar.KullaniciAdi}</username>
       <password>{ayarlar.Sifre}</password>
       <baslangic>{baslangic:yyyy-MM-dd}</baslangic>
       <bitis>{bitis:yyyy-MM-dd}</bitis>
-    </IrsaliyeSorgula>
+    </IrsaliyeSorgulaFirma>
   </soap:Body>
 </soap:Envelope> ";
 
@@ -364,7 +415,7 @@ namespace BarkodListem.Services
 
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeSorgula");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeSorgulaFirma");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
             var response = await client.SendAsync(request);
@@ -377,7 +428,7 @@ namespace BarkodListem.Services
             if (string.IsNullOrWhiteSpace(resultXml))
                 throw new InvalidOperationException("İrsaliye servisi boş cevap döndürdü.");
 
-            return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeSorgulaResult");
+            return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeSorgulaFirmaResult");
         }
 
         public async Task<DataTable> IrsaliyeNoSorgula(
@@ -387,6 +438,7 @@ namespace BarkodListem.Services
             bool tarihleSinirla)
         {
             var ayarlar = await _databaseService.AyarlarGetir();
+            var firmaKodu = FirmaKodu(ayarlar);
             string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
 
             string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -394,20 +446,21 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <IrsaliyeNoSorgula xmlns=""http://barkodwebservice.com/"">
+    <IrsaliyeNoSorgulaFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{XmlText(firmaKodu)}</firmaKodu>
       <username>{XmlText(ayarlar.KullaniciAdi)}</username>
       <password>{XmlText(ayarlar.Sifre)}</password>
       <irsaliyeNo>{XmlText(irsaliyeNo)}</irsaliyeNo>
       <baslangic>{baslangic:yyyy-MM-dd}</baslangic>
       <bitis>{bitis:yyyy-MM-dd}</bitis>
       <tarihleSinirla>{tarihleSinirla.ToString().ToLowerInvariant()}</tarihleSinirla>
-    </IrsaliyeNoSorgula>
+    </IrsaliyeNoSorgulaFirma>
   </soap:Body>
 </soap:Envelope>";
 
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeNoSorgula");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeNoSorgulaFirma");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
             var response = await client.SendAsync(request);
@@ -420,13 +473,14 @@ namespace BarkodListem.Services
             if (string.IsNullOrWhiteSpace(resultXml))
                 throw new InvalidOperationException("İrsaliye servisi boş cevap döndürdü.");
 
-            return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeNoSorgulaResult");
+            return SoapHelper.ParseDataTableFromXml(resultXml, "IrsaliyeNoSorgulaFirmaResult");
         }
 
 
         public async Task<DataTable> IrsaliyeDetaySorgula(int irsaliyeId)
         {
             var ayarlar = await _databaseService.AyarlarGetir();
+            var firmaKodu = FirmaKodu(ayarlar);
             string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
 
             string soapRequest = $@"<?xml version=""1.0"" encoding=""utf-8""?>
@@ -434,17 +488,18 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <IrsaliyeDetaySorgula xmlns=""http://barkodwebservice.com/"">
+    <IrsaliyeDetaySorgulaFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{XmlText(firmaKodu)}</firmaKodu>
       <username>{ayarlar.KullaniciAdi}</username>
       <password>{ayarlar.Sifre}</password>
       <irsaliyeId>{irsaliyeId}</irsaliyeId>
-    </IrsaliyeDetaySorgula>
+    </IrsaliyeDetaySorgulaFirma>
   </soap:Body>
 </soap:Envelope>";
 
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetaySorgula");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetaySorgulaFirma");
             request.Content = new StringContent(soapRequest, Encoding.UTF8, "text/xml");
 
             var response = await client.SendAsync(request);
@@ -465,7 +520,7 @@ namespace BarkodListem.Services
             }
 
             // Normal parse
-            return SoapHelper.ParseDataTableFromXml(xml, "IrsaliyeDetaySorgulaResult");
+            return SoapHelper.ParseDataTableFromXml(xml, "IrsaliyeDetaySorgulaFirmaResult");
         }
 
 
@@ -543,6 +598,7 @@ namespace BarkodListem.Services
             if (paketHrkIds == null || paketHrkIds.Length == 0)
                 return 0;
 
+            var firmaKodu = FirmaKodu(ayarlar);
             string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
             var idsXml = new StringBuilder();
             foreach (var id in paketHrkIds.Distinct())
@@ -553,19 +609,20 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <IrsaliyeDetayGuncelleGuvenli xmlns=""http://barkodwebservice.com/"">
+    <IrsaliyeDetayGuncelleGuvenliFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{XmlText(firmaKodu)}</firmaKodu>
       <username>{XmlText(ayarlar.KullaniciAdi)}</username>
       <password>{XmlText(ayarlar.Sifre)}</password>
       <irsaliyeId>{irsaliyeId}</irsaliyeId>
       <paketHrkIds>{idsXml}</paketHrkIds>
       <userId>{XmlText(userId)}</userId>
-    </IrsaliyeDetayGuncelleGuvenli>
+    </IrsaliyeDetayGuncelleGuvenliFirma>
   </soap:Body>
 </soap:Envelope>";
 
             using var client = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetayGuncelleGuvenli");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetayGuncelleGuvenliFirma");
             request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
 
             var response = await client.SendAsync(request);
@@ -574,8 +631,8 @@ namespace BarkodListem.Services
                 throw new InvalidOperationException(
                     $"İrsaliye kayıt servisi HTTP {(int)response.StatusCode} hatası döndürdü.");
 
-            const string startTag = "<IrsaliyeDetayGuncelleGuvenliResult>";
-            const string endTag = "</IrsaliyeDetayGuncelleGuvenliResult>";
+            const string startTag = "<IrsaliyeDetayGuncelleGuvenliFirmaResult>";
+            const string endTag = "</IrsaliyeDetayGuncelleGuvenliFirmaResult>";
             int start = resultXml.IndexOf(startTag, StringComparison.Ordinal) + startTag.Length;
             int end = resultXml.IndexOf(endTag, StringComparison.Ordinal);
             if (start < startTag.Length || end <= start)
@@ -600,6 +657,7 @@ namespace BarkodListem.Services
             if (irsaliyeId <= 0 || ids.Length == 0)
                 return 0;
 
+            var firmaKodu = FirmaKodu(ayarlar);
             string url = BuildServiceUrl(ayarlar.WebServisURL, ayarlar.Port);
             var idsXml = new StringBuilder();
             foreach (var id in ids)
@@ -610,27 +668,28 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <IrsaliyeDetayOkutmaIptalGuvenli xmlns=""http://barkodwebservice.com/"">
+    <IrsaliyeDetayOkutmaIptalGuvenliFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{XmlText(firmaKodu)}</firmaKodu>
       <username>{XmlText(ayarlar.KullaniciAdi)}</username>
       <password>{XmlText(ayarlar.Sifre)}</password>
       <irsaliyeId>{irsaliyeId}</irsaliyeId>
       <paketHrkIds>{idsXml}</paketHrkIds>
       <userId>{XmlText(userId)}</userId>
-    </IrsaliyeDetayOkutmaIptalGuvenli>
+    </IrsaliyeDetayOkutmaIptalGuvenliFirma>
   </soap:Body>
 </soap:Envelope>";
 
             using var client = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
             using var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetayOkutmaIptalGuvenli");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/IrsaliyeDetayOkutmaIptalGuvenliFirma");
             request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
             var resultXml = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException($"İrsaliye sıfırlama servisi HTTP {(int)response.StatusCode} hatası döndürdü.");
 
-            const string startTag = "<IrsaliyeDetayOkutmaIptalGuvenliResult>";
-            const string endTag = "</IrsaliyeDetayOkutmaIptalGuvenliResult>";
+            const string startTag = "<IrsaliyeDetayOkutmaIptalGuvenliFirmaResult>";
+            const string endTag = "</IrsaliyeDetayOkutmaIptalGuvenliFirmaResult>";
             int start = resultXml.IndexOf(startTag, StringComparison.Ordinal) + startTag.Length;
             int end = resultXml.IndexOf(endTag, StringComparison.Ordinal);
             if (start < startTag.Length || end <= start ||
@@ -650,17 +709,18 @@ namespace BarkodListem.Services
                xmlns:xsd=""http://www.w3.org/2001/XMLSchema""
                xmlns:soap=""http://schemas.xmlsoap.org/soap/envelope/"">
   <soap:Body>
-    <ResimYukle xmlns=""http://barkodwebservice.com/"">
+    <ResimYukleFirma xmlns=""http://barkodwebservice.com/"">
+      <firmaKodu>{FirmaKodu(ayarlar)}</firmaKodu>
       <username>{XmlText(username)}</username>
       <password>{XmlText(password)}</password>
       <dosyaAdi>{XmlText(dosyaAdi)}</dosyaAdi>
       <resimData>{Convert.ToBase64String(resimData)}</resimData>
-    </ResimYukle>
+    </ResimYukleFirma>
   </soap:Body>
 </soap:Envelope>";
             using var client = new HttpClient();
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimYukle");
+            request.Headers.Add("SOAPAction", "http://barkodwebservice.com/ResimYukleFirma");
             request.Content = new StringContent(soapBody, Encoding.UTF8, "text/xml");
             var response = await client.SendAsync(request);
             response.EnsureSuccessStatusCode();

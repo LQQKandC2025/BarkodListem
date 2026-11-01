@@ -11,6 +11,7 @@ namespace BarkodListem.Data
             _database = new SQLiteAsyncConnection(dbPath);
             _database.CreateTableAsync<BarkodModel>().Wait();
             _database.CreateTableAsync<AyarlarModel>().Wait();
+            EnsureAyarlarFirmaKoduColumn();
             _database.CreateTableAsync<SevkiyatFisModel>().Wait();
             _database.CreateTableAsync<SSHAnaModel>().Wait();
             _database.CreateTableAsync<SSHDetayModel>().Wait();
@@ -18,7 +19,30 @@ namespace BarkodListem.Data
         }
         public async Task AyarKaydet(AyarlarModel ayar)
         {
-            await _database.InsertOrReplaceAsync(ayar);
+            var existing = await _database.Table<AyarlarModel>().FirstOrDefaultAsync();
+            if (existing != null)
+            {
+                ayar.Id = existing.Id;
+                await _database.UpdateAsync(ayar);
+            }
+            else
+            {
+                await _database.InsertAsync(ayar);
+            }
+        }
+
+        private static void EnsureAyarlarFirmaKoduColumn()
+        {
+            try
+            {
+                var columns = _database.GetTableInfoAsync("AyarlarModel").GetAwaiter().GetResult();
+                if (!columns.Any(column => string.Equals(column.Name, "FirmaKodu", StringComparison.OrdinalIgnoreCase)))
+                    _database.ExecuteAsync("ALTER TABLE AyarlarModel ADD COLUMN FirmaKodu TEXT").GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Firma kodu ayar sütunu güncellenemedi: {ex.Message}");
+            }
         }
         public async Task<AyarlarModel> AyarlarGetir()
         {

@@ -18,6 +18,7 @@ namespace BarkodListem.Views
                 entryUserId.Text = ayarlar.user_id.ToString();
                 entryUser.Text = ayarlar.KullaniciAdi;
                 entryPassword.Text = ayarlar.Sifre;
+                entryFirmaKodu.Text = ayarlar.FirmaKodu;
             }
             versionLabel.Text = "Versiyon: " + AppInfo.Current.VersionString;
             versionLabel.Text = $"Versiyon: {VersionTracking.CurrentVersion}";
@@ -34,13 +35,26 @@ namespace BarkodListem.Views
         }
         private async void Kaydet_Clicked(object sender, EventArgs e)
         {
+            var firmaKodu = (entryFirmaKodu.Text ?? string.Empty).Trim();
+            if (!System.Text.RegularExpressions.Regex.IsMatch(firmaKodu, "^\\d{6}$"))
+            {
+                await DisplayAlert("Firma ID", "Firma ID No 6 haneli sayısal olmalıdır.", "Tamam");
+                return;
+            }
+            if (!int.TryParse(entryPort.Text, out var port) || port < 1 || port > 65535 ||
+                !int.TryParse(entryUserId.Text, out var userId))
+            {
+                await DisplayAlert("Bağlantı ayarı", "Port ve Kullanıcı ID geçerli sayısal değerler olmalıdır.", "Tamam");
+                return;
+            }
             var ayarlar = new AyarlarModel
             {
                 WebServisURL = entryUrl.Text,
-                Port = int.Parse(entryPort.Text),
-                user_id = int.Parse(entryUserId.Text),
+                Port = port,
+                user_id = userId,
                 KullaniciAdi = entryUser.Text,
-                Sifre = entryPassword.Text
+                Sifre = entryPassword.Text,
+                FirmaKodu = firmaKodu
             };
             await _databaseService.AyarKaydet(ayarlar);  // 📌 Yeni metod eklendi, SQLite'a kaydedecek
             await DisplayAlert("Başarılı", "Ayarlar kaydedildi!", "Tamam");

@@ -1,5 +1,6 @@
 ﻿using BarkodListem.Data;
 using BarkodListem.Models;
+using BarkodListem.Services;
 namespace BarkodListem;
 public partial class LoginPage : ContentPage
 {
@@ -11,7 +12,6 @@ public partial class LoginPage : ContentPage
         _databaseService = new DatabaseService(dbPath);
         CheckDatabaseForCredentials();
     }
-    [System.Obsolete]
     private async void OnLoginClicked(object sender, EventArgs e)
     {
         string username = usernameEntry.Text?.Trim();
@@ -22,14 +22,27 @@ public partial class LoginPage : ContentPage
             errorLabel.IsVisible = true;
             return;
         }
-        if (await ValidateCredentials(username, password))
+        loginButton.IsEnabled = false;
+        try
         {
-            App.LoginSuccessful(); // Giriş başarılıysa MainPage aç
+            if (await ValidateCredentials(username, password))
+            {
+                App.LoginSuccessful(); // Giriş başarılıysa MainPage aç
+            }
+            else
+            {
+                errorLabel.Text = "Firma ID, kullanıcı adı veya şifre geçersiz.";
+                errorLabel.IsVisible = true;
+            }
         }
-        else
+        catch (Exception ex)
         {
-            errorLabel.Text = "Hatalı kullanıcı adı veya şifre!";
+            errorLabel.Text = "Giriş servisine ulaşılamadı: " + ex.Message;
             errorLabel.IsVisible = true;
+        }
+        finally
+        {
+            loginButton.IsEnabled = true;
         }
     }
     private async Task<bool> ValidateCredentials(string username, string password)
@@ -38,7 +51,8 @@ public partial class LoginPage : ContentPage
         if (ayarlar != null)
         {
             AppGlobals.mobil_id = ayarlar.user_id;
-            return username == ayarlar.KullaniciAdi && password == ayarlar.Sifre;
+            var webService = new WebService(_databaseService);
+            return await webService.FirmaGirisAsync(ayarlar.FirmaKodu, username, password);
         }
         return false;
     }
@@ -53,7 +67,8 @@ public partial class LoginPage : ContentPage
                 Sifre = "1",
                 WebServisURL = "http://91.93.49.85/BarkodWebService",
                 Port = 8080,
-                user_id = 1
+                user_id = 1,
+                FirmaKodu = String.Empty
             });
         }
     }
